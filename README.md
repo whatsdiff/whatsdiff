@@ -1,9 +1,9 @@
 # whatsdiff
 
-![GitHub release (with filter)](https://img.shields.io/github/v/release/SRWieZ/whatsdiff)
-![Packagist PHP Version](https://img.shields.io/packagist/dependency-v/SRWieZ/whatsdiff/php)
-![Packagist License (custom server)](https://img.shields.io/packagist/l/SRWieZ/whatsdiff)
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/SRWieZ/whatsdiff/test.yml)
+![GitHub release (with filter)](https://img.shields.io/github/v/release/whatsdiff/whatsdiff)
+![Packagist PHP Version](https://img.shields.io/packagist/dependency-v/whatsdiff/whatsdiff/php)
+![Packagist License (custom server)](https://img.shields.io/packagist/l/whatsdiff/whatsdiff)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/whatsdiff/whatsdiff/test.yml)
 
 What's diff is a CLI tool to help you inspect what has changed in your dependencies after a `composer update` or `npm update`.
 
@@ -19,10 +19,10 @@ Main features are:
 ## 🚀 Installation
 Via [Composer](https://getcomposer.org/) global require command
 ```bash
-composer global require srwiez/whatsdiff
+composer global require whatsdiff/whatsdiff
 ```
 
-By [downloading binaries](https://github.com/SRWieZ/whatsdiff/releases/latest) on the latest release, currently only these binaries are compiled on the CI:
+By [downloading binaries](https://github.com/whatsdiff/whatsdiff/releases/latest) on the latest release, currently only these binaries are compiled on the CI:
 - macOS x86_64
 - macOS arm64
 - linux x86_64
@@ -38,7 +38,7 @@ whatsdiff
 
 ## 📋 Roadmap
 Pull requests are welcome! Here are some ideas to get you started:
-- [ ] Make a nice TUI (WIP on [#1](https://github.com/SRWieZ/whatsdiff/pull/1))
+- [ ] Make a nice TUI (WIP on [#1](https://github.com/whatsdiff/whatsdiff/pull/1))
 - [ ] Output format (json, markdown, no-ansi)
 - [ ] Retrieve changelog with Github API
 - [ ] Publish on NPM

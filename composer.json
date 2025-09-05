@@ -1,5 +1,5 @@
 {
-  "name": "srwiez/whatsdiff",
+  "name": "whatsdiff/whatsdiff",
   "description": "See what's changed in your project's dependencies",
   "type": "project",
   "license": "MIT",
