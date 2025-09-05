@@ -1,6 +1,7 @@
 {
   "name": "whatsdiff/whatsdiff",
   "description": "See what's changed in your project's dependencies",
+  "type": "library",
   "license": "MIT",
   "authors": [
     {
