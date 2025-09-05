@@ -1,0 +1,105 @@
+name: Update Changelog
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'Eser Deniz'
+          git config --global user.email 'srwiez@gmail.com'
+
+      - name: Generate Changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get all releases in JSON format
+          echo "Fetching releases..."
+          releases=$(gh release list --limit 100 --json tagName,name,body,publishedAt --repo ${{ github.repository }})
+          
+          # Create temporary changelog content
+          cat > temp_changelog.md << 'EOF'
+          # Changelog
+
+          All notable changes to this project will be documented in this file.
+
+          The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+          and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+          EOF
+          
+          # Process each release and add to changelog
+          echo "$releases" | jq -r '.[] | [.tagName, .publishedAt, .body] | @tsv' | while IFS=$'\t' read -r tag date body; do
+            # Format date from ISO to YYYY-MM-DD
+            formatted_date=$(date -d "$date" +"%Y-%m-%d" 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$date" +"%Y-%m-%d" 2>/dev/null || echo "$date")
+          
+            # Remove version prefix if it exists
+            version=${tag#v}
+          
+            echo "" >> temp_changelog.md
+            echo "## [$version] - $formatted_date" >> temp_changelog.md
+          
+            # Process release body - remove GitHub URLs and format nicely
+            if [ -n "$body" ] && [ "$body" != "null" ]; then
+              echo "$body" | sed -e 's/\r//g' \
+                              -e '/^**Full Changelog.*$/d' \
+                              -e '/^$/d' \
+                              -e 's/^[[:space:]]*//' \
+                              -e 's/[[:space:]]*$//' | \
+              while IFS= read -r line; do
+                if [ -n "$line" ]; then
+                  # If line starts with *, keep it as is, otherwise add -
+                  if [[ "$line" == \** ]]; then
+                    echo "$line" >> temp_changelog.md
+                  else
+                    echo "- $line" >> temp_changelog.md
+                  fi
+                fi
+              done
+            else
+              echo "- Release $version" >> temp_changelog.md
+            fi
+          done
+          
+          # Replace the current changelog if content is different
+          if ! cmp -s temp_changelog.md CHANGELOG.md; then
+            mv temp_changelog.md CHANGELOG.md
+            echo "changelog_updated=true" >> $GITHUB_ENV
+          else
+            echo "changelog_updated=false" >> $GITHUB_ENV
+            rm temp_changelog.md
+          fi
+
+      - name: Commit Changes
+        if: env.changelog_updated == 'true'
+        run: |
+          # Add and commit the changelog directly to main
+          git add CHANGELOG.md
+          git commit -m "chore: update changelog with latest releases
+
+          Auto-generated from GitHub releases"
+          
+          # Push directly to main
+          git push origin main
+
+      - name: Summary
+        run: |
+          if [ "${{ env.changelog_updated }}" == "true" ]; then
+            echo "✅ Changelog updated and committed directly to main"
+          else
+            echo "ℹ️ Changelog is already up to date"
+          fi
