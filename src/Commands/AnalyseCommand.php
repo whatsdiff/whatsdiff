@@ -206,8 +206,8 @@ class AnalyseCommand extends Command
 
         return $format == 'text' && $noAnsi === false
             && $input->isInteractive()
-            && ! $input->hasParameterOption('--no-progress')
-            && ! $input->hasParameterOption('--no-interaction');
+            && ! $input->getParameterOption('--no-progress', false)
+            && ! $input->getParameterOption('--no-interaction', false);
     }
 
     /**
