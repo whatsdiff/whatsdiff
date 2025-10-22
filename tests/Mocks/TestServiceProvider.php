@@ -4,27 +4,31 @@ declare(strict_types=1);
 
 namespace Tests\Mocks;
 
-use Whatsdiff\Container\Container;
-use Whatsdiff\Container\ServiceProviderInterface;
-use Whatsdiff\Container\WhatsdiffServiceProvider;
+use League\Container\Container;
+use Psr\Container\ContainerInterface;
 use Whatsdiff\Services\HttpService;
 
-class TestServiceProvider implements ServiceProviderInterface
+/**
+ * Test service provider that allows mocking services for tests.
+ *
+ * With autowiring enabled, we simply register mock services first,
+ * and they will be used instead of the real implementations.
+ */
+class TestServiceProvider
 {
-    private HttpService $mockHttpService;
-
-    public function __construct(HttpService $mockHttpService)
-    {
-        $this->mockHttpService = $mockHttpService;
+    public function __construct(
+        private readonly HttpService $mockHttpService
+    ) {
     }
 
-    public function register(Container $container): void
+    public function register(ContainerInterface $container): void
     {
-        // Register all the default services first
-        $defaultProvider = new WhatsdiffServiceProvider();
-        $defaultProvider->register($container);
+        if (!$container instanceof Container) {
+            throw new \InvalidArgumentException('Container must be an instance of League\Container\Container');
+        }
 
-        // Override only the HttpService with our mock
-        $container->singleton(HttpService::class, fn () => $this->mockHttpService);
+        // Register mock HttpService
+        // League\Container will use this instead of creating a real one via autowiring
+        $container->addShared(HttpService::class, fn () => $this->mockHttpService);
     }
 }

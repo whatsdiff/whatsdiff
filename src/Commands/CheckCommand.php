@@ -10,7 +10,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Whatsdiff\Container\Container;
 use Whatsdiff\Enums\ChangeStatus;
 use Whatsdiff\Enums\CheckType;
 use Whatsdiff\Services\DiffCalculator;
@@ -22,12 +21,10 @@ use Whatsdiff\Services\DiffCalculator;
 )]
 class CheckCommand extends Command
 {
-    private Container $container;
-
-    public function __construct(Container $container)
-    {
+    public function __construct(
+        private readonly DiffCalculator $diffCalculator,
+    ) {
         parent::__construct();
-        $this->container = $container;
     }
     protected function configure(): void
     {
@@ -86,11 +83,8 @@ class CheckCommand extends Command
 
         // Initialize services
         try {
-            // Get services from container
-            $diffCalculator = $this->container->get(DiffCalculator::class);
-
             // Calculate diffs - skip release count for performance
-            $diffResult = $diffCalculator
+            $diffResult = $this->diffCalculator
                 ->skipReleaseCount()
                 ->run();
 
