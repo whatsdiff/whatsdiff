@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use Whatsdiff\Analyzers\NpmAnalyzer;
-use Whatsdiff\Services\PackageInfoFetcher;
+use Whatsdiff\Analyzers\Registries\NpmRegistry;
 
 beforeEach(function () {
-    $this->packageInfoFetcher = Mockery::mock(PackageInfoFetcher::class);
-    $this->analyzer = new NpmAnalyzer($this->packageInfoFetcher);
+    $this->registry = Mockery::mock(NpmRegistry::class);
+    $this->analyzer = new NpmAnalyzer($this->registry);
 });
 
 it('extracts package versions from valid package lock', function () {
@@ -157,18 +157,11 @@ it('filters unchanged packages in diff', function () {
 });
 
 it('gets releases count successfully', function () {
-    $this->packageInfoFetcher
-        ->shouldReceive('getNpmReleases')
+    $this->registry
+        ->shouldReceive('getVersions')
         ->once()
         ->with('lodash', '4.17.15', '4.17.21')
-        ->andReturn([
-            ['version' => '4.17.16'],
-            ['version' => '4.17.17'],
-            ['version' => '4.17.18'],
-            ['version' => '4.17.19'],
-            ['version' => '4.17.20'],
-            ['version' => '4.17.21'],
-        ]);
+        ->andReturn(['4.17.16', '4.17.17', '4.17.18', '4.17.19', '4.17.20', '4.17.21']);
 
     $result = $this->analyzer->getReleasesCount('lodash', '4.17.15', '4.17.21');
 

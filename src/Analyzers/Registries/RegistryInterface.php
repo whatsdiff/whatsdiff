@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Whatsdiff\Services\Registries;
+namespace Whatsdiff\Analyzers\Registries;
 
 /**
  * Interface for package registry clients.

@@ -2,11 +2,7 @@
 
 declare(strict_types=1);
 
-use Whatsdiff\Analyzers\Parsers\ComposerLockParser;
-
-beforeEach(function () {
-    $this->parser = new ComposerLockParser();
-});
+use Whatsdiff\Analyzers\LockFile\ComposerLockFile;
 
 it('parses valid composer lock content', function () {
     $lockContent = json_encode([
@@ -34,7 +30,8 @@ it('parses valid composer lock content', function () {
         ],
     ]);
 
-    $result = $this->parser->parse($lockContent);
+    $parser = new ComposerLockFile($lockContent);
+    $result = $parser->getPackages();
 
     expect($result)->toHaveCount(3);
     expect($result->get('symfony/console'))->toBe([
@@ -51,19 +48,21 @@ it('parses valid composer lock content', function () {
 });
 
 it('parses composer lock with invalid json', function () {
-    $result = $this->parser->parse('invalid json');
+    $parser = new ComposerLockFile('invalid json');
+    $result = $parser->getPackages();
 
     expect($result)->toBeEmpty();
 });
 
 it('parses composer lock with empty content', function () {
-    $result = $this->parser->parse('{}');
+    $parser = new ComposerLockFile('{}');
+    $result = $parser->getPackages();
 
     expect($result)->toBeEmpty();
 });
 
-it('extracts package versions from parsed data', function () {
-    $lockData = [
+it('gets all package versions', function () {
+    $lockContent = json_encode([
         'packages' => [
             [
                 'name' => 'symfony/console',
@@ -80,9 +79,10 @@ it('extracts package versions from parsed data', function () {
                 'version' => '9.5.0',
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->extractPackageVersions($lockData);
+    $parser = new ComposerLockFile($lockContent);
+    $result = $parser->getAllVersions();
 
     expect($result)->toBe([
         'symfony/console' => 'v5.4.0',
@@ -91,31 +91,24 @@ it('extracts package versions from parsed data', function () {
     ]);
 });
 
-it('extracts package versions with missing packages key', function () {
-    $lockData = [
-        'packages-dev' => [
+it('gets version for specific package', function () {
+    $lockContent = json_encode([
+        'packages' => [
             [
-                'name' => 'phpunit/phpunit',
-                'version' => '9.5.0',
+                'name' => 'symfony/console',
+                'version' => 'v5.4.0',
             ],
         ],
-    ];
-
-    $result = $this->parser->extractPackageVersions($lockData);
-
-    expect($result)->toBe([
-        'phpunit/phpunit' => '9.5.0',
     ]);
-});
 
-it('extracts package versions with empty data', function () {
-    $result = $this->parser->extractPackageVersions([]);
+    $parser = new ComposerLockFile($lockContent);
 
-    expect($result)->toBe([]);
+    expect($parser->getVersion('symfony/console'))->toBe('v5.4.0');
+    expect($parser->getVersion('non/existent'))->toBeNull();
 });
 
 it('gets repository url from source', function () {
-    $lockData = [
+    $lockContent = json_encode([
         'packages' => [
             [
                 'name' => 'symfony/console',
@@ -128,15 +121,16 @@ it('gets repository url from source', function () {
                 ],
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->getRepositoryUrl('symfony/console', $lockData);
+    $parser = new ComposerLockFile($lockContent);
+    $result = $parser->getRepositoryUrl('symfony/console');
 
     expect($result)->toBe('https://github.com/symfony/console.git');
 });
 
 it('gets repository url from dist when source not available', function () {
-    $lockData = [
+    $lockContent = json_encode([
         'packages' => [
             [
                 'name' => 'symfony/console',
@@ -146,45 +140,48 @@ it('gets repository url from dist when source not available', function () {
                 ],
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->getRepositoryUrl('symfony/console', $lockData);
+    $parser = new ComposerLockFile($lockContent);
+    $result = $parser->getRepositoryUrl('symfony/console');
 
     expect($result)->toBe('https://api.github.com/repos/symfony/console/zipball/abc123');
 });
 
-it('returns null for non-existent package', function () {
-    $lockData = [
+it('returns null for non-existent package repository', function () {
+    $lockContent = json_encode([
         'packages' => [
             [
                 'name' => 'symfony/console',
                 'version' => 'v5.4.0',
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->getRepositoryUrl('non/existent', $lockData);
+    $parser = new ComposerLockFile($lockContent);
+    $result = $parser->getRepositoryUrl('non/existent');
 
     expect($result)->toBeNull();
 });
 
 it('returns null when package has no repository urls', function () {
-    $lockData = [
+    $lockContent = json_encode([
         'packages' => [
             [
                 'name' => 'symfony/console',
                 'version' => 'v5.4.0',
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->getRepositoryUrl('symfony/console', $lockData);
+    $parser = new ComposerLockFile($lockContent);
+    $result = $parser->getRepositoryUrl('symfony/console');
 
     expect($result)->toBeNull();
 });
 
 it('searches in packages-dev for repository url', function () {
-    $lockData = [
+    $lockContent = json_encode([
         'packages' => [],
         'packages-dev' => [
             [
@@ -195,9 +192,10 @@ it('searches in packages-dev for repository url', function () {
                 ],
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->getRepositoryUrl('phpunit/phpunit', $lockData);
+    $parser = new ComposerLockFile($lockContent);
+    $result = $parser->getRepositoryUrl('phpunit/phpunit');
 
     expect($result)->toBe('https://github.com/sebastianbergmann/phpunit.git');
 });

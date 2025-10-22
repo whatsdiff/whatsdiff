@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
+use Whatsdiff\Analyzers\Registries\NpmRegistry;
 use Whatsdiff\Services\HttpService;
-use Whatsdiff\Services\Registries\NpmRegistry;
 
 beforeEach(function () {
     $this->httpService = Mockery::mock(HttpService::class);

@@ -12,11 +12,10 @@ arch('it uses strict types')
 
 arch('services are in the Services namespace')
     ->expect('Whatsdiff\Services')
-    ->classes()
     ->toBeClasses();
 
-arch('service interfaces follow naming conventions')
-    ->expect('Whatsdiff\Services')
+arch('analyzers follow naming conventions')
+    ->expect('Whatsdiff\Analyzers')
     ->interfaces()
     ->toHaveSuffix('Interface');
 

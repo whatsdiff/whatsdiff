@@ -2,11 +2,7 @@
 
 declare(strict_types=1);
 
-use Whatsdiff\Analyzers\Parsers\PackageLockParser;
-
-beforeEach(function () {
-    $this->parser = new PackageLockParser();
-});
+use Whatsdiff\Analyzers\LockFile\NpmPackageLockFile;
 
 it('parses valid package lock content', function () {
     $lockContent = json_encode([
@@ -26,7 +22,8 @@ it('parses valid package lock content', function () {
         ],
     ]);
 
-    $result = $this->parser->parse($lockContent);
+    $parser = new NpmPackageLockFile($lockContent);
+    $result = $parser->getPackages();
 
     expect($result)->toHaveCount(2);
     expect($result->get('lodash'))->toBe([
@@ -40,13 +37,15 @@ it('parses valid package lock content', function () {
 });
 
 it('parses package lock with invalid json', function () {
-    $result = $this->parser->parse('invalid json');
+    $parser = new NpmPackageLockFile('invalid json');
+    $result = $parser->getPackages();
 
     expect($result)->toBeEmpty();
 });
 
 it('parses package lock with empty content', function () {
-    $result = $this->parser->parse('{}');
+    $parser = new NpmPackageLockFile('{}');
+    $result = $parser->getPackages();
 
     expect($result)->toBeEmpty();
 });
@@ -64,7 +63,8 @@ it('filters out empty package keys', function () {
         ],
     ]);
 
-    $result = $this->parser->parse($lockContent);
+    $parser = new NpmPackageLockFile($lockContent);
+    $result = $parser->getPackages();
 
     expect($result)->toHaveCount(1);
     expect($result->has('lodash'))->toBeTrue();
@@ -82,15 +82,16 @@ it('filters out packages without version', function () {
         ],
     ]);
 
-    $result = $this->parser->parse($lockContent);
+    $parser = new NpmPackageLockFile($lockContent);
+    $result = $parser->getPackages();
 
     expect($result)->toHaveCount(1);
     expect($result->has('lodash'))->toBeTrue();
     expect($result->has('broken'))->toBeFalse();
 });
 
-it('extracts package versions from parsed data', function () {
-    $lockData = [
+it('gets all package versions', function () {
+    $lockContent = json_encode([
         'packages' => [
             '' => [
                 'name' => 'my-project',
@@ -103,9 +104,10 @@ it('extracts package versions from parsed data', function () {
                 'version' => '1.5.0',
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->extractPackageVersions($lockData);
+    $parser = new NpmPackageLockFile($lockContent);
+    $result = $parser->getAllVersions();
 
     expect($result)->toBe([
         'lodash' => '4.17.21',
@@ -113,87 +115,63 @@ it('extracts package versions from parsed data', function () {
     ]);
 });
 
-it('extracts package versions with missing packages key', function () {
-    $lockData = [];
-
-    $result = $this->parser->extractPackageVersions($lockData);
-
-    expect($result)->toBe([]);
-});
-
-it('extracts package versions filtering empty names', function () {
-    $lockData = [
+it('gets version for specific package', function () {
+    $lockContent = json_encode([
         'packages' => [
-            '' => [
-                'version' => '1.0.0',
-            ],
             'node_modules/lodash' => [
                 'version' => '4.17.21',
             ],
         ],
-    ];
-
-    $result = $this->parser->extractPackageVersions($lockData);
-
-    expect($result)->toBe([
-        'lodash' => '4.17.21',
     ]);
+
+    $parser = new NpmPackageLockFile($lockContent);
+
+    expect($parser->getVersion('lodash'))->toBe('4.17.21');
+    expect($parser->getVersion('non-existent'))->toBeNull();
 });
 
-it('gets repository url with node_modules prefix', function () {
-    $lockData = [
+it('gets repository url', function () {
+    $lockContent = json_encode([
         'packages' => [
             'node_modules/lodash' => [
                 'version' => '4.17.21',
                 'resolved' => 'https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz',
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->getRepositoryUrl('lodash', $lockData);
-
-    expect($result)->toBe('https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz');
-});
-
-it('gets repository url with exact match', function () {
-    $lockData = [
-        'packages' => [
-            'lodash' => [
-                'version' => '4.17.21',
-                'resolved' => 'https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz',
-            ],
-        ],
-    ];
-
-    $result = $this->parser->getRepositoryUrl('lodash', $lockData);
+    $parser = new NpmPackageLockFile($lockContent);
+    $result = $parser->getRepositoryUrl('lodash');
 
     expect($result)->toBe('https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz');
 });
 
 it('returns null for non-existent package', function () {
-    $lockData = [
+    $lockContent = json_encode([
         'packages' => [
             'node_modules/lodash' => [
                 'version' => '4.17.21',
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->getRepositoryUrl('non-existent', $lockData);
+    $parser = new NpmPackageLockFile($lockContent);
+    $result = $parser->getRepositoryUrl('non-existent');
 
     expect($result)->toBeNull();
 });
 
 it('returns null when package has no resolved url', function () {
-    $lockData = [
+    $lockContent = json_encode([
         'packages' => [
             'node_modules/lodash' => [
                 'version' => '4.17.21',
             ],
         ],
-    ];
+    ]);
 
-    $result = $this->parser->getRepositoryUrl('lodash', $lockData);
+    $parser = new NpmPackageLockFile($lockContent);
+    $result = $parser->getRepositoryUrl('lodash');
 
     expect($result)->toBeNull();
 });
@@ -208,7 +186,8 @@ it('handles scoped packages correctly', function () {
         ],
     ]);
 
-    $result = $this->parser->parse($lockContent);
+    $parser = new NpmPackageLockFile($lockContent);
+    $result = $parser->getPackages();
 
     expect($result)->toHaveCount(1);
     expect($result->get('@angular/core'))->toBe([

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Whatsdiff\Services\Registries;
+namespace Whatsdiff\Analyzers\Registries;
 
 use Composer\Semver\Comparator;
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
@@ -44,7 +44,17 @@ class PackagistRegistry implements RegistryInterface
             $cleanUrl = $authOptions['url'];
             $httpOptions = $authOptions['options'];
 
-            // Merge with provided auth options
+            // Load auth from auth.json if not explicitly provided
+            if (!isset($options['auth']) && empty($httpOptions['auth'])) {
+                $authJson = $this->loadAuthJson();
+                $domain = parse_url($cleanUrl, PHP_URL_HOST);
+
+                if ($domain && isset($authJson['http-basic'][$domain])) {
+                    $httpOptions['auth'] = $authJson['http-basic'][$domain];
+                }
+            }
+
+            // Merge with provided auth options (explicit auth overrides auth.json)
             if (isset($options['auth'])) {
                 $httpOptions['auth'] = $options['auth'];
             }
@@ -165,5 +175,40 @@ class PackagistRegistry implements RegistryInterface
         }
 
         return ['url' => $url, 'options' => []];
+    }
+
+    /**
+     * Load authentication credentials from auth.json files.
+     * Checks both local (project) and global (home directory) auth.json files.
+     * Local auth.json takes precedence over global.
+     *
+     * @return array<string, mixed> Auth configuration with 'http-basic' key
+     */
+    private function loadAuthJson(): array
+    {
+        $currentDir = getcwd() ?: '';
+        $localAuthPath = $currentDir . DIRECTORY_SEPARATOR . 'auth.json';
+
+        $HOME = getenv('HOME') ?: getenv('USERPROFILE');
+        $globalAuthPath = $HOME . DIRECTORY_SEPARATOR . '.composer/auth.json';
+
+        $localAuth = [];
+        $globalAuth = [];
+
+        if (file_exists($localAuthPath)) {
+            $content = file_get_contents($localAuthPath);
+            if ($content !== false) {
+                $localAuth = json_decode($content, true) ?: [];
+            }
+        }
+
+        if (file_exists($globalAuthPath)) {
+            $content = file_get_contents($globalAuthPath);
+            if ($content !== false) {
+                $globalAuth = json_decode($content, true) ?: [];
+            }
+        }
+
+        return collect($globalAuth)->merge($localAuth)->only('http-basic')->toArray();
     }
 }

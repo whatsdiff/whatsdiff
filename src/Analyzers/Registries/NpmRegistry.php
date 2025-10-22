@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Whatsdiff\Services\Registries;
+namespace Whatsdiff\Analyzers\Registries;
 
 use Composer\Semver\Comparator;
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
