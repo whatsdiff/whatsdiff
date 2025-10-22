@@ -87,26 +87,21 @@ test('json format always returns valid JSON ', function () {
 
 test('json format returns valid JSON error on failure', function () {
     // Test in a non-git directory
-    $nonGitDir = sys_get_temp_dir().'/whatsdiff-non-git-'.uniqid();
-    mkdir($nonGitDir, 0755, true);
+    $this->tempDir = sys_get_temp_dir().'/whatsdiff-non-git-'.uniqid();
+    mkdir($this->tempDir, 0755, true);
 
-    try {
-        $process = runWhatsDiff(['--format=json'], $nonGitDir);
+    $process = runWhatsDiff(['--format=json'], $this->tempDir);
 
-        // Should fail but still return valid JSON
-        expect($process->getExitCode())->not->toBe(Command::SUCCESS);
+    // Should fail but still return valid JSON
+    expect($process->getExitCode())->not->toBe(Command::SUCCESS);
 
-        $output = $process->getOutput();
-        $json = json_decode($output, true);
-        $jsonError = json_last_error();
+    $output = $process->getOutput();
+    $json = json_decode($output, true);
+    $jsonError = json_last_error();
 
-        expect($jsonError)->toBe(JSON_ERROR_NONE)
-            ->and($json)->toBeArray()
-            ->and($json)->toHaveKey('error');
-
-    } finally {
-        rmdir($nonGitDir);
-    }
+    expect($jsonError)->toBe(JSON_ERROR_NONE)
+        ->and($json)->toBeArray()
+        ->and($json)->toHaveKey('error');
 });
 
 test('markdown format outputs proper markdown structure', function () {
@@ -120,7 +115,7 @@ test('markdown format outputs proper markdown structure', function () {
     // Add a package
     $updatedComposerLock = generateComposerLock([
         'guzzlehttp/guzzle' => '7.4.0',
-        'monolog/monolog' => '3.0.0',
+        'monolog/monolog'   => '3.0.0',
     ]);
 
     file_put_contents($this->tempDir.'/composer.lock', $updatedComposerLock);
