@@ -5,62 +5,58 @@ declare(strict_types=1);
 namespace Whatsdiff\Analyzers;
 
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
-use Whatsdiff\Services\PackageInfoFetcher;
+use Whatsdiff\Analyzers\LockFile\NpmPackageLockFile;
+use Whatsdiff\Analyzers\Registries\NpmRegistry;
 
 class NpmAnalyzer
 {
-    private PackageInfoFetcher $packageInfoFetcher;
+    private NpmRegistry $registry;
 
-    public function __construct(PackageInfoFetcher $packageInfoFetcher)
+    public function __construct(NpmRegistry $registry)
     {
-        $this->packageInfoFetcher = $packageInfoFetcher;
+        $this->registry = $registry;
     }
 
     public function extractPackageVersions(array $packageLockContent): array
     {
-        return collect($packageLockContent['packages'] ?? [])
-            ->filter(fn ($package, $key) => !empty($key) && !empty($package['version']))
-            ->mapWithKeys(fn ($package, $key) => [
-                str_replace('node_modules/', '', $key) => $package['version'],
-            ])
-            ->filter(fn ($version, $name) => !empty($name))
-            ->toArray();
+        // Backward compatibility: convert array to JSON and use parser
+        $json = json_encode($packageLockContent);
+        $parser = new NpmPackageLockFile($json);
+
+        return $parser->getAllVersions();
     }
 
     public function calculateDiff(string $lastLockContent, ?string $previousLockContent): array
     {
-        $last = json_decode($lastLockContent, true);
-        $previous = json_decode($previousLockContent ?? '{}', true);
+        // Create stateful parsers
+        $current = new NpmPackageLockFile($lastLockContent);
+        $previous = new NpmPackageLockFile($previousLockContent ?? '{}');
 
-        // Handle case where json_decode fails (invalid JSON or empty content)
-        if ($last === null) {
-            return [];
-        }
-        if ($previous === null) {
-            $previous = [];
-        }
+        // Get versions
+        $currentVersions = $current->getAllVersions();
+        $previousVersions = $previous->getAllVersions();
 
-        $lastPackages = $this->extractPackageVersions($last);
-        $previousPackages = $this->extractPackageVersions($previous);
-
-        $diff = collect($previousPackages)
+        // Build diff: packages that existed before
+        $diff = collect($previousVersions)
             ->mapWithKeys(fn ($version, $name) => [
                 $name => [
                     'name' => $name,
                     'from' => $version,
-                    'to' => $lastPackages[$name] ?? null,
+                    'to' => $currentVersions[$name] ?? null,
                 ],
             ]);
 
-        $newPackages = collect($lastPackages)
-            ->diffKeys($previousPackages)
+        // Add new packages
+        $newPackages = collect($currentVersions)
+            ->diffKeys($previousVersions)
             ->mapWithKeys(fn ($version, $name) => [
                 $name => [
                     'name' => $name,
                     'from' => null,
                     'to' => $version,
                 ],
-            ]);
+            ])
+            ->toArray();
 
         return $diff->merge($newPackages)
             ->filter(fn ($el) => $el['from'] !== $el['to'])
@@ -71,7 +67,7 @@ class NpmAnalyzer
     public function getReleasesCount(string $package, string $from, string $to): ?int
     {
         try {
-            $releases = $this->packageInfoFetcher->getNpmReleases($package, $from, $to);
+            $releases = $this->registry->getVersions($package, $from, $to);
         } catch (PackageInformationsException $e) {
             return  null;
         }

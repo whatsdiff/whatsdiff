@@ -5,53 +5,55 @@ declare(strict_types=1);
 namespace Whatsdiff\Analyzers;
 
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
-use Whatsdiff\Services\PackageInfoFetcher;
+use Whatsdiff\Analyzers\LockFile\ComposerLockFile;
+use Whatsdiff\Analyzers\Registries\PackagistRegistry;
 
 class ComposerAnalyzer
 {
-    private PackageInfoFetcher $packageInfoFetcher;
+    private PackagistRegistry $registry;
 
-    public function __construct(PackageInfoFetcher $packageInfoFetcher)
+    public function __construct(PackagistRegistry $registry)
     {
-        $this->packageInfoFetcher = $packageInfoFetcher;
+        $this->registry = $registry;
     }
 
     public function extractPackageVersions(array $composerLockContent): array
     {
-        return collect($composerLockContent['packages'] ?? [])
-            ->merge($composerLockContent['packages-dev'] ?? [])
-            ->mapWithKeys(fn ($package) => [$package['name'] => $package['version']])
-            ->toArray();
+        // Backward compatibility: convert array to JSON and use parser
+        $json = json_encode($composerLockContent);
+        $parser = new ComposerLockFile($json);
+
+        return $parser->getAllVersions();
     }
 
     public function calculateDiff(string $lastLockContent, ?string $previousLockContent): array
     {
-        $lastLock = json_decode($lastLockContent, true);
-        $previousLock = json_decode($previousLockContent ?? '{}', true);
+        // Parse lock file to detect private repositories
+        $lastLock = json_decode($lastLockContent, true) ?? [];
+        $previousLock = json_decode($previousLockContent ?? '{}', true) ?? [];
 
-        // Handle case where json_decode fails (invalid JSON or empty content)
-        if ($lastLock === null) {
-            return [];
-        }
-        if ($previousLock === null) {
-            $previousLock = [];
-        }
+        // Create stateful parsers
+        $current = new ComposerLockFile($lastLockContent);
+        $previous = new ComposerLockFile($previousLockContent ?? '{}');
 
-        $last = $this->extractPackageVersions($lastLock);
-        $previous = $this->extractPackageVersions($previousLock);
+        // Get versions
+        $currentVersions = $current->getAllVersions();
+        $previousVersions = $previous->getAllVersions();
 
-        $diff = collect($previous)
+        // Build diff: packages that existed before
+        $diff = collect($previousVersions)
             ->mapWithKeys(fn ($version, $name) => [
                 $name => [
                     'name' => $name,
                     'from' => $version,
-                    'to' => $last[$name] ?? null,
+                    'to' => $currentVersions[$name] ?? null,
                     'infos_url' => $this->getPackageUrl($name, $lastLock),
                 ],
             ]);
 
-        $newPackages = collect($last)
-            ->diffKeys($previous)
+        // Add new packages
+        $newPackages = collect($currentVersions)
+            ->diffKeys($previousVersions)
             ->mapWithKeys(fn ($version, $name) => [
                 $name => [
                     'name' => $name,
@@ -59,23 +61,13 @@ class ComposerAnalyzer
                     'to' => $version,
                     'infos_url' => $this->getPackageUrl($name, $lastLock),
                 ],
-            ]);
+            ])
+            ->toArray();
 
         return $diff->merge($newPackages)
             ->filter(fn ($el) => $el['from'] !== $el['to'])
             ->sortKeys()
             ->toArray();
-    }
-
-    public function getReleasesCount(string $package, string $from, string $to, string $url): ?int
-    {
-        try {
-            $releases = $this->packageInfoFetcher->getComposerReleases($package, $from, $to, $url);
-        } catch (PackageInformationsException $e) {
-            return  null;
-        }
-
-        return count($releases);
     }
 
     private function getPackageUrl(string $name, array $composerLock): string
@@ -91,45 +83,26 @@ class ComposerAnalyzer
             return $url;
         }
 
-        $authJson = $this->loadAuthJson();
         $distUrlDomain = parse_url($packageInfo['dist']['url'] ?? '', PHP_URL_HOST);
 
-        // Check for private repository authentication
-        if (!empty($authJson['http-basic'][$distUrlDomain])) {
-            $username = urlencode($authJson['http-basic'][$distUrlDomain]['username']);
-            $password = urlencode($authJson['http-basic'][$distUrlDomain]['password']);
-
-            $url = "https://{$username}:{$password}@{$distUrlDomain}/p2/{$name}.json";
+        // If it's a private repository (not repo.packagist.org), use that domain
+        if ($distUrlDomain && $distUrlDomain !== 'repo.packagist.org' && $distUrlDomain !== 'api.github.com') {
+            return "https://{$distUrlDomain}/p2/{$name}.json";
         }
 
         return $url;
     }
 
-    private function loadAuthJson(): array
+    public function getReleasesCount(string $package, string $from, string $to, string $url): ?int
     {
-        $currentDir = getcwd() ?: '';
-        $localAuthPath = $currentDir . DIRECTORY_SEPARATOR . 'auth.json';
-
-        $HOME = getenv('HOME') ?: getenv('USERPROFILE');
-        $globalAuthPath = $HOME . DIRECTORY_SEPARATOR . '.composer/auth.json';
-
-        $localAuth = [];
-        $globalAuth = [];
-
-        if (file_exists($localAuthPath)) {
-            $content = file_get_contents($localAuthPath);
-            if ($content !== false) {
-                $localAuth = json_decode($content, true) ?: [];
-            }
+        try {
+            $releases = $this->registry->getVersions($package, $from, $to, [
+                'url' => $url,
+            ]);
+        } catch (PackageInformationsException $e) {
+            return  null;
         }
 
-        if (file_exists($globalAuthPath)) {
-            $content = file_get_contents($globalAuthPath);
-            if ($content !== false) {
-                $globalAuth = json_decode($content, true) ?: [];
-            }
-        }
-
-        return collect($globalAuth)->merge($localAuth)->only('http-basic')->toArray();
+        return count($releases);
     }
 }
