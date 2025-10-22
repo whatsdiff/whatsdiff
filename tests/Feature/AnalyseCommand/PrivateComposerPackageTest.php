@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-use Whatsdiff\Container\Container;
-use Whatsdiff\Services\DiffCalculator;
+use League\Container\Container;
+use League\Container\ReflectionContainer;
 use Tests\Mocks\MockHttpService;
 use Tests\Mocks\TestServiceProvider;
+use Whatsdiff\Services\DiffCalculator;
 
 beforeEach(function () {
     $this->tempDir = initTempDirectory();
@@ -95,9 +96,10 @@ it('handles private composer packages with authentication', function () {
     chdir($this->tempDir);
 
     try {
-        // Create container with test service provider that mocks only HttpService
+        // Create container with autowiring and test service provider that mocks only HttpService
         $container = new Container();
-        $container->register(new TestServiceProvider($this->mockHttpService));
+        $container->delegate(new ReflectionContainer(true));
+        (new TestServiceProvider($this->mockHttpService))->register($container);
 
         // Create and run the diff calculator directly to avoid the CLI layer
         $diffCalculator = $container->get(DiffCalculator::class);
@@ -158,7 +160,8 @@ it('handles private packages without authentication gracefully', function () {
 
     try {
         $container = new Container();
-        $container->register(new TestServiceProvider($this->mockHttpService));
+        $container->delegate(new ReflectionContainer(true));
+        (new TestServiceProvider($this->mockHttpService))->register($container);
 
         $diffCalculator = $container->get(DiffCalculator::class);
         $result = $diffCalculator->run();
@@ -232,7 +235,8 @@ it('prioritizes local auth.json over global auth.json', function () {
 
     try {
         $container = new Container();
-        $container->register(new TestServiceProvider($authAwareHttpService));
+        $container->delegate(new ReflectionContainer(true));
+        (new TestServiceProvider($authAwareHttpService))->register($container);
 
         $diffCalculator = $container->get(DiffCalculator::class);
         $result = $diffCalculator->run();

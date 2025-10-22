@@ -10,7 +10,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Analyzers\PackageManagerType;
-use Whatsdiff\Container\Container;
 use Whatsdiff\Outputs\JsonOutput;
 use Whatsdiff\Outputs\MarkdownOutput;
 use Whatsdiff\Outputs\OutputFormatterInterface;
@@ -28,12 +27,11 @@ use function Laravel\Prompts\progress;
 )]
 class AnalyseCommand extends Command
 {
-    private Container $container;
-
-    public function __construct(Container $container)
-    {
+    public function __construct(
+        private readonly CacheService $cacheService,
+        private readonly DiffCalculator $diffCalculator,
+    ) {
         parent::__construct();
-        $this->container = $container;
     }
     /**
      * Get shared options that can be used by multiple commands
@@ -129,14 +127,9 @@ class AnalyseCommand extends Command
         }
 
         try {
-            // Get services from container
-            $cacheService = $this->container->get(CacheService::class);
-            /** @var DiffCalculator $diffCalculator */
-            $diffCalculator = $this->container->get(DiffCalculator::class);
-
             // Disable cache if requested
             if ($noCache) {
-                $cacheService->disableCache();
+                $this->cacheService->disableCache();
             }
 
             // Parse dependency types from include/exclude options
@@ -147,24 +140,24 @@ class AnalyseCommand extends Command
 
             // Configure dependency types if specified
             foreach ($dependencyTypes as $type) {
-                $diffCalculator->for($type);
+                $this->diffCalculator->for($type);
             }
 
             if ($ignoreLast) {
-                $diffCalculator->ignoreLastCommit();
+                $this->diffCalculator->ignoreLastCommit();
             }
 
             if ($fromCommit !== null) {
-                $diffCalculator->fromCommit($fromCommit);
+                $this->diffCalculator->fromCommit($fromCommit);
             }
 
             if ($toCommit !== null) {
-                $diffCalculator->toCommit($toCommit);
+                $this->diffCalculator->toCommit($toCommit);
             }
 
 
             if ($this->shouldShowProgress($format, $noAnsi, $input)) {
-                [$total, $generator] = $diffCalculator->run(withProgress: true);
+                [$total, $generator] = $this->diffCalculator->run(withProgress: true);
 
                 // Use Laravel Prompts for progress bar
                 if ($total) {
@@ -172,10 +165,10 @@ class AnalyseCommand extends Command
                     $this->showProgressBar($total, $generator);
                 }
 
-                $result = $diffCalculator->getResult();
+                $result = $this->diffCalculator->getResult();
 
             } else {
-                $result = $diffCalculator->run();
+                $result = $this->diffCalculator->run();
             }
 
             // Get appropriate formatter

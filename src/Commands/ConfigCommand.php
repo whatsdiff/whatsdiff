@@ -10,7 +10,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
-use Whatsdiff\Container\Container;
 use Whatsdiff\Services\ConfigService;
 
 #[AsCommand(
@@ -20,12 +19,10 @@ use Whatsdiff\Services\ConfigService;
 )]
 class ConfigCommand extends Command
 {
-    private Container $container;
-
-    public function __construct(Container $container)
-    {
+    public function __construct(
+        private readonly ConfigService $configService,
+    ) {
         parent::__construct();
-        $this->container = $container;
     }
     protected function configure(): void
     {
@@ -46,21 +43,19 @@ class ConfigCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $configService = $this->container->get(ConfigService::class);
-
         $key = $input->getArgument('key');
         $value = $input->getArgument('value');
 
         // If no arguments, show all config
         if ($key === null) {
-            $config = $configService->getAll();
+            $config = $this->configService->getAll();
             $output->writeln(Yaml::dump($config, 4, 2));
             return Command::SUCCESS;
         }
 
         // If only key provided, get the value
         if ($value === null) {
-            $configValue = $configService->get($key);
+            $configValue = $this->configService->get($key);
 
             if ($configValue === null) {
                 $output->writeln("<error>Configuration key '{$key}' not found</error>");
@@ -78,7 +73,7 @@ class ConfigCommand extends Command
 
         // Set the value
         $parsedValue = $this->parseValue($value);
-        $configService->set($key, $parsedValue);
+        $this->configService->set($key, $parsedValue);
 
         $output->writeln("<info>Configuration updated: {$key} = {$value}</info>");
 

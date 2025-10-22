@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace Whatsdiff;
 
+use League\Container\Container;
+use League\Container\ReflectionContainer;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application as BaseApplication;
+use Whatsdiff\Commands\AnalyseCommand;
 use Whatsdiff\Commands\BetweenCommand;
 use Whatsdiff\Commands\CheckCommand;
 use Whatsdiff\Commands\ConfigCommand;
-use Whatsdiff\Commands\AnalyseCommand;
 use Whatsdiff\Commands\TuiCommand;
-use Whatsdiff\Container\Container;
-use Whatsdiff\Container\WhatsdiffServiceProvider;
 
 class Application extends BaseApplication
 {
     private const VERSION = '@git_tag@';
 
-    private Container $container;
+    private ContainerInterface $container;
 
     public function __construct()
     {
@@ -30,21 +31,34 @@ class Application extends BaseApplication
 
         parent::__construct('whatsdiff', self::getVersionString());
 
-        // Initialize container and register services
-        $this->container = new Container();
-        $this->container->register(new WhatsdiffServiceProvider());
+        // Initialize container with autowiring and service configuration
+        $this->container = self::instantiateContainer();
 
-        $this->add(new AnalyseCommand($this->container));
-        $this->add(new BetweenCommand($this->container));
-        $this->add(new TuiCommand($this->container));
-        $this->add(new CheckCommand($this->container));
-        $this->add(new ConfigCommand($this->container));
+        $this->add($this->container->get(AnalyseCommand::class));
+        $this->add($this->container->get(BetweenCommand::class));
+        $this->add($this->container->get(TuiCommand::class));
+        $this->add($this->container->get(CheckCommand::class));
+        $this->add($this->container->get(ConfigCommand::class));
         $this->setDefaultCommand('analyse');
     }
 
-    public function getContainer(): Container
+    public function getContainer(): ContainerInterface
     {
         return $this->container;
+    }
+
+    /**
+     * Create and configure the dependency injection container.
+     * This method is shared between the CLI application and MCP server.
+     */
+    public static function instantiateContainer(): ContainerInterface
+    {
+        $container = new Container();
+
+        // Enable autowiring via ReflectionContainer delegate (with caching for performance)
+        $container->delegate(new ReflectionContainer(true));
+
+        return $container;
     }
 
     public function getLongVersion(): string

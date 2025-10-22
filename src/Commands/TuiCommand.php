@@ -9,7 +9,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Whatsdiff\Container\Container;
 use Whatsdiff\Outputs\Tui\TerminalUI;
 use Whatsdiff\Services\CacheService;
 use Whatsdiff\Services\DiffCalculator;
@@ -21,12 +20,11 @@ use Whatsdiff\Services\DiffCalculator;
 )]
 class TuiCommand extends Command
 {
-    private Container $container;
-
-    public function __construct(Container $container)
-    {
+    public function __construct(
+        private readonly CacheService $cacheService,
+        private readonly DiffCalculator $diffCalculator,
+    ) {
         parent::__construct();
-        $this->container = $container;
     }
     protected function configure(): void
     {
@@ -52,20 +50,16 @@ class TuiCommand extends Command
         $noCache = (bool) $input->getOption('no-cache');
 
         try {
-            // Get services from container
-            $cacheService = $this->container->get(CacheService::class);
-            $diffCalculator = $this->container->get(DiffCalculator::class);
-
             // Disable cache if requested
             if ($noCache) {
-                $cacheService->disableCache();
+                $this->cacheService->disableCache();
             }
 
             if ($ignoreLast) {
-                $diffCalculator->ignoreLastCommit();
+                $this->diffCalculator->ignoreLastCommit();
             }
 
-            $result = $diffCalculator->run();
+            $result = $this->diffCalculator->run();
 
             if (!$result->hasAnyChanges()) {
                 $output->writeln('<info>No dependency changes detected.</info>');
