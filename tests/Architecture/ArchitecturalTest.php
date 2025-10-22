@@ -12,7 +12,13 @@ arch('it uses strict types')
 
 arch('services are in the Services namespace')
     ->expect('Whatsdiff\Services')
+    ->classes()
     ->toBeClasses();
+
+arch('service interfaces follow naming conventions')
+    ->expect('Whatsdiff\Services')
+    ->interfaces()
+    ->toHaveSuffix('Interface');
 
 arch('commands extend Symfony Command')
     ->expect('Whatsdiff\Commands')
