@@ -6,8 +6,6 @@ namespace Whatsdiff\Services;
 
 use Composer\Semver\Comparator;
 use Illuminate\Support\Collection;
-use Whatsdiff\Analyzers\ComposerAnalyzer;
-use Whatsdiff\Analyzers\NpmAnalyzer;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Data\DependencyDiff;
 use Whatsdiff\Data\DependencyFile;
@@ -17,8 +15,6 @@ use Whatsdiff\Data\PackageChange;
 class DiffCalculator
 {
     private GitRepository $git;
-    private ComposerAnalyzer $composerAnalyzer;
-    private NpmAnalyzer $npmAnalyzer;
 
     private Collection $dependencyFiles;
     private array $dependencyTypes;
@@ -32,13 +28,10 @@ class DiffCalculator
 
     public function __construct(
         GitRepository $git,
-        ComposerAnalyzer $composerAnalyzer,
-        NpmAnalyzer $npmAnalyzer,
+        private readonly AnalyzerRegistry $analyzerRegistry,
         private readonly SemverAnalyzer $semverAnalyzer
     ) {
         $this->git = $git;
-        $this->composerAnalyzer = $composerAnalyzer;
-        $this->npmAnalyzer = $npmAnalyzer;
         $this->dependencyFiles = collect();
         $this->dependencyTypes = [];
     }
@@ -323,10 +316,7 @@ class DiffCalculator
 
     private function calculatePackageDiff(PackageManagerType $type, string $last, ?string $previous): array
     {
-        return match ($type) {
-            PackageManagerType::COMPOSER => $this->composerAnalyzer->calculateDiff($last, $previous),
-            PackageManagerType::NPM => $this->npmAnalyzer->calculateDiff($last, $previous),
-        };
+        return $this->analyzerRegistry->get($type)->calculateDiff($last, $previous);
     }
 
 
@@ -351,15 +341,16 @@ class DiffCalculator
 
     private function getReleasesCount(PackageManagerType $type, string $package, array $infos): ?int
     {
-        return match ($type) {
-            PackageManagerType::COMPOSER => $this->composerAnalyzer->getReleasesCount(
-                $package,
-                $infos['from'],
-                $infos['to'],
-                ['url' => $infos['infos_url']]
-            ),
-            PackageManagerType::NPM => $this->npmAnalyzer->getReleasesCount($package, $infos['from'], $infos['to']),
-        };
+        $context = $type === PackageManagerType::COMPOSER
+            ? ['url' => $infos['infos_url']]
+            : [];
+
+        return $this->analyzerRegistry->get($type)->getReleasesCount(
+            $package,
+            $infos['from'],
+            $infos['to'],
+            $context
+        );
     }
 
     /**

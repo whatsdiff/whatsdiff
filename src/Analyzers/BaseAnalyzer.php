@@ -14,7 +14,7 @@ use Whatsdiff\Analyzers\Registries\RegistryInterface;
  * Uses Template Method pattern to allow subclasses to customize specific behaviors
  * while sharing the common diff calculation logic.
  */
-abstract class BaseAnalyzer
+abstract class BaseAnalyzer implements AnalyzerInterface
 {
     public function __construct(
         protected readonly RegistryInterface $registry

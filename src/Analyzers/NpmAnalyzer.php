@@ -21,6 +21,14 @@ class NpmAnalyzer extends BaseAnalyzer
     }
 
     /**
+     * Get the package manager type this analyzer handles.
+     */
+    public function getType(): PackageManagerType
+    {
+        return PackageManagerType::NPM;
+    }
+
+    /**
      * Create an NPM lock file parser.
      */
     protected function createLockFileParser(string $content): LockFileInterface

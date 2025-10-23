@@ -8,6 +8,9 @@ use League\Container\Container;
 use League\Container\ReflectionContainer;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application as BaseApplication;
+use Whatsdiff\Analyzers\ComposerAnalyzer;
+use Whatsdiff\Analyzers\NpmAnalyzer;
+use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubChangelogFetcher;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubReleaseFetcher;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
@@ -18,6 +21,7 @@ use Whatsdiff\Commands\ChangelogCommand;
 use Whatsdiff\Commands\CheckCommand;
 use Whatsdiff\Commands\ConfigCommand;
 use Whatsdiff\Commands\TuiCommand;
+use Whatsdiff\Services\AnalyzerRegistry;
 
 class Application extends BaseApplication
 {
@@ -63,6 +67,19 @@ class Application extends BaseApplication
 
         // Enable autowiring via ReflectionContainer delegate (with caching for performance)
         $container->delegate(new ReflectionContainer(true));
+
+        // Register the container itself for services that need it
+        $container->add(ContainerInterface::class, $container);
+
+        // Configure AnalyzerRegistry with package manager analyzers
+        // Analyzers are lazy-loaded only when needed
+        $container->add(AnalyzerRegistry::class, function () use ($container) {
+            $registry = new AnalyzerRegistry($container);
+            $registry->register(PackageManagerType::COMPOSER, ComposerAnalyzer::class);
+            $registry->register(PackageManagerType::NPM, NpmAnalyzer::class);
+
+            return $registry;
+        });
 
         // Configure ReleaseNotesResolver with fetchers
         // Order matters: try fastest/most reliable sources first
