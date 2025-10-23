@@ -14,7 +14,7 @@ it('formats empty collection as markdown', function () {
 
     $formatter->format($collection, $output);
 
-    expect($output->fetch())->toBe("No release notes available.\n");
+    expect($output->fetch())->toBe('No release notes available.' . PHP_EOL);
 });
 
 it('formats detailed markdown output', function () {
