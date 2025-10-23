@@ -30,7 +30,7 @@ MD;
 
     $httpService = Mockery::mock(HttpService::class);
     $httpService->shouldReceive('get')
-        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md?ref=v2.0.0.0', [
+        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md', [
             'headers' => [
                 'Accept' => 'application/vnd.github.raw',
             ],
@@ -56,7 +56,7 @@ MD;
     expect($result->getReleases()[0]->getChanges()[0])->toBe('New feature from GitHub');
 });
 
-test('it tries default branch when tag fails', function () {
+test('it fetches from default branch', function () {
     $changelog = <<<'MD'
 ## 2.0.0 - 2023-06-01
 ### Added
@@ -65,17 +65,7 @@ MD;
 
     $httpService = Mockery::mock(HttpService::class);
 
-    // First attempt with version tag fails
-    $httpService->shouldReceive('get')
-        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md?ref=v2.0.0.0', [
-            'headers' => [
-                'Accept' => 'application/vnd.github.raw',
-            ],
-        ])
-        ->once()
-        ->andThrow(new Exception('Not found'));
-
-    // Second attempt with default branch succeeds
+    // Fetches from default branch (no ref parameter)
     $httpService->shouldReceive('get')
         ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md', [
             'headers' => [
@@ -113,7 +103,7 @@ MD;
 
     // CHANGELOG.md not found
     $httpService->shouldReceive('get')
-        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md?ref=v2.0.0.0', [
+        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md', [
             'headers' => [
                 'Accept' => 'application/vnd.github.raw',
             ],
@@ -121,19 +111,9 @@ MD;
         ->once()
         ->andThrow(new Exception('Not found'));
 
-    // CHANGELOG not found
+    // CHANGELOG found
     $httpService->shouldReceive('get')
-        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG?ref=v2.0.0.0', [
-            'headers' => [
-                'Accept' => 'application/vnd.github.raw',
-            ],
-        ])
-        ->once()
-        ->andThrow(new Exception('Not found'));
-
-    // HISTORY.md found
-    $httpService->shouldReceive('get')
-        ->with('https://api.github.com/repos/owner/repo/contents/HISTORY.md?ref=v2.0.0.0', [
+        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG', [
             'headers' => [
                 'Accept' => 'application/vnd.github.raw',
             ],
@@ -167,7 +147,7 @@ MD;
 
     $httpService = Mockery::mock(HttpService::class);
     $httpService->shouldReceive('get')
-        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md?ref=v2.0.0.0', [
+        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md', [
             'headers' => [
                 'Accept' => 'application/vnd.github.raw',
             ],
@@ -233,7 +213,7 @@ test('it returns null when all fetches fail', function () {
     expect($result)->toBeNull();
 });
 
-test('it normalizes version with VersionParser', function () {
+test('it fetches changelog without version-specific refs', function () {
     $changelog = <<<'MD'
 ## 2.0.0 - 2023-06-01
 ### Added
@@ -242,9 +222,9 @@ MD;
 
     $httpService = Mockery::mock(HttpService::class);
 
-    // Should try with normalized version (2.0.0 -> 2.0.0.0) with 'v' prefix
+    // Fetches from default branch without ref parameter
     $httpService->shouldReceive('get')
-        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md?ref=v2.0.0.0', [
+        ->with('https://api.github.com/repos/owner/repo/contents/CHANGELOG.md', [
             'headers' => [
                 'Accept' => 'application/vnd.github.raw',
             ],

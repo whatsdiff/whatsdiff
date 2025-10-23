@@ -62,8 +62,8 @@ test('it tries multiple changelog filenames', function () {
 - New feature
 MD;
 
-    // Use HISTORY.md instead of CHANGELOG.md
-    file_put_contents($this->tempDir . '/HISTORY.md', $changelog);
+    // Use CHANGELOG instead of CHANGELOG.md
+    file_put_contents($this->tempDir . '/CHANGELOG', $changelog);
 
     $result = $this->fetcher->fetch(
         'test/package',
