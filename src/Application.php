@@ -10,9 +10,12 @@ use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application as BaseApplication;
 use Whatsdiff\Commands\AnalyseCommand;
 use Whatsdiff\Commands\BetweenCommand;
+use Whatsdiff\Commands\ChangelogCommand;
 use Whatsdiff\Commands\CheckCommand;
 use Whatsdiff\Commands\ConfigCommand;
 use Whatsdiff\Commands\TuiCommand;
+use Whatsdiff\Services\ReleaseNotes\Fetchers\GithubReleaseFetcher;
+use Whatsdiff\Services\ReleaseNotes\ReleaseNotesResolver;
 
 class Application extends BaseApplication
 {
@@ -39,6 +42,7 @@ class Application extends BaseApplication
         $this->add($this->container->get(TuiCommand::class));
         $this->add($this->container->get(CheckCommand::class));
         $this->add($this->container->get(ConfigCommand::class));
+        $this->add($this->container->get(ChangelogCommand::class));
         $this->setDefaultCommand('analyse');
     }
 
@@ -57,6 +61,10 @@ class Application extends BaseApplication
 
         // Enable autowiring via ReflectionContainer delegate (with caching for performance)
         $container->delegate(new ReflectionContainer(true));
+
+        // Configure ReleaseNotesResolver with fetchers
+        $container->add(ReleaseNotesResolver::class)
+            ->addMethodCall('addFetcher', [GithubReleaseFetcher::class]);
 
         return $container;
     }
