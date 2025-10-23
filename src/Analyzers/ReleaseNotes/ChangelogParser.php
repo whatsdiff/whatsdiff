@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Whatsdiff\Services\ReleaseNotes;
+namespace Whatsdiff\Analyzers\ReleaseNotes;
 
 use Composer\Semver\Comparator;
+use Composer\Semver\VersionParser;
 use DateTimeImmutable;
 use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
@@ -19,6 +20,12 @@ use Whatsdiff\Data\ReleaseNotesCollection;
  */
 class ChangelogParser
 {
+    private readonly VersionParser $versionParser;
+
+    public function __construct()
+    {
+        $this->versionParser = new VersionParser();
+    }
     /**
      * Parse changelog content and extract releases within version range.
      *
@@ -192,7 +199,7 @@ class ChangelogParser
      */
     private function normalizeVersion(string $version): string
     {
-        return ltrim($version, 'vV');
+        return $this->versionParser->normalize($version);
     }
 
     /**
@@ -200,6 +207,7 @@ class ChangelogParser
      */
     private function isPrerelease(string $version): bool
     {
-        return preg_match('/-(alpha|beta|rc|dev|preview)/i', $version) === 1;
+        $stability = VersionParser::parseStability($version);
+        return in_array($stability, ['alpha', 'beta', 'RC', 'dev'], true);
     }
 }

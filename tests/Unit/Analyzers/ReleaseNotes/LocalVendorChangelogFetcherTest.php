@@ -1,8 +1,8 @@
 <?php
 
 use Whatsdiff\Analyzers\PackageManagerType;
-use Whatsdiff\Services\ReleaseNotes\ChangelogParser;
-use Whatsdiff\Services\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
+use Whatsdiff\Analyzers\ReleaseNotes\ChangelogParser;
+use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
 
 beforeEach(function () {
     $this->tempDir = sys_get_temp_dir() . '/whatsdiff-test-' . uniqid();

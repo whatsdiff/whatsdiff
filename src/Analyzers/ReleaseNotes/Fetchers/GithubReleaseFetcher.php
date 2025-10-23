@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Whatsdiff\Services\ReleaseNotes\Fetchers;
+namespace Whatsdiff\Analyzers\ReleaseNotes\Fetchers;
 
 use Composer\Semver\Comparator;
+use Composer\Semver\VersionParser;
 use DateTimeImmutable;
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesFetcherInterface;
 use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
 use Whatsdiff\Services\HttpService;
-use Whatsdiff\Services\ReleaseNotes\ReleaseNotesFetcherInterface;
 
 /**
  * Fetches release notes from GitHub Releases API.
@@ -19,9 +20,12 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
 {
     private const GITHUB_API_URL = 'https://api.github.com';
 
+    private readonly VersionParser $versionParser;
+
     public function __construct(
         private HttpService $httpService
     ) {
+        $this->versionParser = new VersionParser();
     }
 
     public function fetch(
@@ -79,12 +83,9 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
      */
     private function extractOwnerRepo(string $url): ?array
     {
-        // Remove .git suffix if present
-        $url = preg_replace('/\.git$/', '', $url);
-
-        // Match GitHub URL patterns
-        // https://github.com/owner/repo
         // git@github.com:owner/repo
+        // https://github.com/owner/repo
+        // https://github.com/owner/repo.git
         if (preg_match('#github\.com[:/]([^/]+)/([^/]+?)(?:\.git)?$#', $url, $matches)) {
             return [$matches[1], $matches[2]];
         }
@@ -155,7 +156,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
      */
     private function normalizeVersion(string $version): string
     {
-        return ltrim($version, 'vV');
+        return $this->versionParser->normalize($version);
     }
 
     /**
@@ -173,8 +174,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
                 return $version === $normalizedFrom;
             }
 
-            return Comparator::greaterThan($version, $normalizedFrom)
-                && Comparator::lessThanOrEqualTo($version, $normalizedTo);
+            return Comparator::greaterThan($version, $normalizedFrom) && Comparator::lessThanOrEqualTo($version, $normalizedTo);
         } catch (\Exception $e) {
             // Invalid version format, skip
             return false;

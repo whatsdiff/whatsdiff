@@ -8,16 +8,16 @@ use League\Container\Container;
 use League\Container\ReflectionContainer;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application as BaseApplication;
+use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubChangelogFetcher;
+use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubReleaseFetcher;
+use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
+use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Commands\AnalyseCommand;
 use Whatsdiff\Commands\BetweenCommand;
 use Whatsdiff\Commands\ChangelogCommand;
 use Whatsdiff\Commands\CheckCommand;
 use Whatsdiff\Commands\ConfigCommand;
 use Whatsdiff\Commands\TuiCommand;
-use Whatsdiff\Services\ReleaseNotes\Fetchers\GithubChangelogFetcher;
-use Whatsdiff\Services\ReleaseNotes\Fetchers\GithubReleaseFetcher;
-use Whatsdiff\Services\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
-use Whatsdiff\Services\ReleaseNotes\ReleaseNotesResolver;
 
 class Application extends BaseApplication
 {

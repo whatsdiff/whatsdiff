@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Whatsdiff\Services\ReleaseNotes;
+namespace Whatsdiff\Analyzers\ReleaseNotes;
 
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Data\ReleaseNotesCollection;

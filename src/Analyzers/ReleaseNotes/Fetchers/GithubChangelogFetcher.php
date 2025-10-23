@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Whatsdiff\Services\ReleaseNotes\Fetchers;
+namespace Whatsdiff\Analyzers\ReleaseNotes\Fetchers;
 
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Analyzers\ReleaseNotes\ChangelogParser;
+use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesFetcherInterface;
 use Whatsdiff\Data\ReleaseNotesCollection;
 use Whatsdiff\Services\HttpService;
-use Whatsdiff\Services\ReleaseNotes\ChangelogParser;
-use Whatsdiff\Services\ReleaseNotes\ReleaseNotesFetcherInterface;
 
 /**
  * Fetches release notes from CHANGELOG.md files on GitHub.
@@ -24,13 +24,14 @@ class GithubChangelogFetcher implements ReleaseNotesFetcherInterface
     private const CHANGELOG_FILENAMES = [
         'CHANGELOG.md',
         'CHANGELOG',
-        'HISTORY.md',
-        'HISTORY',
-        'CHANGES.md',
-        'CHANGES',
-        'NEWS.md',
-        'NEWS',
+        // 'HISTORY.md',
+        // 'HISTORY',
+        // 'CHANGES.md',
+        // 'CHANGES',
+        // 'NEWS.md',
+        // 'NEWS',
     ];
+
 
     public function __construct(
         private readonly HttpService $httpService,
@@ -82,12 +83,9 @@ class GithubChangelogFetcher implements ReleaseNotesFetcherInterface
      */
     private function extractOwnerRepo(string $url): ?array
     {
-        // Remove .git suffix if present
-        $url = preg_replace('/\.git$/', '', $url);
-
-        // Match GitHub URL patterns
-        // https://github.com/owner/repo
         // git@github.com:owner/repo
+        // https://github.com/owner/repo
+        // https://github.com/owner/repo.git
         if (preg_match('#github\.com[:/]([^/]+)/([^/]+?)(?:\.git)?$#', $url, $matches)) {
             return [$matches[1], $matches[2]];
         }
@@ -96,53 +94,31 @@ class GithubChangelogFetcher implements ReleaseNotesFetcherInterface
     }
 
     /**
-     * Fetch changelog content from GitHub raw URL.
+     * Fetch changelog content from GitHub Contents API.
      *
-     * Tries multiple common filenames and falls back to main/master branch.
+     * Tries multiple common filenames until one is found.
      */
     private function fetchChangelogContent(string $owner, string $repo, string $version): ?string
     {
-        // Normalize version and also keep version without prefix
-        $versionWithV = $this->normalizeVersion($version);  // Adds 'v' prefix
-        $versionWithoutV = ltrim($version, 'vV');  // Removes 'v' prefix
+        foreach (self::CHANGELOG_FILENAMES as $filename) {
+            $url = "https://api.github.com/repos/{$owner}/{$repo}/contents/{$filename}";
 
-        // Try with the specific version tag first (both with and without 'v'), then fall back to default branches
-        // GitHub repos may use either 'v7.10.0' or '7.10.0' as tag names
-        $branches = [$versionWithV, $versionWithoutV, 'main', 'master'];
-
-        foreach ($branches as $branch) {
-            foreach (self::CHANGELOG_FILENAMES as $filename) {
-                $url = "https://raw.githubusercontent.com/{$owner}/{$repo}/{$branch}/{$filename}";
-
-                try {
-                    $content = $this->httpService->get($url);
-                    if (!empty($content)) {
-                        return $content;
-                    }
-                } catch (\Exception $e) {
-                    // Try next filename/branch
-                    continue;
+            try {
+                $content = $this->httpService->get($url, [
+                    'headers' => [
+                        'Accept' => 'application/vnd.github.raw',
+                    ],
+                ]);
+                if (! empty($content)) {
+                    return $content;
                 }
+            } catch (\Exception $e) {
+                // Try next filename/ref
+                continue;
             }
         }
 
         return null;
     }
 
-    /**
-     * Normalize version for tag lookup.
-     *
-     * Ensures version has 'v' prefix if it looks like a semver version.
-     */
-    private function normalizeVersion(string $version): string
-    {
-        $version = ltrim($version, 'vV');
-
-        // If it looks like a semver version (starts with digit), add 'v' prefix
-        if (preg_match('/^\d/', $version)) {
-            return 'v' . $version;
-        }
-
-        return $version;
-    }
 }

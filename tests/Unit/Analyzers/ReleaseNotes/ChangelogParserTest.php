@@ -1,7 +1,7 @@
 <?php
 
+use Whatsdiff\Analyzers\ReleaseNotes\ChangelogParser;
 use Whatsdiff\Data\ReleaseNotesCollection;
-use Whatsdiff\Services\ReleaseNotes\ChangelogParser;
 
 test('it parses basic Keep a Changelog format', function () {
     $changelog = <<<'MD'
