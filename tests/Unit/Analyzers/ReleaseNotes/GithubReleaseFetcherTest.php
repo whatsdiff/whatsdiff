@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubReleaseFetcher;
 use Whatsdiff\Services\HttpService;
-use Whatsdiff\Services\ReleaseNotes\Fetchers\GithubReleaseFetcher;
 
 beforeEach(function () {
     $this->httpService = Mockery::mock(HttpService::class);

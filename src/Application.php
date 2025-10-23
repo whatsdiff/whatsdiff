@@ -8,14 +8,16 @@ use League\Container\Container;
 use League\Container\ReflectionContainer;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application as BaseApplication;
+use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubChangelogFetcher;
+use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubReleaseFetcher;
+use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
+use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Commands\AnalyseCommand;
 use Whatsdiff\Commands\BetweenCommand;
 use Whatsdiff\Commands\ChangelogCommand;
 use Whatsdiff\Commands\CheckCommand;
 use Whatsdiff\Commands\ConfigCommand;
 use Whatsdiff\Commands\TuiCommand;
-use Whatsdiff\Services\ReleaseNotes\Fetchers\GithubReleaseFetcher;
-use Whatsdiff\Services\ReleaseNotes\ReleaseNotesResolver;
 
 class Application extends BaseApplication
 {
@@ -63,8 +65,11 @@ class Application extends BaseApplication
         $container->delegate(new ReflectionContainer(true));
 
         // Configure ReleaseNotesResolver with fetchers
+        // Order matters: try fastest/most reliable sources first
         $container->add(ReleaseNotesResolver::class)
-            ->addMethodCall('addFetcher', [GithubReleaseFetcher::class]);
+            ->addMethodCall('addFetcher', [LocalVendorChangelogFetcher::class])
+            ->addMethodCall('addFetcher', [GithubReleaseFetcher::class])
+            ->addMethodCall('addFetcher', [GithubChangelogFetcher::class]);
 
         return $container;
     }

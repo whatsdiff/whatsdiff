@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesFetcherInterface;
+use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
-use Whatsdiff\Services\ReleaseNotes\ReleaseNotesFetcherInterface;
-use Whatsdiff\Services\ReleaseNotes\ReleaseNotesResolver;
 
 beforeEach(function () {
     $this->resolver = new ReleaseNotesResolver();

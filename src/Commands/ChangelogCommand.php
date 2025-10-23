@@ -15,12 +15,12 @@ use Whatsdiff\Analyzers\LockFile\NpmPackageLockFile;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\Registries\NpmRegistry;
 use Whatsdiff\Analyzers\Registries\PackagistRegistry;
+use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesJsonOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesMarkdownOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesTextOutput;
 use Whatsdiff\Services\CacheService;
 use Whatsdiff\Services\GitRepository;
-use Whatsdiff\Services\ReleaseNotes\ReleaseNotesResolver;
 
 #[AsCommand(
     name: 'changelog',

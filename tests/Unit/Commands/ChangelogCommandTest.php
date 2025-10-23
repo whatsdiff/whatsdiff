@@ -6,10 +6,10 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Whatsdiff\Analyzers\Registries\NpmRegistry;
 use Whatsdiff\Analyzers\Registries\PackagistRegistry;
+use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Commands\ChangelogCommand;
 use Whatsdiff\Services\CacheService;
 use Whatsdiff\Services\GitRepository;
-use Whatsdiff\Services\ReleaseNotes\ReleaseNotesResolver;
 
 beforeEach(function () {
     $this->gitRepository = Mockery::mock(GitRepository::class);
