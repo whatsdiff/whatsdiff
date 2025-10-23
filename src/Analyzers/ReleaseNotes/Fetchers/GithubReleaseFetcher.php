@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Whatsdiff\Analyzers\ReleaseNotes\Fetchers;
 
 use Composer\Semver\Comparator;
-use Composer\Semver\VersionParser;
 use DateTimeImmutable;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesFetcherInterface;
 use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
 use Whatsdiff\Services\HttpService;
+use Whatsdiff\Services\VersionNormalizer;
 
 /**
  * Fetches release notes from GitHub Releases API.
@@ -20,12 +20,10 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
 {
     private const GITHUB_API_URL = 'https://api.github.com';
 
-    private readonly VersionParser $versionParser;
-
     public function __construct(
-        private HttpService $httpService
+        private HttpService $httpService,
+        private VersionNormalizer $versionNormalizer
     ) {
-        $this->versionParser = new VersionParser();
     }
 
     public function fetch(
@@ -126,7 +124,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
             }
 
             // Normalize version for comparison (remove 'v' prefix)
-            $version = $this->normalizeVersion($tagName);
+            $version = $this->versionNormalizer->normalize($tagName);
 
             // Filter by version range: fromVersion < version <= toVersion
             if (!$this->isVersionInRange($version, $fromVersion, $toVersion)) {
@@ -150,23 +148,13 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
     }
 
     /**
-     * Normalize version string for comparison.
-     *
-     * Removes 'v' prefix and normalizes format.
-     */
-    private function normalizeVersion(string $version): string
-    {
-        return $this->versionParser->normalize($version);
-    }
-
-    /**
      * Check if version is within range: fromVersion < version <= toVersion.
      * Special case: if fromVersion == toVersion, match only that exact version.
      */
     private function isVersionInRange(string $version, string $fromVersion, string $toVersion): bool
     {
-        $normalizedFrom = $this->normalizeVersion($fromVersion);
-        $normalizedTo = $this->normalizeVersion($toVersion);
+        $normalizedFrom = $this->versionNormalizer->normalize($fromVersion);
+        $normalizedTo = $this->versionNormalizer->normalize($toVersion);
 
         try {
             // Special case: if from == to, we want exactly that version

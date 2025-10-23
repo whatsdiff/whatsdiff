@@ -14,6 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'between')]
 class BetweenCommand extends Command
 {
+    use SharedCommandOptions;
+
     protected function configure(): void
     {
         $this
@@ -29,12 +31,12 @@ class BetweenCommand extends Command
                 InputArgument::OPTIONAL,
                 'The ending commit, branch, or tag to compare to (newer version, defaults to HEAD)',
                 'HEAD'
-            );
-
-        // Add shared options from AnalyseCommand
-        foreach (AnalyseCommand::getSharedOptions() as $option) {
-            $this->addOption(...$option);
-        }
+            )
+            ->addFormatOption()
+            ->addNoCacheOption()
+            ->addIncludeOption()
+            ->addExcludeOption()
+            ->addNoProgressOption();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

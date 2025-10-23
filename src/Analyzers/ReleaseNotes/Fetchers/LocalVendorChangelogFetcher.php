@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Whatsdiff\Analyzers\ReleaseNotes\Fetchers;
 
-use Composer\Semver\VersionParser;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\ReleaseNotes\ChangelogParser;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesFetcherInterface;
 use Whatsdiff\Data\ReleaseNotesCollection;
+use Whatsdiff\Services\VersionNormalizer;
 
 /**
  * Fetches release notes from local CHANGELOG files.
@@ -32,12 +32,10 @@ class LocalVendorChangelogFetcher implements ReleaseNotesFetcherInterface
         // 'NEWS',
     ];
 
-    private readonly VersionParser $versionParser;
-
     public function __construct(
-        private readonly ChangelogParser $parser
+        private readonly ChangelogParser $parser,
+        private readonly VersionNormalizer $versionNormalizer
     ) {
-        $this->versionParser = new VersionParser();
     }
 
     public function fetch(
@@ -71,10 +69,10 @@ class LocalVendorChangelogFetcher implements ReleaseNotesFetcherInterface
         // return null so other fetchers can try fetching from GitHub
         // This handles cases where the local vendor has an older version than requested
         // TODO: In the future, we take everything and we complete with GitHub data
-        $normalizedToVersion = $this->versionParser->normalize($toVersion);
+        $normalizedToVersion = $this->versionNormalizer->normalize($toVersion);
         $hasToVersion = false;
         foreach ($result as $release) {
-            $releaseVersion = $this->versionParser->normalize($release->tagName);
+            $releaseVersion = $this->versionNormalizer->normalize($release->tagName);
             if ($releaseVersion === $normalizedToVersion) {
                 $hasToVersion = true;
                 break;

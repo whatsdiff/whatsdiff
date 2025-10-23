@@ -4,72 +4,48 @@ declare(strict_types=1);
 
 namespace Whatsdiff\Analyzers;
 
-use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
 use Whatsdiff\Analyzers\LockFile\ComposerLockFile;
+use Whatsdiff\Analyzers\LockFile\LockFileInterface;
 use Whatsdiff\Analyzers\Registries\PackagistRegistry;
 
-class ComposerAnalyzer
+/**
+ * Analyzer for Composer dependency files (composer.lock).
+ *
+ * Provides specific implementations for Composer lock file parsing and
+ * adds support for private Composer repositories via infos_url field.
+ */
+class ComposerAnalyzer extends BaseAnalyzer
 {
-    private PackagistRegistry $registry;
-
     public function __construct(PackagistRegistry $registry)
     {
-        $this->registry = $registry;
+        parent::__construct($registry);
     }
 
-    public function extractPackageVersions(array $composerLockContent): array
+    /**
+     * Create a Composer lock file parser.
+     */
+    protected function createLockFileParser(string $content): LockFileInterface
     {
-        // Backward compatibility: convert array to JSON and use parser
-        $json = json_encode($composerLockContent);
-        $parser = new ComposerLockFile($json);
-
-        return $parser->getAllVersions();
+        return new ComposerLockFile($content);
     }
 
-    public function calculateDiff(string $lastLockContent, ?string $previousLockContent): array
+    /**
+     * Add infos_url field for Composer packages to support private repositories.
+     */
+    protected function getAdditionalPackageFields(string $packageName, array $lastLockArray, array $previousLockArray): array
     {
-        // Parse lock file to detect private repositories
-        $lastLock = json_decode($lastLockContent, true) ?? [];
-        $previousLock = json_decode($previousLockContent ?? '{}', true) ?? [];
-
-        // Create stateful parsers
-        $current = new ComposerLockFile($lastLockContent);
-        $previous = new ComposerLockFile($previousLockContent ?? '{}');
-
-        // Get versions
-        $currentVersions = $current->getAllVersions();
-        $previousVersions = $previous->getAllVersions();
-
-        // Build diff: packages that existed before
-        $diff = collect($previousVersions)
-            ->mapWithKeys(fn ($version, $name) => [
-                $name => [
-                    'name' => $name,
-                    'from' => $version,
-                    'to' => $currentVersions[$name] ?? null,
-                    'infos_url' => $this->getPackageUrl($name, $lastLock),
-                ],
-            ]);
-
-        // Add new packages
-        $newPackages = collect($currentVersions)
-            ->diffKeys($previousVersions)
-            ->mapWithKeys(fn ($version, $name) => [
-                $name => [
-                    'name' => $name,
-                    'from' => null,
-                    'to' => $version,
-                    'infos_url' => $this->getPackageUrl($name, $lastLock),
-                ],
-            ])
-            ->toArray();
-
-        return $diff->merge($newPackages)
-            ->filter(fn ($el) => $el['from'] !== $el['to'])
-            ->sortKeys()
-            ->toArray();
+        return [
+            'infos_url' => $this->getPackageUrl($packageName, $lastLockArray),
+        ];
     }
 
+    /**
+     * Get the package information URL, detecting private repositories.
+     *
+     * @param string $name Package name
+     * @param array $composerLock Composer lock file content as array
+     * @return string Package information URL
+     */
     private function getPackageUrl(string $name, array $composerLock): string
     {
         // Default packagist url
@@ -93,16 +69,33 @@ class ComposerAnalyzer
         return $url;
     }
 
-    public function getReleasesCount(string $package, string $from, string $to, string $url): ?int
+    /**
+     * Get the number of releases between two versions for Composer packages.
+     *
+     * Accepts URL as array context for compatibility with BaseAnalyzer.
+     *
+     * @param string $package Package name
+     * @param string $from Starting version
+     * @param string $to Ending version
+     * @param array $context Context array containing 'url' key for private repos
+     * @return int|null Number of releases, or null on error
+     */
+    public function getReleasesCount(string $package, string $from, string $to, array $context = []): ?int
     {
-        try {
-            $releases = $this->registry->getVersions($package, $from, $to, [
-                'url' => $url,
-            ]);
-        } catch (PackageInformationsException $e) {
-            return  null;
-        }
+        return parent::getReleasesCount($package, $from, $to, $context);
+    }
 
-        return count($releases);
+    /**
+     * Convenience method for getting release count with URL string.
+     *
+     * @param string $package Package name
+     * @param string $from Starting version
+     * @param string $to Ending version
+     * @param string $url Package information URL (for private repos)
+     * @return int|null Number of releases, or null on error
+     */
+    public function getReleasesCountWithUrl(string $package, string $from, string $to, string $url): ?int
+    {
+        return $this->getReleasesCount($package, $from, $to, ['url' => $url]);
     }
 }

@@ -9,7 +9,9 @@ use Whatsdiff\Analyzers\Registries\PackagistRegistry;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Commands\ChangelogCommand;
 use Whatsdiff\Services\CacheService;
+use Whatsdiff\Services\CommandErrorHandler;
 use Whatsdiff\Services\GitRepository;
+use Whatsdiff\Services\VersionNormalizer;
 
 beforeEach(function () {
     $this->gitRepository = Mockery::mock(GitRepository::class);
@@ -17,13 +19,17 @@ beforeEach(function () {
     $this->npmRegistry = Mockery::mock(NpmRegistry::class);
     $this->cacheService = Mockery::mock(CacheService::class);
     $this->releaseNotesResolver = Mockery::mock(ReleaseNotesResolver::class);
+    $this->versionNormalizer = Mockery::mock(VersionNormalizer::class);
+    $this->errorHandler = Mockery::mock(CommandErrorHandler::class);
 
     $this->command = new ChangelogCommand(
         $this->gitRepository,
         $this->packagistRegistry,
         $this->npmRegistry,
         $this->cacheService,
-        $this->releaseNotesResolver
+        $this->releaseNotesResolver,
+        $this->versionNormalizer,
+        $this->errorHandler
     );
 
     $application = new Application();

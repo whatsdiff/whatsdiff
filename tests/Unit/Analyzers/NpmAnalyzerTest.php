@@ -160,7 +160,7 @@ it('gets releases count successfully', function () {
     $this->registry
         ->shouldReceive('getVersions')
         ->once()
-        ->with('lodash', '4.17.15', '4.17.21')
+        ->with('lodash', '4.17.15', '4.17.21', [])
         ->andReturn(['4.17.16', '4.17.17', '4.17.18', '4.17.19', '4.17.20', '4.17.21']);
 
     $result = $this->analyzer->getReleasesCount('lodash', '4.17.15', '4.17.21');

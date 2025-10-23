@@ -175,7 +175,7 @@ it('gets releases count successfully', function () {
         ])
         ->andReturn(['v5.4.1', 'v5.4.2', 'v6.0.0']);
 
-    $result = $this->analyzer->getReleasesCount('symfony/console', 'v5.4.0', 'v6.0.0', 'https://repo.packagist.org/p2/symfony/console.json');
+    $result = $this->analyzer->getReleasesCount('symfony/console', 'v5.4.0', 'v6.0.0', ['url' => 'https://repo.packagist.org/p2/symfony/console.json']);
 
     expect($result)->toBe(3);
 });

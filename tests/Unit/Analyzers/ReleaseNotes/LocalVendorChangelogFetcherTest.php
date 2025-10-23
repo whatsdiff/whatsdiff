@@ -3,12 +3,14 @@
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\ReleaseNotes\ChangelogParser;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
+use Whatsdiff\Services\VersionNormalizer;
 
 beforeEach(function () {
     $this->tempDir = sys_get_temp_dir() . '/whatsdiff-test-' . uniqid();
     mkdir($this->tempDir);
-    $this->parser = new ChangelogParser();
-    $this->fetcher = new LocalVendorChangelogFetcher($this->parser);
+    $this->versionNormalizer = new VersionNormalizer();
+    $this->parser = new ChangelogParser($this->versionNormalizer);
+    $this->fetcher = new LocalVendorChangelogFetcher($this->parser, $this->versionNormalizer);
 });
 
 afterEach(function () {

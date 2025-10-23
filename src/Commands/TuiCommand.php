@@ -7,10 +7,10 @@ namespace Whatsdiff\Commands;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Outputs\Tui\TerminalUI;
 use Whatsdiff\Services\CacheService;
+use Whatsdiff\Services\CommandErrorHandler;
 use Whatsdiff\Services\DiffCalculator;
 
 #[AsCommand(
@@ -20,28 +20,22 @@ use Whatsdiff\Services\DiffCalculator;
 )]
 class TuiCommand extends Command
 {
+    use SharedCommandOptions;
+
     public function __construct(
         private readonly CacheService $cacheService,
         private readonly DiffCalculator $diffCalculator,
+        private readonly CommandErrorHandler $errorHandler,
     ) {
         parent::__construct();
     }
+
     protected function configure(): void
     {
         $this
             ->setHelp('This command launches an interactive TUI to browse changes in your project dependencies')
-            ->addOption(
-                'ignore-last',
-                null,
-                InputOption::VALUE_NONE,
-                'Ignore last uncommitted changes'
-            )
-            ->addOption(
-                'no-cache',
-                null,
-                InputOption::VALUE_NONE,
-                'Disable caching for this request'
-            );
+            ->addIgnoreLastOption()
+            ->addNoCacheOption();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -76,8 +70,7 @@ class TuiCommand extends Command
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            $output->writeln('<error>Error: ' . $e->getMessage() . '</error>');
-            return Command::FAILURE;
+            return $this->errorHandler->handle($e, $output);
         }
     }
 

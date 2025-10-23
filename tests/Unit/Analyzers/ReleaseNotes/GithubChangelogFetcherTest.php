@@ -4,10 +4,11 @@ use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\ReleaseNotes\ChangelogParser;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubChangelogFetcher;
 use Whatsdiff\Services\HttpService;
+use Whatsdiff\Services\VersionNormalizer;
 
 test('it supports github.com URLs', function () {
     $httpService = Mockery::mock(HttpService::class);
-    $parser = new ChangelogParser();
+    $parser = new ChangelogParser(new VersionNormalizer());
     $fetcher = new GithubChangelogFetcher($httpService, $parser);
 
     expect($fetcher->supports('https://github.com/owner/repo', null))->toBeTrue();
@@ -15,7 +16,7 @@ test('it supports github.com URLs', function () {
 
 test('it does not support non-github URLs', function () {
     $httpService = Mockery::mock(HttpService::class);
-    $parser = new ChangelogParser();
+    $parser = new ChangelogParser(new VersionNormalizer());
     $fetcher = new GithubChangelogFetcher($httpService, $parser);
 
     expect($fetcher->supports('https://gitlab.com/owner/repo', null))->toBeFalse();
@@ -38,7 +39,7 @@ MD;
         ->once()
         ->andReturn($changelog);
 
-    $parser = new ChangelogParser();
+    $parser = new ChangelogParser(new VersionNormalizer());
     $fetcher = new GithubChangelogFetcher($httpService, $parser);
 
     $result = $fetcher->fetch(
@@ -75,7 +76,7 @@ MD;
         ->once()
         ->andReturn($changelog);
 
-    $parser = new ChangelogParser();
+    $parser = new ChangelogParser(new VersionNormalizer());
     $fetcher = new GithubChangelogFetcher($httpService, $parser);
 
     $result = $fetcher->fetch(
@@ -121,7 +122,7 @@ MD;
         ->once()
         ->andReturn($changelog);
 
-    $parser = new ChangelogParser();
+    $parser = new ChangelogParser(new VersionNormalizer());
     $fetcher = new GithubChangelogFetcher($httpService, $parser);
 
     $result = $fetcher->fetch(
@@ -155,7 +156,7 @@ MD;
         ->once()
         ->andReturn($changelog);
 
-    $parser = new ChangelogParser();
+    $parser = new ChangelogParser(new VersionNormalizer());
     $fetcher = new GithubChangelogFetcher($httpService, $parser);
 
     $result = $fetcher->fetch(
@@ -176,7 +177,7 @@ test('it returns null when repository URL is not github', function () {
     $httpService = Mockery::mock(HttpService::class);
     $httpService->shouldNotReceive('get');
 
-    $parser = new ChangelogParser();
+    $parser = new ChangelogParser(new VersionNormalizer());
     $fetcher = new GithubChangelogFetcher($httpService, $parser);
 
     $result = $fetcher->fetch(
@@ -197,7 +198,7 @@ test('it returns null when all fetches fail', function () {
     $httpService->shouldReceive('get')
         ->andThrow(new Exception('Not found'));
 
-    $parser = new ChangelogParser();
+    $parser = new ChangelogParser(new VersionNormalizer());
     $fetcher = new GithubChangelogFetcher($httpService, $parser);
 
     $result = $fetcher->fetch(
@@ -232,7 +233,7 @@ MD;
         ->once()
         ->andReturn($changelog);
 
-    $parser = new ChangelogParser();
+    $parser = new ChangelogParser(new VersionNormalizer());
     $fetcher = new GithubChangelogFetcher($httpService, $parser);
 
     $result = $fetcher->fetch(

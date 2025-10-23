@@ -9,6 +9,7 @@ use Composer\Semver\VersionParser;
 use DateTimeImmutable;
 use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
+use Whatsdiff\Services\VersionNormalizer;
 
 /**
  * Parses CHANGELOG.md files in Keep a Changelog format.
@@ -20,11 +21,9 @@ use Whatsdiff\Data\ReleaseNotesCollection;
  */
 class ChangelogParser
 {
-    private readonly VersionParser $versionParser;
-
-    public function __construct()
-    {
-        $this->versionParser = new VersionParser();
+    public function __construct(
+        private readonly VersionNormalizer $versionNormalizer
+    ) {
     }
     /**
      * Parse changelog content and extract releases within version range.
@@ -42,8 +41,8 @@ class ChangelogParser
         bool $includePrerelease = false
     ): ReleaseNotesCollection {
         $releases = [];
-        $normalizedFrom = $this->normalizeVersion($fromVersion);
-        $normalizedTo = $this->normalizeVersion($toVersion);
+        $normalizedFrom = $this->versionNormalizer->normalize($fromVersion);
+        $normalizedTo = $this->versionNormalizer->normalize($toVersion);
 
         // Split content into lines for processing
         $lines = explode("\n", $content);
@@ -173,7 +172,7 @@ class ChangelogParser
         string $toVersion,
         bool $includePrerelease
     ): bool {
-        $normalizedVersion = $this->normalizeVersion($version);
+        $normalizedVersion = $this->versionNormalizer->normalize($version);
 
         // Skip pre-release versions if not included
         if (!$includePrerelease && $this->isPrerelease($normalizedVersion)) {
@@ -192,14 +191,6 @@ class ChangelogParser
             // Invalid version format, skip
             return false;
         }
-    }
-
-    /**
-     * Normalize version string for comparison.
-     */
-    private function normalizeVersion(string $version): string
-    {
-        return $this->versionParser->normalize($version);
     }
 
     /**

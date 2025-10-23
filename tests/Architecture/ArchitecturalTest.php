@@ -22,6 +22,7 @@ arch('analyzers follow naming conventions')
 
 arch('commands extend Symfony Command')
     ->expect('Whatsdiff\Commands')
+    ->classes()
     ->toExtend('Symfony\Component\Console\Command\Command');
 
 arch('data classes are readonly')

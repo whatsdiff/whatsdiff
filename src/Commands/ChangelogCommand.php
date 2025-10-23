@@ -20,7 +20,9 @@ use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesJsonOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesMarkdownOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesTextOutput;
 use Whatsdiff\Services\CacheService;
+use Whatsdiff\Services\CommandErrorHandler;
 use Whatsdiff\Services\GitRepository;
+use Whatsdiff\Services\VersionNormalizer;
 
 #[AsCommand(
     name: 'changelog',
@@ -28,12 +30,16 @@ use Whatsdiff\Services\GitRepository;
 )]
 class ChangelogCommand extends Command
 {
+    use SharedCommandOptions;
+
     public function __construct(
         private readonly GitRepository $gitRepository,
         private readonly PackagistRegistry $packagistRegistry,
         private readonly NpmRegistry $npmRegistry,
         private readonly CacheService $cacheService,
         private readonly ReleaseNotesResolver $releaseNotesResolver,
+        private readonly VersionNormalizer $versionNormalizer,
+        private readonly CommandErrorHandler $errorHandler,
     ) {
         parent::__construct();
     }
@@ -52,49 +58,23 @@ class ChangelogCommand extends Command
                 InputArgument::OPTIONAL,
                 'Version or version range (e.g., 5.1.0 or 5.0.0...5.1.0)'
             )
-            ->addOption(
-                'from',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Git commit, branch, or tag to get the starting version from'
-            )
-            ->addOption(
-                'to',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Git commit, branch, or tag to get the ending version from (defaults to HEAD)'
-            )
-            ->addOption(
-                'ignore-last',
-                null,
-                InputOption::VALUE_NONE,
-                'Ignore last uncommitted changes'
-            )
+            ->addFromOption()
+            ->addToOption()
+            ->addIgnoreLastOption()
             ->addOption(
                 'type',
                 't',
                 InputOption::VALUE_REQUIRED,
                 'Package manager type (composer or npm)'
             )
-            ->addOption(
-                'format',
-                'f',
-                InputOption::VALUE_REQUIRED,
-                'Output format (text, json, markdown)',
-                'text'
-            )
+            ->addFormatOption()
             ->addOption(
                 'summary',
                 's',
                 InputOption::VALUE_NONE,
                 'Show summarized changelog (combines all releases)'
             )
-            ->addOption(
-                'no-cache',
-                null,
-                InputOption::VALUE_NONE,
-                'Disable caching for this request'
-            )
+            ->addNoCacheOption()
             ->addOption(
                 'include-prerelease',
                 null,
@@ -203,14 +183,7 @@ class ChangelogCommand extends Command
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            if ($format === 'json') {
-                $output->writeln(json_encode(['error' => $e->getMessage()], JSON_PRETTY_PRINT));
-
-                return Command::FAILURE;
-            }
-            $output->writeln('<error>Error: ' . $e->getMessage() . '</error>');
-
-            return Command::FAILURE;
+            return $this->errorHandler->handle($e, $output, $format);
         }
     }
 
@@ -410,15 +383,18 @@ class ChangelogCommand extends Command
         string $package,
         PackageManagerType $packageManagerType
     ): array {
-        // Normalize: remove 'v' prefix
-        $versionArg = ltrim($versionArg, 'vV');
-
         // Check for range separator (...)
         if (str_contains($versionArg, '...')) {
             [$fromVersion, $toVersion] = explode('...', $versionArg, 2);
 
-            return [trim($fromVersion), trim($toVersion)];
+            return [
+                $this->versionNormalizer->normalize(trim($fromVersion)),
+                $this->versionNormalizer->normalize(trim($toVersion)),
+            ];
         }
+
+        // Normalize single version
+        $versionArg = $this->versionNormalizer->normalize($versionArg);
 
         // Single version: show just that release
         // To show a single release, we need from < to, so we'll use the previous version

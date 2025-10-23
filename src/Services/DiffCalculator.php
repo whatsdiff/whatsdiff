@@ -356,7 +356,7 @@ class DiffCalculator
                 $package,
                 $infos['from'],
                 $infos['to'],
-                $infos['infos_url']
+                ['url' => $infos['infos_url']]
             ),
             PackageManagerType::NPM => $this->npmAnalyzer->getReleasesCount($package, $infos['from'], $infos['to']),
         };
@@ -589,9 +589,7 @@ class DiffCalculator
         $commitLogs = $this->git->getMultipleFilesCommitLogs($filenames);
 
         foreach ($relevantFiles as $dependencyFile) {
-            $dependencyFileFromCollection = $this->dependencyFiles->first(fn (
-                DependencyFile $file
-            ) => $file->type === $dependencyFile->type);
+            $dependencyFileFromCollection = $this->dependencyFiles->first(fn (DependencyFile $file) => $file->type === $dependencyFile->type);
             $commitLogsToCompare = $dependencyFileFromCollection->commitLogs;
 
             [$lastHash, $previousHash] = $this->getCommitHashToCompare($commitLogsToCompare, $recentlyUpdated);
