@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Enums\ChangeStatus;
 use Whatsdiff\Enums\CheckType;
-use Whatsdiff\Services\CommandErrorHandler;
+use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Services\DiffCalculator;
 
 #[AsCommand(
@@ -24,7 +24,6 @@ class CheckCommand extends Command
 {
     public function __construct(
         private readonly DiffCalculator $diffCalculator,
-        private readonly CommandErrorHandler $errorHandler,
     ) {
         parent::__construct();
     }
@@ -111,7 +110,7 @@ class CheckCommand extends Command
             return $result ? Command::SUCCESS : Command::FAILURE;
 
         } catch (\Exception $e) {
-            return $this->errorHandler->handleQuiet($e, $output, $quiet, Command::INVALID);
+            return CommandErrorHandler::handleQuiet($e, $output, $quiet, Command::INVALID);
         }
     }
 

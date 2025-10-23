@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Whatsdiff\Services;
+namespace Whatsdiff\Helpers;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Centralized error handling service for Symfony Console commands.
+ * Helper class for handling command errors consistently.
  *
- * This service provides consistent error formatting across different output formats
+ * Provides consistent error formatting across different output formats
  * and command contexts, reducing code duplication in command error handling.
  */
 class CommandErrorHandler
@@ -28,7 +28,7 @@ class CommandErrorHandler
      * @param int $exitCode The command exit code to return (default: Command::FAILURE)
      * @return int The exit code to return from the command
      */
-    public function handle(
+    public static function handle(
         \Exception $exception,
         OutputInterface $output,
         ?string $format = null,
@@ -39,7 +39,7 @@ class CommandErrorHandler
         // Format error based on output format
         if ($format === 'json') {
             $output->writeln(json_encode([
-                'error' => $message
+                'error' => $message,
             ], JSON_PRETTY_PRINT));
         } else {
             $output->writeln("<error>Error: {$message}</error>");
@@ -60,7 +60,7 @@ class CommandErrorHandler
      * @param int $exitCode The command exit code to return (default: Command::INVALID)
      * @return int The exit code to return from the command
      */
-    public function handleQuiet(
+    public static function handleQuiet(
         \Exception $exception,
         OutputInterface $output,
         bool $quiet,
@@ -84,7 +84,7 @@ class CommandErrorHandler
      * @param int $exitCode The command exit code to return (default: Command::FAILURE)
      * @return int The exit code to return from the command
      */
-    public function handleWithFormatter(
+    public static function handleWithFormatter(
         \Exception $exception,
         OutputInterface $output,
         callable $formatter,

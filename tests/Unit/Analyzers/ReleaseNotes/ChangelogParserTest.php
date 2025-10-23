@@ -2,7 +2,6 @@
 
 use Whatsdiff\Analyzers\ReleaseNotes\ChangelogParser;
 use Whatsdiff\Data\ReleaseNotesCollection;
-use Whatsdiff\Services\VersionNormalizer;
 
 test('it parses basic Keep a Changelog format', function () {
     $changelog = <<<'MD'
@@ -23,7 +22,7 @@ test('it parses basic Keep a Changelog format', function () {
 - Initial release
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '1.0.0', '2.0.0');
 
     expect($result)->toBeInstanceOf(ReleaseNotesCollection::class);
@@ -42,7 +41,7 @@ test('it handles version with brackets', function () {
 - Feature
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '1.0.0', '2.0.0');
 
     expect($result->count())->toBe(1);
@@ -56,7 +55,7 @@ test('it handles version with v prefix', function () {
 - Feature
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '1.0.0', '2.0.0');
 
     expect($result->count())->toBe(1);
@@ -70,7 +69,7 @@ test('it handles version with parentheses date', function () {
 - Feature
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '1.0.0', '2.0.0');
 
     expect($result->count())->toBe(1);
@@ -92,7 +91,7 @@ test('it filters versions by range', function () {
 - Version 1
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '1.0.0', '2.0.0');
 
     expect($result->count())->toBe(1);
@@ -110,7 +109,7 @@ test('it returns exact version when from and to are the same', function () {
 - Version 1
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '2.0.0', '2.0.0');
 
     expect($result->count())->toBe(1);
@@ -132,7 +131,7 @@ test('it excludes pre-release versions by default', function () {
 - Version 1
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '1.0.0', '2.0.0', includePrerelease: false);
 
     expect($result->count())->toBe(1);
@@ -154,7 +153,7 @@ test('it includes pre-release versions when requested', function () {
 - Version 1
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '1.0.0', '2.0.0', includePrerelease: true);
 
     expect($result->count())->toBe(2);
@@ -169,7 +168,7 @@ test('it handles versions without dates', function () {
 - Feature without date
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '1.0.0', '2.0.0');
 
     expect($result->count())->toBe(1);
@@ -178,7 +177,7 @@ MD;
 });
 
 test('it returns empty collection for empty changelog', function () {
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse('', '1.0.0', '2.0.0');
 
     expect($result)->toBeInstanceOf(ReleaseNotesCollection::class);
@@ -192,7 +191,7 @@ test('it returns empty collection when no versions match', function () {
 - Version 1
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '2.0.0', '3.0.0');
 
     expect($result->count())->toBe(0);
@@ -221,7 +220,7 @@ test('it handles multiple categories', function () {
 - Security patch
 MD;
 
-    $parser = new ChangelogParser(new VersionNormalizer());
+    $parser = new ChangelogParser();
     $result = $parser->parse($changelog, '1.0.0', '2.0.0');
 
     $releases = $result->getReleases();

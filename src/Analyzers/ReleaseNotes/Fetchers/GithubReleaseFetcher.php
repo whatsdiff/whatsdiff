@@ -11,7 +11,7 @@ use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesFetcherInterface;
 use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
 use Whatsdiff\Services\HttpService;
-use Whatsdiff\Services\VersionNormalizer;
+use Whatsdiff\Helpers\VersionNormalizer;
 
 /**
  * Fetches release notes from GitHub Releases API.
@@ -21,8 +21,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
     private const GITHUB_API_URL = 'https://api.github.com';
 
     public function __construct(
-        private HttpService $httpService,
-        private VersionNormalizer $versionNormalizer
+        private HttpService $httpService
     ) {
     }
 
@@ -124,7 +123,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
             }
 
             // Normalize version for comparison (remove 'v' prefix)
-            $version = $this->versionNormalizer->normalize($tagName);
+            $version = VersionNormalizer::normalize($tagName);
 
             // Filter by version range: fromVersion < version <= toVersion
             if (!$this->isVersionInRange($version, $fromVersion, $toVersion)) {
@@ -153,8 +152,8 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
      */
     private function isVersionInRange(string $version, string $fromVersion, string $toVersion): bool
     {
-        $normalizedFrom = $this->versionNormalizer->normalize($fromVersion);
-        $normalizedTo = $this->versionNormalizer->normalize($toVersion);
+        $normalizedFrom = VersionNormalizer::normalize($fromVersion);
+        $normalizedTo = VersionNormalizer::normalize($toVersion);
 
         try {
             // Special case: if from == to, we want exactly that version

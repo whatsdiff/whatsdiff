@@ -11,6 +11,7 @@ use Whatsdiff\Data\DependencyDiff;
 use Whatsdiff\Data\DependencyFile;
 use Whatsdiff\Data\DiffResult;
 use Whatsdiff\Data\PackageChange;
+use Whatsdiff\Helpers\SemverAnalyzer;
 
 class DiffCalculator
 {
@@ -28,8 +29,7 @@ class DiffCalculator
 
     public function __construct(
         GitRepository $git,
-        private readonly AnalyzerRegistry $analyzerRegistry,
-        private readonly SemverAnalyzer $semverAnalyzer
+        private readonly AnalyzerRegistry $analyzerRegistry
     ) {
         $this->git = $git;
         $this->dependencyFiles = collect();
@@ -425,7 +425,7 @@ class DiffCalculator
         // Both versions exist - either updated or downgraded
         if ($infos['from'] !== null && $infos['to'] !== null) {
             $releasesCount = $skipReleaseCount ? null : $this->getReleasesCount($type, $package, $infos);
-            $semverChangeType = $this->semverAnalyzer->determineSemverChangeType($infos['from'], $infos['to']);
+            $semverChangeType = SemverAnalyzer::determineSemverChangeType($infos['from'], $infos['to']);
 
             if (Comparator::greaterThan($infos['to'], $infos['from'])) {
                 return PackageChange::updated(

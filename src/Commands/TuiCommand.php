@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Outputs\Tui\TerminalUI;
 use Whatsdiff\Services\CacheService;
-use Whatsdiff\Services\CommandErrorHandler;
+use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Services\DiffCalculator;
 
 #[AsCommand(
@@ -25,7 +25,6 @@ class TuiCommand extends Command
     public function __construct(
         private readonly CacheService $cacheService,
         private readonly DiffCalculator $diffCalculator,
-        private readonly CommandErrorHandler $errorHandler,
     ) {
         parent::__construct();
     }
@@ -70,7 +69,7 @@ class TuiCommand extends Command
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            return $this->errorHandler->handle($e, $output);
+            return CommandErrorHandler::handle($e, $output);
         }
     }
 

@@ -14,7 +14,7 @@ use Whatsdiff\Outputs\MarkdownOutput;
 use Whatsdiff\Outputs\OutputFormatterInterface;
 use Whatsdiff\Outputs\TextOutput;
 use Whatsdiff\Services\CacheService;
-use Whatsdiff\Services\CommandErrorHandler;
+use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Services\DiffCalculator;
 
 use function Laravel\Prompts\clear;
@@ -32,7 +32,6 @@ class AnalyseCommand extends Command
     public function __construct(
         private readonly CacheService $cacheService,
         private readonly DiffCalculator $diffCalculator,
-        private readonly CommandErrorHandler $errorHandler,
     ) {
         parent::__construct();
     }
@@ -129,7 +128,7 @@ class AnalyseCommand extends Command
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            return $this->errorHandler->handle($e, $output, $format);
+            return CommandErrorHandler::handle($e, $output, $format);
         }
     }
 
