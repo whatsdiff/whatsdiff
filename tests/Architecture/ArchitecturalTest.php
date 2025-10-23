@@ -12,6 +12,7 @@ arch('it uses strict types')
 
 arch('services are in the Services namespace')
     ->expect('Whatsdiff\Services')
+    ->classes()
     ->toBeClasses();
 
 arch('analyzers follow naming conventions')
