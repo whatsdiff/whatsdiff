@@ -16,7 +16,7 @@ use Whatsdiff\Data\PackageChange;
 
 class DiffCalculator
 {
-    private ?GitRepository $git = null;
+    private GitRepository $git;
     private ComposerAnalyzer $composerAnalyzer;
     private NpmAnalyzer $npmAnalyzer;
 
@@ -31,10 +31,12 @@ class DiffCalculator
     private ?DiffResult $diffResult = null;
 
     public function __construct(
+        GitRepository $git,
         ComposerAnalyzer $composerAnalyzer,
         NpmAnalyzer $npmAnalyzer,
         private readonly SemverAnalyzer $semverAnalyzer
     ) {
+        $this->git = $git;
         $this->composerAnalyzer = $composerAnalyzer;
         $this->npmAnalyzer = $npmAnalyzer;
         $this->dependencyFiles = collect();
@@ -149,10 +151,6 @@ class DiffCalculator
      */
     private function runWithProgress(): array
     {
-        // Create GitRepository on-demand (only when run() is actually called)
-        // This allows DiffCalculator to be instantiated outside git repositories
-        $this->git = new GitRepository();
-
         $generator = $this->processDiffsWithProgress();
         $totalCount = $this->calculatePackageChangesCount();
 
