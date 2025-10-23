@@ -99,6 +99,70 @@ final readonly class ReleaseNote
     }
 
     /**
+     * Extract description/introduction text that appears before structured sections
+     * or text that's not part of recognized sections.
+     *
+     * This includes:
+     * - Paragraphs before the first ## heading
+     * - Paragraphs in sections not matching Changes/Fixes/Breaking Changes
+     */
+    public function getDescription(): string
+    {
+        $lines = explode("\n", $this->body);
+        $description = [];
+        $inRecognizedSection = false;
+        $hasSeenHeading = false;
+
+        $recognizedHeadings = [
+            '## Changes', '## Added', '## What\'s Changed', '## New Features',
+            '## Features', '## Enhancements', '## Fixes', '## Fixed',
+            '## Bug Fixes', '## Bugfixes', '## Breaking Changes', '## BREAKING CHANGES',
+            '## Breaking',
+            '### Changes', '### Added', '### What\'s Changed', '### New Features',
+            '### Features', '### Enhancements', '### Fixes', '### Fixed',
+            '### Bug Fixes', '### Bugfixes', '### Breaking Changes', '### Breaking',
+        ];
+
+        foreach ($lines as $line) {
+            $trimmedLine = trim($line);
+
+            // Check if this is a markdown heading
+            if (str_starts_with($trimmedLine, '## ') || str_starts_with($trimmedLine, '### ')) {
+                $hasSeenHeading = true;
+
+                // Check if it's a recognized section
+                $isRecognized = false;
+                foreach ($recognizedHeadings as $heading) {
+                    if (stripos($trimmedLine, $heading) === 0) {
+                        $isRecognized = true;
+                        break;
+                    }
+                }
+
+                $inRecognizedSection = $isRecognized;
+                continue;
+            }
+
+            // If we haven't seen any heading yet, or we're in an unrecognized section,
+            // and this isn't a bullet point, collect it as description
+            if ((!$hasSeenHeading || !$inRecognizedSection) &&
+                !str_starts_with($trimmedLine, '- ') &&
+                !str_starts_with($trimmedLine, '* ')) {
+                $description[] = $line; // Keep original line with indentation
+            }
+        }
+
+        // Join and trim the description, removing excessive blank lines
+        $descriptionText = implode("\n", $description);
+        $descriptionText = trim($descriptionText);
+
+        // Normalize multiple consecutive newlines to at most 2 (one blank line)
+        $descriptionText = preg_replace("/\n{3,}/", "\n\n", $descriptionText);
+
+        return $descriptionText;
+    }
+
+    /**
      * Extract all bullet points from the body regardless of sections.
      * Used as a fallback when no recognized section headings are found.
      *

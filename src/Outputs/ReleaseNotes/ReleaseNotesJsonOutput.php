@@ -23,6 +23,7 @@ class ReleaseNotesJsonOutput
                 'date' => $release->date->format('Y-m-d\TH:i:s\Z'),
                 'url' => $release->url,
                 'body' => $release->body,
+                'description' => $release->getDescription(),
                 'changes' => $release->getChanges(),
                 'fixes' => $release->getFixes(),
                 'breaking_changes' => $release->getBreakingChanges(),

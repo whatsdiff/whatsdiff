@@ -61,6 +61,22 @@ class ReleaseNotesTextOutput
         }
         $output->writeln('');
 
+        // Description (if any)
+        $description = $release->getDescription();
+        if (! empty($description)) {
+            // Split into lines and format each one
+            $descriptionLines = explode("\n", $description);
+            foreach ($descriptionLines as $line) {
+                if (trim($line) === '') {
+                    $output->writeln('');
+                } else {
+                    $formatted = $this->formatTextWithLinks($line);
+                    $output->writeln($this->colorize('<fg=default>' . $formatted . '</>', $line));
+                }
+            }
+            $output->writeln('');
+        }
+
         // Breaking changes (if any)
         $breakingChanges = $release->getBreakingChanges();
         if (! empty($breakingChanges)) {

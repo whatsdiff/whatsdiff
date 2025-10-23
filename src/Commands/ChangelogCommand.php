@@ -215,11 +215,17 @@ class ChangelogCommand extends Command
     }
 
     /**
-     * Detect package manager type by checking lock files.
+     * Detect package manager type using multiple strategies.
+     *
+     * Strategy order:
+     * 1. Use explicit --type option if provided
+     * 2. Pattern matching on package name format
+     * 3. Probe registries to see which has the package
+     * 4. Check lock files for the package
      */
     private function detectPackageManager(string $package, ?string $typeOption): ?PackageManagerType
     {
-        // If type is specified, validate and return
+        // Strategy 1: If type is specified, validate and return
         if ($typeOption !== null) {
             return match (strtolower($typeOption)) {
                 'composer' => PackageManagerType::COMPOSER,
@@ -228,6 +234,24 @@ class ChangelogCommand extends Command
             };
         }
 
+        // Strategy 2: Pattern matching on package name format
+        // Composer packages typically use vendor/package format (contains /)
+        // NPM packages are usually single words or @scope/package
+        $detectedType = $this->detectByPackageNamePattern($package);
+        if ($detectedType !== null) {
+            // Verify by probing the registry
+            if ($this->verifyPackageExistsInRegistry($package, $detectedType)) {
+                return $detectedType;
+            }
+        }
+
+        // Strategy 3: Probe both registries to see which has the package
+        $detectedType = $this->detectByRegistryProbe($package);
+        if ($detectedType !== null) {
+            return $detectedType;
+        }
+
+        // Strategy 4: Check lock files
         // Check composer.lock
         try {
             $composerLockContent = $this->gitRepository->getFileContentAtCommit('composer.lock', 'HEAD');
@@ -256,6 +280,77 @@ class ChangelogCommand extends Command
             // package-lock.json not found or invalid
         }
 
+        return null;
+    }
+
+    /**
+     * Detect package manager type by analyzing package name pattern.
+     *
+     * Composer: vendor/package (e.g., symfony/console, laravel/framework)
+     * NPM: package-name or @scope/package-name (e.g., react, @types/node)
+     */
+    private function detectByPackageNamePattern(string $package): ?PackageManagerType
+    {
+        // NPM scoped packages start with @
+        if (str_starts_with($package, '@') && str_contains($package, '/')) {
+            return PackageManagerType::NPM;
+        }
+
+        // Composer packages typically have vendor/package format with lowercase vendor
+        if (str_contains($package, '/')) {
+            $parts = explode('/', $package, 2);
+            $vendor = $parts[0];
+
+            // If vendor part is all lowercase (common for composer packages)
+            // and doesn't start with @ (which would be NPM scoped)
+            if ($vendor === strtolower($vendor) && ! str_starts_with($vendor, '@')) {
+                return PackageManagerType::COMPOSER;
+            }
+        }
+
+        // Unable to determine from pattern alone
+        return null;
+    }
+
+    /**
+     * Verify if a package exists in a specific registry.
+     */
+    private function verifyPackageExistsInRegistry(string $package, PackageManagerType $type): bool
+    {
+        try {
+            $registry = $type === PackageManagerType::COMPOSER
+                ? $this->packagistRegistry
+                : $this->npmRegistry;
+
+            $registry->getPackageMetadata($package);
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Detect package manager type by probing both registries.
+     *
+     * Returns the type if found in exactly one registry.
+     * Returns null if found in both or neither (ambiguous).
+     */
+    private function detectByRegistryProbe(string $package): ?PackageManagerType
+    {
+        $foundInComposer = $this->verifyPackageExistsInRegistry($package, PackageManagerType::COMPOSER);
+        $foundInNpm = $this->verifyPackageExistsInRegistry($package, PackageManagerType::NPM);
+
+        // If found in exactly one registry, return that type
+        if ($foundInComposer && ! $foundInNpm) {
+            return PackageManagerType::COMPOSER;
+        }
+
+        if ($foundInNpm && ! $foundInComposer) {
+            return PackageManagerType::NPM;
+        }
+
+        // Ambiguous: found in both or neither
         return null;
     }
 
