@@ -7,6 +7,7 @@ namespace Whatsdiff\Data;
 use Countable;
 use IteratorAggregate;
 use Traversable;
+use Whatsdiff\Helpers\GithubUrlFormatter;
 
 /**
  * Collection of release notes with merge capabilities.
@@ -114,8 +115,8 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
 
             $markdown .= "**Date:** {$release->date->format('Y-m-d')}\n\n";
 
-            // Add the body
-            $markdown .= $release->body;
+            // Add the body with formatted GitHub URLs
+            $markdown .= $this->formatGithubUrls($release->body);
             $markdown .= "\n\n---\n\n";
         }
 
@@ -139,7 +140,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
         if (!empty($breakingChanges)) {
             $markdown .= "## Breaking Changes\n\n";
             foreach ($breakingChanges as $change) {
-                $markdown .= "- {$change}\n";
+                $markdown .= "- {$this->formatGithubUrls($change)}\n";
             }
             $markdown .= "\n";
         }
@@ -149,7 +150,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
         if (!empty($changes)) {
             $markdown .= "## Changes\n\n";
             foreach ($changes as $change) {
-                $markdown .= "- {$change}\n";
+                $markdown .= "- {$this->formatGithubUrls($change)}\n";
             }
             $markdown .= "\n";
         }
@@ -159,7 +160,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
         if (!empty($fixes)) {
             $markdown .= "## Fixes\n\n";
             foreach ($fixes as $fix) {
-                $markdown .= "- {$fix}\n";
+                $markdown .= "- {$this->formatGithubUrls($fix)}\n";
             }
             $markdown .= "\n";
         }
@@ -191,5 +192,15 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
     public function isEmpty(): bool
     {
         return empty($this->releases);
+    }
+
+    /**
+     * Format GitHub PR/issue URLs in text to compact markdown links.
+     * Converts: https://github.com/owner/repo/pull/123 -> [#123](url)
+     * Converts: https://github.com/owner/repo/issues/456 -> [#456](url)
+     */
+    private function formatGithubUrls(string $text): string
+    {
+        return GithubUrlFormatter::toMarkdownLink($text);
     }
 }

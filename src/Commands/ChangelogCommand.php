@@ -20,9 +20,9 @@ use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesJsonOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesMarkdownOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesTextOutput;
 use Whatsdiff\Services\CacheService;
-use Whatsdiff\Services\CommandErrorHandler;
+use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Services\GitRepository;
-use Whatsdiff\Services\VersionNormalizer;
+use Whatsdiff\Helpers\VersionNormalizer;
 
 #[AsCommand(
     name: 'changelog',
@@ -38,8 +38,6 @@ class ChangelogCommand extends Command
         private readonly NpmRegistry $npmRegistry,
         private readonly CacheService $cacheService,
         private readonly ReleaseNotesResolver $releaseNotesResolver,
-        private readonly VersionNormalizer $versionNormalizer,
-        private readonly CommandErrorHandler $errorHandler,
     ) {
         parent::__construct();
     }
@@ -183,7 +181,7 @@ class ChangelogCommand extends Command
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            return $this->errorHandler->handle($e, $output, $format);
+            return CommandErrorHandler::handle($e, $output, $format);
         }
     }
 
@@ -388,13 +386,13 @@ class ChangelogCommand extends Command
             [$fromVersion, $toVersion] = explode('...', $versionArg, 2);
 
             return [
-                $this->versionNormalizer->normalize(trim($fromVersion)),
-                $this->versionNormalizer->normalize(trim($toVersion)),
+                VersionNormalizer::normalize(trim($fromVersion)),
+                VersionNormalizer::normalize(trim($toVersion)),
             ];
         }
 
         // Normalize single version
-        $versionArg = $this->versionNormalizer->normalize($versionArg);
+        $versionArg = VersionNormalizer::stripPrefix($versionArg);
 
         // Single version: show just that release
         // To show a single release, we need from < to, so we'll use the previous version

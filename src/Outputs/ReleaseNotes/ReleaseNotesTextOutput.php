@@ -7,6 +7,7 @@ namespace Whatsdiff\Outputs\ReleaseNotes;
 use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
+use Whatsdiff\Helpers\GithubUrlFormatter;
 
 class ReleaseNotesTextOutput
 {
@@ -164,6 +165,7 @@ class ReleaseNotesTextOutput
 
     /**
      * Format text by converting markdown links and bare URLs to Symfony <href> tags.
+     * GitHub PR/issue URLs are displayed in compact format (#123) while remaining clickable.
      */
     private function formatTextWithLinks(string $text): string
     {
@@ -178,7 +180,10 @@ class ReleaseNotesTextOutput
             $text
         );
 
-        // Convert bare URLs to <href> tags (use negative lookbehind to avoid matching URLs already in href= attributes)
+        // Convert GitHub PR/issue URLs to compact format: https://github.com/owner/repo/pull/123 -> #123
+        $text = GithubUrlFormatter::toTerminalLink($text);
+
+        // Convert remaining bare URLs to <href> tags (use negative lookbehind to avoid matching URLs already in href= attributes)
         $text = preg_replace(
             '/(?<!href=)(https?:\/\/[^\s)\]<]+)/',
             '<href=$1>$1</>',

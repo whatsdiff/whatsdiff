@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Whatsdiff\Services;
+namespace Whatsdiff\Helpers;
 
 use Composer\Semver\VersionParser;
 
 /**
- * Centralized service for normalizing version strings.
+ * Helper class for normalizing version strings.
  *
  * Handles common version string operations like:
  * - Removing 'v' or 'V' prefixes
@@ -16,11 +16,18 @@ use Composer\Semver\VersionParser;
  */
 class VersionNormalizer
 {
-    private readonly VersionParser $versionParser;
+    private static ?VersionParser $versionParser = null;
 
-    public function __construct()
+    /**
+     * Get the shared VersionParser instance.
+     */
+    private static function getParser(): VersionParser
     {
-        $this->versionParser = new VersionParser();
+        if (self::$versionParser === null) {
+            self::$versionParser = new VersionParser();
+        }
+
+        return self::$versionParser;
     }
 
     /**
@@ -40,20 +47,24 @@ class VersionNormalizer
      * @return string Fully normalized semver string
      * @throws \UnexpectedValueException If version string is invalid
      */
-    public function normalize(string $version): string
+    public static function normalize(string $version): string
     {
-        return $this->versionParser->normalize($version);
+        return self::getParser()->normalize($version);
     }
 
     /**
-     * Get the underlying VersionParser instance.
+     * Strip version prefix ('v' or 'V') from a version string.
      *
-     * Useful for advanced version operations like constraints and comparisons.
+     * Examples:
+     * - "v1.2.3" -> "1.2.3"
+     * - "V2.0.0" -> "2.0.0"
+     * - "1.0.0" -> "1.0.0"
      *
-     * @return VersionParser The Composer VersionParser instance
+     * @param string $version Version string
+     * @return string Version string without prefix
      */
-    public function getParser(): VersionParser
+    public static function stripPrefix(string $version): string
     {
-        return $this->versionParser;
+        return ltrim($version, 'vV');
     }
 }
