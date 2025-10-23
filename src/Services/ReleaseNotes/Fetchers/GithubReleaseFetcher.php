@@ -160,6 +160,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
 
     /**
      * Check if version is within range: fromVersion < version <= toVersion.
+     * Special case: if fromVersion == toVersion, match only that exact version.
      */
     private function isVersionInRange(string $version, string $fromVersion, string $toVersion): bool
     {
@@ -167,6 +168,11 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
         $normalizedTo = $this->normalizeVersion($toVersion);
 
         try {
+            // Special case: if from == to, we want exactly that version
+            if ($normalizedFrom === $normalizedTo) {
+                return $version === $normalizedFrom;
+            }
+
             return Comparator::greaterThan($version, $normalizedFrom)
                 && Comparator::lessThanOrEqualTo($version, $normalizedTo);
         } catch (\Exception $e) {

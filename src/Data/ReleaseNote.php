@@ -24,7 +24,27 @@ final readonly class ReleaseNote
      */
     public function getChanges(): array
     {
-        return $this->extractSection(['## Changes', '## Added', '### Changes', '### Added']);
+        $changes = $this->extractSection([
+            '## Changes',
+            '## Added',
+            '## What\'s Changed',
+            '## New Features',
+            '## Features',
+            '## Enhancements',
+            '### Changes',
+            '### Added',
+            '### What\'s Changed',
+            '### New Features',
+            '### Features',
+            '### Enhancements',
+        ]);
+
+        // Fallback: If no recognized sections found and body is not empty, return entire body as changes
+        if (empty($changes) && !empty(trim($this->body))) {
+            return $this->extractAllBulletPoints();
+        }
+
+        return $changes;
     }
 
     /**
@@ -34,7 +54,16 @@ final readonly class ReleaseNote
      */
     public function getFixes(): array
     {
-        return $this->extractSection(['## Fixes', '## Fixed', '### Fixes', '### Fixed', '## Bug Fixes', '### Bug Fixes']);
+        return $this->extractSection([
+            '## Fixes',
+            '## Fixed',
+            '## Bug Fixes',
+            '## Bugfixes',
+            '### Fixes',
+            '### Fixed',
+            '### Bug Fixes',
+            '### Bugfixes',
+        ]);
     }
 
     /**
@@ -44,7 +73,13 @@ final readonly class ReleaseNote
      */
     public function getBreakingChanges(): array
     {
-        return $this->extractSection(['## Breaking Changes', '## BREAKING CHANGES', '### Breaking Changes']);
+        return $this->extractSection([
+            '## Breaking Changes',
+            '## BREAKING CHANGES',
+            '## Breaking',
+            '### Breaking Changes',
+            '### Breaking',
+        ]);
     }
 
     /**
@@ -61,6 +96,29 @@ final readonly class ReleaseNote
     public function getTitle(): string
     {
         return $this->title;
+    }
+
+    /**
+     * Extract all bullet points from the body regardless of sections.
+     * Used as a fallback when no recognized section headings are found.
+     *
+     * @return array<int, string>
+     */
+    private function extractAllBulletPoints(): array
+    {
+        $lines = explode("\n", $this->body);
+        $items = [];
+
+        foreach ($lines as $line) {
+            $trimmedLine = trim($line);
+
+            // Collect all bullet points
+            if (str_starts_with($trimmedLine, '- ') || str_starts_with($trimmedLine, '* ')) {
+                $items[] = substr($trimmedLine, 2); // Remove bullet point
+            }
+        }
+
+        return $items;
     }
 
     /**

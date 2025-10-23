@@ -341,3 +341,45 @@ it('returns null when api response is invalid json', function () {
 
     expect($result)->toBeNull();
 });
+
+it('fetches exact version when from and to are the same', function () {
+    $apiResponse = [
+        [
+            'tag_name' => 'v1.1.0',
+            'name' => 'Version 1.1.0',
+            'body' => 'Release 1.1.0',
+            'published_at' => '2024-01-15T10:00:00Z',
+            'html_url' => 'https://github.com/owner/repo/releases/tag/v1.1.0',
+            'draft' => false,
+            'prerelease' => false,
+        ],
+        [
+            'tag_name' => 'v1.0.0',
+            'name' => 'Version 1.0.0',
+            'body' => 'Release 1.0.0',
+            'published_at' => '2024-01-01T10:00:00Z',
+            'html_url' => 'https://github.com/owner/repo/releases/tag/v1.0.0',
+            'draft' => false,
+            'prerelease' => false,
+        ],
+    ];
+
+    $this->httpService
+        ->shouldReceive('get')
+        ->once()
+        ->andReturn(json_encode($apiResponse));
+
+    $result = $this->fetcher->fetch(
+        package: 'owner/repo',
+        fromVersion: 'v1.1.0',
+        toVersion: 'v1.1.0',
+        repositoryUrl: 'https://github.com/owner/repo',
+        packageManagerType: PackageManagerType::COMPOSER,
+        localPath: null,
+        includePrerelease: false
+    );
+
+    expect($result)->not->toBeNull()
+        ->and($result->count())->toBe(1)
+        ->and($result->getReleases()[0]->tagName)->toBe('v1.1.0');
+});

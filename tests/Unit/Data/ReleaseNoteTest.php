@@ -154,7 +154,7 @@ MD;
     expect($fixes)->toBe(['Bug A', 'Bug B', 'Bug C']);
 });
 
-it('returns empty array when section not found', function () {
+it('uses fallback to extract all bullet points when no recognized sections found', function () {
     $body = <<<'MD'
 ## Some Other Section
 
@@ -169,7 +169,8 @@ MD;
         date: new DateTimeImmutable()
     );
 
-    expect($releaseNote->getChanges())->toBe([])
+    // Changes should use fallback and return all bullet points
+    expect($releaseNote->getChanges())->toBe(['Item A', 'Item B'])
         ->and($releaseNote->getFixes())->toBe([])
         ->and($releaseNote->getBreakingChanges())->toBe([]);
 });
@@ -247,4 +248,158 @@ MD;
     );
 
     expect($releaseNote->getBreakingChanges())->toBe(['Major change A']);
+});
+
+it('recognizes "What\'s Changed" as changes section', function () {
+    $body = <<<'MD'
+## What's Changed
+
+- New feature X
+- Enhancement Y
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v1.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->getChanges())->toBe(['New feature X', 'Enhancement Y']);
+});
+
+it('recognizes "New Features" as changes section', function () {
+    $body = <<<'MD'
+## New Features
+
+- Feature A
+- Feature B
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v1.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->getChanges())->toBe(['Feature A', 'Feature B']);
+});
+
+it('recognizes "Features" as changes section', function () {
+    $body = <<<'MD'
+### Features
+
+- Feature A
+- Feature B
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v1.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->getChanges())->toBe(['Feature A', 'Feature B']);
+});
+
+it('recognizes "Enhancements" as changes section', function () {
+    $body = <<<'MD'
+## Enhancements
+
+- Enhancement A
+- Enhancement B
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v1.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->getChanges())->toBe(['Enhancement A', 'Enhancement B']);
+});
+
+it('recognizes "Bugfixes" as fixes section', function () {
+    $body = <<<'MD'
+## Bugfixes
+
+- Fixed issue A
+- Fixed issue B
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v1.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->getFixes())->toBe(['Fixed issue A', 'Fixed issue B']);
+});
+
+it('recognizes "Breaking" as breaking changes section', function () {
+    $body = <<<'MD'
+## Breaking
+
+- Removed API X
+- Changed behavior Y
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v2.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->getBreakingChanges())->toBe(['Removed API X', 'Changed behavior Y']);
+});
+
+it('returns empty array for changes when body has no bullet points', function () {
+    $body = <<<'MD'
+This is a plain text release note without any bullet points.
+
+Just plain paragraphs.
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v1.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->getChanges())->toBe([]);
+});
+
+it('handles multiple section types with different heading variations', function () {
+    $body = <<<'MD'
+## What's Changed
+
+- New feature A
+- New feature B
+
+## Bugfixes
+
+- Fixed bug X
+- Fixed bug Y
+
+## Breaking
+
+- Removed old API
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v2.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->getChanges())->toBe(['New feature A', 'New feature B'])
+        ->and($releaseNote->getFixes())->toBe(['Fixed bug X', 'Fixed bug Y'])
+        ->and($releaseNote->getBreakingChanges())->toBe(['Removed old API']);
 });
