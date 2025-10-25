@@ -108,34 +108,75 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
     private function layoutHeader(): Collection
     {
+        $logo = $this->blue('Δ').' '.$this->green('⊕').' '.$this->red('⊖');
+        $leftText = "What's Diff?";
+        $left = ' '.$logo.' '.$leftText;
+
+        $githubText = 'Source Code';
+        $websiteText = 'whatsdiff.app';
+        $github = "\e]8;;https://github.com/whatsdiff/whatsdiff\e\\".$this->dim($githubText)."\e]8;;\e\\";
+        $website = "\e]8;;https://whatsdiff.app\e\\".$this->dim($websiteText)."\e]8;;\e\\";
+        $right = $github.' '.$website.' ';
+
+        // Calculate spacing: total width - left text length - right text length
+        $leftLength = mb_strwidth('Δ ⊕ ⊖ '.$leftText);
+        $rightLength = mb_strwidth(' '.$githubText.' '.$websiteText);
+        $spacing = max(1, $this->uiWidth - 2 - $leftLength - $rightLength);
+
+        $headerLine = $left.str_repeat(' ', $spacing).$right;
+
         return collect([
             '',
             $this->dim(str_repeat('─', $this->uiWidth)),
-            ... $this->centerHorizontally("What's Diff?", $this->uiWidth)->toArray(),
+            $headerLine,
             $this->dim(str_repeat('─', $this->uiWidth)),
         ]);
     }
 
     private function layoutFooter(): Collection
     {
-
         // Hotkeys
         $this->hotkey('↑', 'Up');
         $this->hotkey('↓', 'Down');
         $this->hotkey('Enter', 'Select');
         $this->hotkey('Esc', 'Back', active: ($this->terminalUI->selected > -1));
+        if ($this->terminalUI->isPackageSelected()) {
+            $this->hotkey('T', 'Toggle mode');
+            $this->hotkey('TAB', 'Next package');
+        }
         $this->hotkeyQuit();
+
+        $name = '';
+        $versions = '';
+        $semverBadge = '';
+        if ($this->terminalUI->getHighlighted('sidebar') !== null) {
+            $highlighted = $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')];
+            $name = $highlighted['name'] ?? '';
+            $status = $highlighted['status'] ?? '';
+            $from = $highlighted['from'] ?? '';
+            $to = $highlighted['to'] ?? '';
+
+            // Format version display based on status
+            $versions = match ($status) {
+                'added' => $to,
+                'removed' => $from,
+                default => $from.' → '.$to,
+            };
+
+            // Format semver/status badge
+            $semverType = $highlighted['semver'] ?? null;
+            $semverBadge = $this->formatSemverBadge($status, $semverType);
+        }
 
         $footer = [
             // Bottom border
             $this->dim(str_repeat('─', $this->uiWidth)),
 
-            // Debug infos
+            // Package info and mode indicator
             $this->spaceBetween($this->uiWidth, ...[
-                $this->terminalUI->isPackageSelected() ? 'Selected: '.$this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['name'] : 'No package selected',
-                $this->terminalUI->isPackageSelected() ? $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['from'] ?? '' : '',
-                $this->terminalUI->isPackageSelected() ? $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['to'] ?? '' : '',
-                // $this->terminalUI->getHighlighted('sidebar')??'',
+                $semverBadge.' '.$name,
+                $versions,
+                ($this->terminalUI->isPackageSelected() ? ($this->terminalUI->summaryMode ? 'Mode: Summary' : 'Mode: Detailed') : '').' ',
             ]),
 
             // Another border
@@ -214,9 +255,11 @@ class TerminalUIRenderer extends Renderer implements Scrolling
         // Put a carret in the highlighted line and space for other lines
         $highlighted = $this->terminalUI->getHighlighted('content');
         $content = array_map(function ($line, $key) use ($highlighted) {
+            // Remove any embedded newlines or carriage returns that might cause display issues
+            $line = str_replace(["\r\n", "\r", "\n"], '', $line);
+
             return $key === $highlighted ? '➤ '.$line : '  '.$line;
         }, $content, array_keys($content));
-
 
         return collect($this->scrollbar(
             visible: $content,
@@ -226,4 +269,31 @@ class TerminalUIRenderer extends Renderer implements Scrolling
             width: $this->uiWidth - $this->sideBarWidth - 3,
         ));
     }
+
+    private function formatSemverBadge(string $status, ?string $semverType): string
+    {
+        // For added/removed packages, show status badge
+        if ($status === 'added') {
+            return ' '.$this->bgGreen($this->black(' ADDED '));
+        }
+
+        if ($status === 'removed') {
+            return ' '.$this->bgRed($this->white(' REMOVED '));
+        }
+
+        // For updated/downgraded packages, show semver badge if available
+        if ($semverType) {
+            $badge = strtoupper($semverType);
+
+            return match ($semverType) {
+                'major' => ' '.$this->bgRed($this->white(' '.$badge.' ')),
+                'minor' => ' '.$this->bgBlue($this->white(' '.$badge.' ')),
+                'patch' => ' '.$this->bgGreen($this->black(' '.$badge.' ')),
+                default => '',
+            };
+        }
+
+        return '';
+    }
+
 }

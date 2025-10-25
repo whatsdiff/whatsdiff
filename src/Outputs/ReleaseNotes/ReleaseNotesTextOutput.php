@@ -49,7 +49,7 @@ class ReleaseNotesTextOutput
     {
         // Release header
         $header = $release->tagName;
-        if ($release->title !== $release->tagName) {
+        if (!empty($release->title) && $release->title !== $release->tagName) {
             $header .= ' - ' . $release->title;
         }
         $output->writeln($this->colorize('<fg=bright-yellow>' . $header . '</>', $header));
@@ -62,53 +62,70 @@ class ReleaseNotesTextOutput
         }
         $output->writeln('');
 
-        // Description (if any)
-        $description = $release->getDescription();
-        if (! empty($description)) {
-            // Split into lines and format each one
-            $descriptionLines = explode("\n", $description);
-            foreach ($descriptionLines as $line) {
-                if (trim($line) === '') {
-                    $output->writeln('');
-                } else {
-                    $formatted = $this->formatTextWithLinks($line);
-                    $output->writeln($this->colorize('<fg=default>' . $formatted . '</>', $line));
+        // If changelog is not structured, display raw body
+        if (!$release->isStructured()) {
+            $body = $release->getBody();
+            if (!empty($body)) {
+                $bodyLines = explode("\n", $body);
+                foreach ($bodyLines as $line) {
+                    if (trim($line) === '') {
+                        $output->writeln('');
+                    } else {
+                        $formatted = $this->formatTextWithLinks($line);
+                        $output->writeln($this->colorize('<fg=default>' . $formatted . '</>', $line));
+                    }
                 }
+                $output->writeln('');
             }
-            $output->writeln('');
-        }
+        } else {
+            // Description (if any)
+            $description = $release->getDescription();
+            if (! empty($description)) {
+                // Split into lines and format each one
+                $descriptionLines = explode("\n", $description);
+                foreach ($descriptionLines as $line) {
+                    if (trim($line) === '') {
+                        $output->writeln('');
+                    } else {
+                        $formatted = $this->formatTextWithLinks($line);
+                        $output->writeln($this->colorize('<fg=default>' . $formatted . '</>', $line));
+                    }
+                }
+                $output->writeln('');
+            }
 
-        // Breaking changes (if any)
-        $breakingChanges = $release->getBreakingChanges();
-        if (! empty($breakingChanges)) {
-            $output->writeln($this->colorize('<fg=bright-red>Breaking Changes:</>', 'Breaking Changes:'));
-            foreach ($breakingChanges as $change) {
-                $formatted = $this->formatTextWithLinks($change);
-                $output->writeln($this->colorize('  <fg=red>•</> ' . $formatted, '  • ' . $change));
+            // Breaking changes (if any)
+            $breakingChanges = $release->getBreakingChanges();
+            if (! empty($breakingChanges)) {
+                $output->writeln($this->colorize('<fg=bright-red>Breaking Changes:</>', 'Breaking Changes:'));
+                foreach ($breakingChanges as $change) {
+                    $formatted = $this->formatTextWithLinks($change);
+                    $output->writeln($this->colorize('  <fg=red>•</> ' . $formatted, '  • ' . $change));
+                }
+                $output->writeln('');
             }
-            $output->writeln('');
-        }
 
-        // Changes (if any)
-        $changes = $release->getChanges();
-        if (! empty($changes)) {
-            $output->writeln($this->colorize('<fg=bright-green>Changes:</>', 'Changes:'));
-            foreach ($changes as $change) {
-                $formatted = $this->formatTextWithLinks($change);
-                $output->writeln($this->colorize('  <fg=green>•</> ' . $formatted, '  • ' . $change));
+            // Changes (if any)
+            $changes = $release->getChanges();
+            if (! empty($changes)) {
+                $output->writeln($this->colorize('<fg=bright-green>Changes:</>', 'Changes:'));
+                foreach ($changes as $change) {
+                    $formatted = $this->formatTextWithLinks($change);
+                    $output->writeln($this->colorize('  <fg=green>•</> ' . $formatted, '  • ' . $change));
+                }
+                $output->writeln('');
             }
-            $output->writeln('');
-        }
 
-        // Fixes (if any)
-        $fixes = $release->getFixes();
-        if (! empty($fixes)) {
-            $output->writeln($this->colorize('<fg=bright-blue>Fixes:</>', 'Fixes:'));
-            foreach ($fixes as $fix) {
-                $formatted = $this->formatTextWithLinks($fix);
-                $output->writeln($this->colorize('  <fg=blue>•</> ' . $formatted, '  • ' . $fix));
+            // Fixes (if any)
+            $fixes = $release->getFixes();
+            if (! empty($fixes)) {
+                $output->writeln($this->colorize('<fg=bright-blue>Fixes:</>', 'Fixes:'));
+                foreach ($fixes as $fix) {
+                    $formatted = $this->formatTextWithLinks($fix);
+                    $output->writeln($this->colorize('  <fg=blue>•</> ' . $formatted, '  • ' . $fix));
+                }
+                $output->writeln('');
             }
-            $output->writeln('');
         }
 
         $output->writeln($this->colorize('<fg=gray>' . str_repeat('─', 80) . '</>', str_repeat('-', 80)));
@@ -121,9 +138,31 @@ class ReleaseNotesTextOutput
         $output->writeln($this->colorize('<fg=gray>' . str_repeat('─', 80) . '</>', str_repeat('-', 80)));
         $output->writeln('');
 
-        $output->writeln($this->colorize('<fg=gray>Total Releases: ' . $collection->count() . '</>', 'Total Releases: ' . $collection->count()));
+        // Show version range and count
+        $releases = $collection->getReleases();
+        $firstTag = $releases[0]->tagName;
+        $lastTag = $releases[count($releases) - 1]->tagName;
+        $count = $collection->count();
+        $releasesInfo = "Releases: {$firstTag} → {$lastTag} ({$count} versions)";
+
+        $output->writeln($this->colorize('<fg=gray>' . $releasesInfo . '</>', $releasesInfo));
         $output->writeln('');
 
+        // If any release is unstructured, show all bullet points in a flat list
+        if ($collection->hasUnstructuredReleases()) {
+            $allBulletPoints = $collection->getAllBulletPoints();
+            if (!empty($allBulletPoints)) {
+                $output->writeln($this->colorize('<fg=bright-green>Changes:</>', 'Changes:'));
+                foreach ($allBulletPoints as $bulletPoint) {
+                    $formatted = $this->formatTextWithLinks($bulletPoint);
+                    $output->writeln($this->colorize('  <fg=green>•</> ' . $formatted, '  • ' . $bulletPoint));
+                }
+                $output->writeln('');
+            }
+            return;
+        }
+
+        // All releases are structured - show categorized sections
         // Breaking changes
         $breakingChanges = $collection->getBreakingChanges();
         if (! empty($breakingChanges)) {

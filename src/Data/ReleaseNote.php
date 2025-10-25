@@ -8,6 +8,8 @@ use DateTimeImmutable;
 
 final readonly class ReleaseNote
 {
+    private bool $isStructured;
+
     public function __construct(
         public string $tagName,
         public string $title,
@@ -15,36 +17,66 @@ final readonly class ReleaseNote
         public DateTimeImmutable $date,
         public ?string $url = null,
     ) {
+        $this->isStructured = $this->detectStructure();
     }
 
     /**
-     * Extract "Changes" or "Added" section from markdown body.
+     * Check if the changelog follows a recognizable structure.
+     *
+     * Returns true if the body contains:
+     * - Keep a Changelog format (## [version] - date)
+     * - Common section headings (Changes, Fixes, Breaking, etc.)
+     * - Structured markdown sections
+     */
+    public function isStructured(): bool
+    {
+        return $this->isStructured;
+    }
+
+    /**
+     * Detect if the changelog body follows a recognizable structure.
+     *
+     * Called once during construction to determine if the changelog
+     * follows standard patterns like Keep a Changelog or common section headings.
+     */
+    private function detectStructure(): bool
+    {
+        $lines = explode("\n", $this->body);
+
+        foreach ($lines as $line) {
+            $trimmedLine = trim($line);
+
+            // Check for Keep a Changelog format: ## [1.0.0] - 2024-01-01
+            if (preg_match('/^#{2,3}\s+\[\d+\.\d+/', $trimmedLine)) {
+                return true;
+            }
+
+            // Check for common section headings (markdown ## or ###)
+            if (preg_match('/^#{2,3}\s+(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES)/i', $trimmedLine)) {
+                return true;
+            }
+
+            // Check for bold section headings
+            if (preg_match('/\*\*\s*(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES)\s*\*\*/i', $trimmedLine)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Extract "Changes", "Changed", or "Added" section from markdown body.
      *
      * @return array<int, string>
      */
     public function getChanges(): array
     {
-        $changes = $this->extractSection([
-            '## Changes',
-            '## Added',
-            '## What\'s Changed',
-            '## New Features',
-            '## Features',
-            '## Enhancements',
-            '### Changes',
-            '### Added',
-            '### What\'s Changed',
-            '### New Features',
-            '### Features',
-            '### Enhancements',
-        ]);
-
-        // Fallback: If no recognized sections found and body is not empty, return entire body as changes
-        if (empty($changes) && !empty(trim($this->body))) {
-            return $this->extractAllBulletPoints();
+        if (!$this->isStructured()) {
+            return [];
         }
 
-        return $changes;
+        return $this->extractSectionByPattern('/^#{2,3}\s+(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements)/i');
     }
 
     /**
@@ -54,16 +86,11 @@ final readonly class ReleaseNote
      */
     public function getFixes(): array
     {
-        return $this->extractSection([
-            '## Fixes',
-            '## Fixed',
-            '## Bug Fixes',
-            '## Bugfixes',
-            '### Fixes',
-            '### Fixed',
-            '### Bug Fixes',
-            '### Bugfixes',
-        ]);
+        if (!$this->isStructured()) {
+            return [];
+        }
+
+        return $this->extractSectionByPattern('/^#{2,3}\s+(Fixes?|Fixed|Bug ?Fixes?|Bugfixes)/i');
     }
 
     /**
@@ -73,13 +100,11 @@ final readonly class ReleaseNote
      */
     public function getBreakingChanges(): array
     {
-        return $this->extractSection([
-            '## Breaking Changes',
-            '## BREAKING CHANGES',
-            '## Breaking',
-            '### Breaking Changes',
-            '### Breaking',
-        ]);
+        if (!$this->isStructured()) {
+            return [];
+        }
+
+        return $this->extractSectionByPattern('/^#{2,3}\s+(Breaking( Changes)?|BREAKING CHANGES)/i');
     }
 
     /**
@@ -99,47 +124,62 @@ final readonly class ReleaseNote
     }
 
     /**
+     * Extract all bullet points from the body regardless of sections.
+     *
+     * This is useful for summary views when dealing with unstructured changelogs,
+     * or when you want all changes in a flat list without categorization.
+     *
+     * @return array<int, string>
+     */
+    public function getAllBulletPoints(): array
+    {
+        $lines = explode("\n", $this->body);
+        $items = [];
+
+        foreach ($lines as $line) {
+            $trimmedLine = trim($line);
+
+            // Collect all bullet points (- or *)
+            if (str_starts_with($trimmedLine, '- ') || str_starts_with($trimmedLine, '* ')) {
+                $items[] = substr($trimmedLine, 2); // Remove bullet point
+            }
+        }
+
+        return $items;
+    }
+
+    /**
      * Extract description/introduction text that appears before structured sections
      * or text that's not part of recognized sections.
      *
-     * This includes:
-     * - Paragraphs before the first ## heading
-     * - Paragraphs in sections not matching Changes/Fixes/Breaking Changes
+     * Returns empty string if the changelog is not structured.
      */
     public function getDescription(): string
     {
+        if (!$this->isStructured()) {
+            return '';
+        }
+
         $lines = explode("\n", $this->body);
         $description = [];
         $inRecognizedSection = false;
         $hasSeenHeading = false;
 
-        $recognizedHeadings = [
-            '## Changes', '## Added', '## What\'s Changed', '## New Features',
-            '## Features', '## Enhancements', '## Fixes', '## Fixed',
-            '## Bug Fixes', '## Bugfixes', '## Breaking Changes', '## BREAKING CHANGES',
-            '## Breaking',
-            '### Changes', '### Added', '### What\'s Changed', '### New Features',
-            '### Features', '### Enhancements', '### Fixes', '### Fixed',
-            '### Bug Fixes', '### Bugfixes', '### Breaking Changes', '### Breaking',
-        ];
-
         foreach ($lines as $line) {
             $trimmedLine = trim($line);
 
-            // Check if this is a markdown heading
-            if (str_starts_with($trimmedLine, '## ') || str_starts_with($trimmedLine, '### ')) {
+            // Check if this is a heading
+            $isMarkdownHeading = str_starts_with($trimmedLine, '## ') || str_starts_with($trimmedLine, '### ');
+            $isBoldHeading = preg_match('/\*\*[^*]+\*\*/', $trimmedLine);
+
+            if ($isMarkdownHeading || $isBoldHeading) {
                 $hasSeenHeading = true;
 
-                // Check if it's a recognized section
-                $isRecognized = false;
-                foreach ($recognizedHeadings as $heading) {
-                    if (stripos($trimmedLine, $heading) === 0) {
-                        $isRecognized = true;
-                        break;
-                    }
-                }
+                // Check if it's a recognized section using regex
+                $isRecognized = preg_match('/^#{2,3}\s+(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES)/i', $trimmedLine)
+                    || preg_match('/\*\*\s*(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES)\s*\*\*/i', $trimmedLine);
 
-                $inRecognizedSection = $isRecognized;
+                $inRecognizedSection = (bool) $isRecognized;
                 continue;
             }
 
@@ -163,70 +203,44 @@ final readonly class ReleaseNote
     }
 
     /**
-     * Extract all bullet points from the body regardless of sections.
-     * Used as a fallback when no recognized section headings are found.
+     * Extract bullet points from sections matching a regex pattern.
      *
+     * This method also supports bold headings like **Changes** in addition to markdown headings.
+     *
+     * @param string $headingPattern Regex pattern to match section headings
      * @return array<int, string>
      */
-    private function extractAllBulletPoints(): array
-    {
-        $lines = explode("\n", $this->body);
-        $items = [];
-
-        foreach ($lines as $line) {
-            $trimmedLine = trim($line);
-
-            // Collect all bullet points
-            if (str_starts_with($trimmedLine, '- ') || str_starts_with($trimmedLine, '* ')) {
-                $items[] = substr($trimmedLine, 2); // Remove bullet point
-            }
-        }
-
-        return $items;
-    }
-
-    /**
-     * Extract bullet points from specific markdown sections.
-     *
-     * @param array<int, string> $headings Possible heading variations to look for
-     * @return array<int, string>
-     */
-    private function extractSection(array $headings): array
+    private function extractSectionByPattern(string $headingPattern): array
     {
         $lines = explode("\n", $this->body);
         $items = [];
         $inSection = false;
 
+        // Create a bold heading pattern from the markdown heading pattern
+        // Example: '/^#{2,3}\s+(Changes|Added)/i' becomes '/\*\*\s*(Changes|Added)\s*\*\*/i'
+        $boldPattern = str_replace(
+            ['/^#{2,3}\s+', '/i'],
+            ['/\*\*\s*', '\s*\*\*/i'],
+            $headingPattern
+        );
+
         foreach ($lines as $line) {
             $trimmedLine = trim($line);
 
             // Check if we're starting a section we care about
-            $matchedHeading = false;
-            foreach ($headings as $heading) {
-                if (stripos($trimmedLine, $heading) === 0) {
-                    $inSection = true;
-                    $matchedHeading = true;
-                    break;
-                }
-            }
-
-            if ($matchedHeading) {
+            if (preg_match($headingPattern, $trimmedLine) || preg_match($boldPattern, $trimmedLine)) {
+                $inSection = true;
                 continue; // Skip the heading line itself
             }
 
-            // Check if we're starting a different section (stop collecting for this section)
-            if ($inSection && (str_starts_with($trimmedLine, '## ') || str_starts_with($trimmedLine, '### '))) {
-                // Check if this new section is also one we care about
-                $isRelevantSection = false;
-                foreach ($headings as $heading) {
-                    if (stripos($trimmedLine, $heading) === 0) {
-                        $isRelevantSection = true;
-                        break;
-                    }
-                }
+            // Check if we're starting a different section (stop collecting)
+            $isNewSection = str_starts_with($trimmedLine, '## ')
+                         || str_starts_with($trimmedLine, '### ')
+                         || preg_match('/\*\*[^*]+\*\*/', $trimmedLine);
 
-                // If it's not a relevant section, stop collecting
-                if (!$isRelevantSection) {
+            if ($inSection && $isNewSection) {
+                // Check if this new section matches our pattern
+                if (!preg_match($headingPattern, $trimmedLine) && !preg_match($boldPattern, $trimmedLine)) {
                     $inSection = false;
                 }
                 continue;

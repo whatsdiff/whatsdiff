@@ -19,6 +19,9 @@ class ConfigService
             'min-time' => 300, // 5 minutes
             'max-time' => 86400, // 1 day
         ],
+        'tui' => [
+            'mode' => 'summary',
+        ],
     ];
 
     public function __construct(?string $configPath = null)

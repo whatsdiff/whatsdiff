@@ -9,12 +9,38 @@ use Whatsdiff\Data\ReleaseNotesCollection;
 
 class ReleaseNotesJsonOutput
 {
+    public function __construct(
+        private bool $summary = false
+    ) {
+    }
+
     public function format(ReleaseNotesCollection $collection, OutputInterface $output): void
     {
+        $releases = $collection->getReleases();
+        $isStructured = !$collection->hasUnstructuredReleases();
+
         $data = [
             'total_releases' => $collection->count(),
-            'releases' => [],
         ];
+
+        // Add version range and summary only if there are releases
+        if (!empty($releases)) {
+            $data['first_tag'] = $releases[0]->tagName;
+            $data['last_tag'] = $releases[count($releases) - 1]->tagName;
+
+            // Only add summary object if summary mode is enabled
+            if ($this->summary) {
+                $data['summary'] = [
+                    'is_structured' => $isStructured,
+                    'breaking_changes' => $isStructured ? $collection->getBreakingChanges() : [],
+                    'changes' => $isStructured ? $collection->getChanges() : [],
+                    'fixes' => $isStructured ? $collection->getFixes() : [],
+                    'all_bullet_points' => $collection->getAllBulletPoints(),
+                ];
+            }
+        }
+
+        $data['releases'] = [];
 
         foreach ($collection as $release) {
             $data['releases'][] = [
@@ -27,6 +53,7 @@ class ReleaseNotesJsonOutput
                 'changes' => $release->getChanges(),
                 'fixes' => $release->getFixes(),
                 'breaking_changes' => $release->getBreakingChanges(),
+                'all_bullet_points' => $release->getAllBulletPoints(),
             ];
         }
 

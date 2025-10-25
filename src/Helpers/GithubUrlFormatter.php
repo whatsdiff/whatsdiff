@@ -40,4 +40,17 @@ class GithubUrlFormatter
             $text
         );
     }
+
+    /**
+     * Convert GitHub URLs to plain short text format.
+     * Example: https://github.com/owner/repo/pull/123 -> #123
+     */
+    public static function toShortText(string $text): string
+    {
+        return preg_replace(
+            '/' . self::PATTERN . '/',
+            '#$1',
+            $text
+        );
+    }
 }

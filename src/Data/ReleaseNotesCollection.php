@@ -103,7 +103,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
         foreach ($this->releases as $release) {
             $markdown .= "## {$release->tagName}";
 
-            if ($release->title !== $release->tagName) {
+            if (!empty($release->title) && $release->title !== $release->tagName) {
                 $markdown .= " - {$release->title}";
             }
 
@@ -132,9 +132,28 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
             return '';
         }
 
-        $markdown = "# Release Notes Summary\n\n";
-        $markdown .= "**Releases:** " . count($this->releases) . "\n\n";
+        // Show version range and count
+        $firstTag = $this->releases[0]->tagName;
+        $lastTag = $this->releases[count($this->releases) - 1]->tagName;
+        $count = count($this->releases);
 
+        $markdown = "# Release Notes Summary\n\n";
+        $markdown .= "**Releases:** {$firstTag} → {$lastTag} ({$count} versions)\n\n";
+
+        // If any release is unstructured, show all bullet points in a flat list
+        if ($this->hasUnstructuredReleases()) {
+            $allBulletPoints = $this->getAllBulletPoints();
+            if (!empty($allBulletPoints)) {
+                $markdown .= "## All Changes\n\n";
+                foreach ($allBulletPoints as $bulletPoint) {
+                    $markdown .= "- {$this->formatGithubUrls($bulletPoint)}\n";
+                }
+                $markdown .= "\n";
+            }
+            return trim($markdown);
+        }
+
+        // All releases are structured - show categorized sections
         // Breaking Changes section
         $breakingChanges = $this->getBreakingChanges();
         if (!empty($breakingChanges)) {
@@ -192,6 +211,44 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
     public function isEmpty(): bool
     {
         return empty($this->releases);
+    }
+
+    /**
+     * Check if any release in the collection is unstructured.
+     *
+     * Returns true if at least one release doesn't follow a recognizable
+     * changelog format (Keep a Changelog, standard sections, etc.).
+     */
+    public function hasUnstructuredReleases(): bool
+    {
+        foreach ($this->releases as $release) {
+            if (!$release->isStructured()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get all bullet points from all releases, regardless of sections.
+     *
+     * This is useful for summary views when dealing with mixed structured
+     * and unstructured changelogs - providing a flat list of all changes.
+     *
+     * @return array<int, string>
+     */
+    public function getAllBulletPoints(): array
+    {
+        $bulletPoints = [];
+
+        foreach ($this->releases as $release) {
+            foreach ($release->getAllBulletPoints() as $bulletPoint) {
+                $bulletPoints[] = $bulletPoint;
+            }
+        }
+
+        return $bulletPoints;
     }
 
     /**

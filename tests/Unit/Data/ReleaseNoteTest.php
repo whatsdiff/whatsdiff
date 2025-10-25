@@ -154,7 +154,7 @@ MD;
     expect($fixes)->toBe(['Bug A', 'Bug B', 'Bug C']);
 });
 
-it('uses fallback to extract all bullet points when no recognized sections found', function () {
+it('returns empty arrays when no recognized sections found and marks as unstructured', function () {
     $body = <<<'MD'
 ## Some Other Section
 
@@ -169,10 +169,13 @@ MD;
         date: new DateTimeImmutable()
     );
 
-    // Changes should use fallback and return all bullet points
-    expect($releaseNote->getChanges())->toBe(['Item A', 'Item B'])
+    // When unstructured, section methods return empty arrays
+    expect($releaseNote->isStructured())->toBeFalse()
+        ->and($releaseNote->getChanges())->toBe([])
         ->and($releaseNote->getFixes())->toBe([])
-        ->and($releaseNote->getBreakingChanges())->toBe([]);
+        ->and($releaseNote->getBreakingChanges())->toBe([])
+        ->and($releaseNote->getDescription())->toBe('')
+        ->and($releaseNote->getBody())->toBe($body); // Raw body is still available
 });
 
 it('handles asterisk bullet points', function () {
