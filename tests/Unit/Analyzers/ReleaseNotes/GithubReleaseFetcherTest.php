@@ -412,17 +412,22 @@ it('fetches exact version when from and to are the same', function () {
 });
 
 it('handles pagination when fetching releases', function () {
-    // First page of releases (v2.0.0 to v1.11.0)
-    $firstPageResponse = [
-        [
-            'tag_name' => 'v2.0.0',
-            'name' => 'v2.0.0',
-            'body' => 'Release 2.0.0',
+    // Create first page with 100 releases (all newer than v1.9.0 to trigger pagination)
+    $firstPageResponse = [];
+    for ($i = 200; $i > 100; $i--) {
+        $firstPageResponse[] = [
+            'tag_name' => "v1.{$i}.0",
+            'name' => "v1.{$i}.0",
+            'body' => "Release 1.{$i}.0",
             'published_at' => '2024-03-01T10:00:00Z',
-            'html_url' => 'https://github.com/owner/repo/releases/tag/v2.0.0',
+            'html_url' => "https://github.com/owner/repo/releases/tag/v1.{$i}.0",
             'draft' => false,
             'prerelease' => false,
-        ],
+        ];
+    }
+
+    // Second page with releases that include v1.10.0 and v1.9.0
+    $secondPageResponse = [
         [
             'tag_name' => 'v1.11.0',
             'name' => 'v1.11.0',
@@ -432,10 +437,6 @@ it('handles pagination when fetching releases', function () {
             'draft' => false,
             'prerelease' => false,
         ],
-    ];
-
-    // Second page of releases (v1.10.0 to v1.9.0)
-    $secondPageResponse = [
         [
             'tag_name' => 'v1.10.0',
             'name' => 'v1.10.0',
