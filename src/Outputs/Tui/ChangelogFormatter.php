@@ -28,9 +28,7 @@ class ChangelogFormatter
     {
         if ($collection->isEmpty()) {
             return [
-                '',
                 $this->gray('No release notes available for this package.'),
-                '',
             ];
         }
 
@@ -49,10 +47,8 @@ class ChangelogFormatter
     private function formatDetailed(ReleaseNotesCollection $collection, int $maxWidth): array
     {
         $lines = [];
-        $lines[] = '';
         $lines[] = $this->cyan($this->bold('Release Notes'));
-        $lines[] = $this->gray(str_repeat('─', min($maxWidth, 60)));
-        $lines[] = '';
+        $lines[] = $this->gray(str_repeat('─', min($maxWidth, 20)));
 
         foreach ($collection as $release) {
             $lines = array_merge($lines, $this->formatRelease($release, $maxWidth));
@@ -198,7 +194,11 @@ class ChangelogFormatter
         $firstTag = $releases[0]->tagName;
         $lastTag = $releases[count($releases) - 1]->tagName;
         $count = $collection->count();
-        $releasesInfo = "Releases: {$firstTag} → {$lastTag} ({$count} versions)";
+
+        // Avoid showing duplicate versions when there's only one release
+        $releasesInfo = $count === 1
+            ? "Release: {$firstTag}"
+            : "Releases: {$firstTag} → {$lastTag} ({$count} versions)";
 
         $lines[] = $this->gray($releasesInfo);
         $lines[] = '';

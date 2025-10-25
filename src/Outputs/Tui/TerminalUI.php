@@ -98,7 +98,6 @@ class TerminalUI extends Prompt
 
         if ($changelog === null || $changelog->isEmpty()) {
             return [
-                '',
                 'No changelog available for this package.',
                 '',
                 'This could be because:',

@@ -121,7 +121,7 @@ class TerminalUIRenderer extends Renderer implements Scrolling
         // Calculate spacing: total width - left text length - right text length
         $leftLength = mb_strwidth('Δ ⊕ ⊖ ' . $leftText);
         $rightLength = mb_strwidth(' '.$githubText . ' ' . $websiteText);
-        $spacing = max(1, $this->uiWidth-2 - $leftLength - $rightLength);
+        $spacing = max(1, $this->uiWidth - 2 - $leftLength - $rightLength);
 
         $headerLine = $left . str_repeat(' ', $spacing) . $right;
 
@@ -144,16 +144,37 @@ class TerminalUIRenderer extends Renderer implements Scrolling
         $this->hotkey('T', 'Toggle View', active: $this->terminalUI->isPackageSelected());
         $this->hotkeyQuit();
 
+        $name = '';
+        $versions = '';
+        $semverBadge = '';
+        if ($this->terminalUI->getHighlighted('sidebar') !== null) {
+            $highlighted = $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')];
+            $name = $highlighted['name'] ?? '';
+            $status = $highlighted['status'] ?? '';
+            $from = $highlighted['from'] ?? '';
+            $to = $highlighted['to'] ?? '';
+
+            // Format version display based on status
+            $versions = match ($status) {
+                'added' => $to,
+                'removed' => $from,
+                default => $from . ' → ' . $to,
+            };
+
+            // Format semver/status badge
+            $semverType = $highlighted['semver'] ?? null;
+            $semverBadge = $this->formatSemverBadge($status, $semverType);
+        }
+
         $footer = [
             // Bottom border
             $this->dim(str_repeat('─', $this->uiWidth)),
 
             // Package info and mode indicator
             $this->spaceBetween($this->uiWidth, ...[
-                ' '.($this->terminalUI->isPackageSelected() ? 'Selected: '.$this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['name'] : 'No package selected'),
-                $this->terminalUI->isPackageSelected() ? $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['from'] ?? '' : '',
-                $this->terminalUI->isPackageSelected() ? $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['to'] ?? '' : '',
-                ($this->terminalUI->isPackageSelected() ? ($this->terminalUI->summaryMode ? 'Mode: Summary' : 'Mode: Detailed') : ''). '',
+                $semverBadge . ' ' . $name,
+                $versions,
+                ($this->terminalUI->isPackageSelected() ? ($this->terminalUI->summaryMode ? 'Mode: Summary' : 'Mode: Detailed') : '') . ' ',
             ]),
 
             // Another border
@@ -244,6 +265,31 @@ class TerminalUIRenderer extends Renderer implements Scrolling
             total: count($this->terminalUI->rightPane()),
             width: $this->uiWidth - $this->sideBarWidth - 3,
         ));
+    }
+
+    private function formatSemverBadge(string $status, ?string $semverType): string
+    {
+        // For added/removed packages, show status badge
+        if ($status === 'added') {
+            return ' ' . $this->bgGreen($this->black(' ADDED '));
+        }
+
+        if ($status === 'removed') {
+            return ' ' . $this->bgRed($this->white(' REMOVED '));
+        }
+
+        // For updated/downgraded packages, show semver badge if available
+        if ($semverType) {
+            $badge = strtoupper($semverType);
+            return match ($semverType) {
+                'major' => ' ' . $this->bgRed($this->white(' ' . $badge . ' ')),
+                'minor' => ' ' . $this->bgBlue($this->white(' ' . $badge . ' ')),
+                'patch' => ' ' . $this->bgGreen($this->black(' ' . $badge . ' ')),
+                default => '',
+            };
+        }
+
+        return '';
     }
 
 }

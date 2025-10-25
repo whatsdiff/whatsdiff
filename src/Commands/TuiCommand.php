@@ -162,6 +162,7 @@ class TuiCommand extends Command
                     'to' => $change->to,
                     'status' => $change->status->value,
                     'releases' => $change->releaseCount,
+                    'semver' => $change->semver?->value,
                     'filename' => $diff->filename,
                 ];
             }
