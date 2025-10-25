@@ -16,10 +16,12 @@ class HttpService
     private CacheService $cache;
     private Client $client;
     private array $lastResponseHeaders = [];
+    private GithubAuthService $githubAuth;
 
-    public function __construct(CacheService $cache)
+    public function __construct(CacheService $cache, GithubAuthService $githubAuth)
     {
         $this->cache = $cache;
+        $this->githubAuth = $githubAuth;
         $this->client = new Client([
             'timeout' => 30,
             'connect_timeout' => 10,
@@ -84,6 +86,14 @@ class HttpService
             }
         }
 
+        // Automatically add GitHub authentication for api.github.com requests
+        if ($this->isGithubApiUrl($url) && !isset($guzzleOptions['headers']['Authorization'])) {
+            $token = $this->githubAuth->getToken();
+            if ($token !== null) {
+                $guzzleOptions['headers']['Authorization'] = 'Bearer ' . $token;
+            }
+        }
+
         try {
             $response = $this->client->get($url, $guzzleOptions);
         } catch (RequestException $e) {
@@ -132,6 +142,18 @@ class HttpService
         }
 
         return $headers;
+    }
+
+    /**
+     * Check if a URL is a GitHub API URL.
+     *
+     * @param string $url The URL to check
+     * @return bool True if the URL is a GitHub API URL
+     */
+    private function isGithubApiUrl(string $url): bool
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+        return $host === 'api.github.com';
     }
 
 }
