@@ -24,7 +24,6 @@ class TerminalUI extends Prompt
     {
         // Initialize data we are working with
         $this->packages = array_values($packages);
-        $this->packages = array_merge($this->packages, $this->packages);
 
         // Register the theme
         $this->registerTheme(TerminalUIRenderer::class);

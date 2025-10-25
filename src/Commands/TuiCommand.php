@@ -7,10 +7,10 @@ namespace Whatsdiff\Commands;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Outputs\Tui\TerminalUI;
 use Whatsdiff\Services\CacheService;
-use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Services\DiffCalculator;
 
 #[AsCommand(
@@ -34,15 +34,22 @@ class TuiCommand extends Command
         $this
             ->setHelp('This command launches an interactive TUI to browse changes in your project dependencies')
             ->addIgnoreLastOption()
-            ->addNoCacheOption();
+            ->addNoCacheOption()
+            ->addOption('no-alt-screen', null, InputOption::VALUE_NONE, 'Disable alternate screen (useful for debugging)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $ignoreLast = (bool) $input->getOption('ignore-last');
         $noCache = (bool) $input->getOption('no-cache');
+        $noAltScreen = (bool) $input->getOption('no-alt-screen');
 
         try {
+            // Disable alternate screen if requested (for debugging)
+            if ($noAltScreen) {
+                putenv('NO_ALT_SCREEN=1');
+            }
+
             // Disable cache if requested
             if ($noCache) {
                 $this->cacheService->disableCache();
@@ -69,8 +76,44 @@ class TuiCommand extends Command
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            return CommandErrorHandler::handle($e, $output);
+            return $this->handleTuiError($e, $output, $tui ?? null);
         }
+    }
+
+    private function handleTuiError(\Exception $e, OutputInterface $output, ?TerminalUI $tui): int
+    {
+        // Clean up alt screen properly
+        if ($tui !== null) {
+            try {
+                $tui->exitAltScreen();
+            } catch (\Exception $cleanupException) {
+                // Ignore cleanup errors
+            }
+
+            // Give terminal time to return to normal state
+            usleep(150000); // 150ms
+        }
+
+        // Clear screen and show error prominently
+        $output->write("\033[2J\033[H"); // Clear screen and move cursor to top
+        $output->writeln("<error>{$e->getMessage()}</error>");
+        $output->writeln('');
+
+        if ($output->isVerbose()) {
+            $output->writeln('<comment>Stack trace:</comment>');
+            $output->writeln($e->getTraceAsString());
+            $output->writeln('');
+        }
+
+        // Tell the user that he can create a GitHub issue
+        $output->writeln('<comment>If you believe this is a bug, please report it at:</comment>');
+        $output->writeln('<comment><href=https://github.com/whatsdiff/whatsdiff/issues>https://github.com/whatsdiff/whatsdiff/issues</></comment>');
+        $output->writeln('');
+
+        $output->writeln('<comment>Press Enter to exit...</comment>');
+        fgets(STDIN);
+
+        return Command::FAILURE;
     }
 
     private function convertToTuiFormat(\Whatsdiff\Data\DiffResult $result): array
