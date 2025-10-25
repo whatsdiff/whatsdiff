@@ -88,65 +88,77 @@ class ChangelogFormatter
 
         $lines[] = '';
 
-        // Description (if any)
-        $description = $release->getDescription();
-        if (!empty($description)) {
-            $descriptionLines = $this->wrapText($description, $maxWidth);
-            foreach ($descriptionLines as $line) {
-                $lines[] = $line;
+        // If changelog is not structured, display raw body
+        if (!$release->isStructured()) {
+            $body = $release->getBody();
+            if (!empty($body)) {
+                $bodyLines = $this->wrapText($body, $maxWidth);
+                foreach ($bodyLines as $line) {
+                    $lines[] = $line;
+                }
+                $lines[] = '';
             }
-            $lines[] = '';
-        }
+        } else {
+            // Description (if any)
+            $description = $release->getDescription();
+            if (!empty($description)) {
+                $descriptionLines = $this->wrapText($description, $maxWidth);
+                foreach ($descriptionLines as $line) {
+                    $lines[] = $line;
+                }
+                $lines[] = '';
+            }
 
-        // Breaking changes
-        $breakingChanges = $release->getBreakingChanges();
-        if (!empty($breakingChanges)) {
-            $lines[] = $this->red($this->bold('Breaking Changes:'));
-            foreach ($breakingChanges as $change) {
-                $wrappedLines = $this->wrapText($change, $maxWidth - 4);
-                foreach ($wrappedLines as $idx => $line) {
-                    if ($idx === 0) {
-                        $lines[] = '  ' . $this->red('•') . ' ' . $line;
-                    } else {
-                        $lines[] = '    ' . $line;
+            // Breaking changes
+            $breakingChanges = $release->getBreakingChanges();
+            if (!empty($breakingChanges)) {
+                $lines[] = $this->red($this->bold('Breaking Changes:'));
+                foreach ($breakingChanges as $change) {
+                    $wrappedLines = $this->wrapText($change, $maxWidth - 4);
+                    foreach ($wrappedLines as $idx => $line) {
+                        if ($idx === 0) {
+                            $lines[] = '  ' . $this->red('•') . ' ' . $line;
+                        } else {
+                            $lines[] = '    ' . $line;
+                        }
                     }
                 }
+                $lines[] = '';
             }
-            $lines[] = '';
-        }
 
-        // Changes
-        $changes = $release->getChanges();
-        if (!empty($changes)) {
-            $lines[] = $this->green($this->bold('Changes:'));
-            foreach ($changes as $change) {
-                $wrappedLines = $this->wrapText($change, $maxWidth - 4);
-                foreach ($wrappedLines as $idx => $line) {
-                    if ($idx === 0) {
-                        $lines[] = '  ' . $this->green('•') . ' ' . $line;
-                    } else {
-                        $lines[] = '    ' . $line;
+            // Changes
+            $changes = $release->getChanges();
+            if (!empty($changes)) {
+                $lines[] = $this->green($this->bold('Changes:'));
+                foreach ($changes as $change) {
+                    $wrappedLines = $this->wrapText($change, $maxWidth - 4);
+                    foreach ($wrappedLines as $idx => $line) {
+                        if ($idx === 0) {
+                            $lines[] = '  ' . $this->green('•') . ' ' . $line;
+                        } else {
+                            $lines[] = '    ' . $line;
+                        }
                     }
                 }
+                $lines[] = '';
             }
-            $lines[] = '';
-        }
 
-        // Fixes
-        $fixes = $release->getFixes();
-        if (!empty($fixes)) {
-            $lines[] = $this->blue($this->bold('Fixes:'));
-            foreach ($fixes as $fix) {
-                $wrappedLines = $this->wrapText($fix, $maxWidth - 4);
-                foreach ($wrappedLines as $idx => $line) {
-                    if ($idx === 0) {
-                        $lines[] = '  ' . $this->blue('•') . ' ' . $line;
-                    } else {
-                        $lines[] = '    ' . $line;
+            // Fixes
+            $fixes = $release->getFixes();
+            if (!empty($fixes)) {
+                $lines[] = $this->blue($this->bold('Fixes:'));
+                foreach ($fixes as $fix) {
+                    $wrappedLines = $this->wrapText($fix, $maxWidth - 4);
+                    foreach ($wrappedLines as $idx => $line) {
+                        if ($idx === 0) {
+                            $lines[] = '  ' . $this->blue('•') . ' ' . $line;
+                        } else {
+                            $lines[] = '    ' . $line;
+                        }
                     }
                 }
+                $lines[] = '';
             }
-            $lines[] = '';
         }
 
         $lines[] = $this->gray(str_repeat('─', min($maxWidth, 60)));
@@ -169,9 +181,38 @@ class ChangelogFormatter
         $lines[] = $this->cyan($this->bold('Release Notes Summary'));
         $lines[] = $this->gray(str_repeat('─', min($maxWidth, 60)));
         $lines[] = '';
-        $lines[] = $this->gray('Total Releases: ' . $collection->count());
+
+        // Show version range and count
+        $releases = $collection->getReleases();
+        $firstTag = $releases[0]->tagName;
+        $lastTag = $releases[count($releases) - 1]->tagName;
+        $count = $collection->count();
+        $releasesInfo = "Releases: {$firstTag} → {$lastTag} ({$count} versions)";
+
+        $lines[] = $this->gray($releasesInfo);
         $lines[] = '';
 
+        // If any release is unstructured, show all bullet points in a flat list
+        if ($collection->hasUnstructuredReleases()) {
+            $allBulletPoints = $collection->getAllBulletPoints();
+            if (!empty($allBulletPoints)) {
+                $lines[] = $this->green($this->bold('Changes:'));
+                foreach ($allBulletPoints as $bulletPoint) {
+                    $wrappedLines = $this->wrapText($bulletPoint, $maxWidth - 4);
+                    foreach ($wrappedLines as $idx => $line) {
+                        if ($idx === 0) {
+                            $lines[] = '  ' . $this->green('•') . ' ' . $line;
+                        } else {
+                            $lines[] = '    ' . $line;
+                        }
+                    }
+                }
+                $lines[] = '';
+            }
+            return $lines;
+        }
+
+        // All releases are structured - show categorized sections
         // Breaking changes
         $breakingChanges = $collection->getBreakingChanges();
         if (!empty($breakingChanges)) {

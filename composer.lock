@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5dca1d23c07039db4ca6dedfef6f911c",
+    "content-hash": "1291b3352cd1325f147035e118b1c676",
     "packages": [
         {
             "name": "composer/semver",
@@ -611,16 +611,16 @@
         },
         {
             "name": "joetannenbaum/chewie",
-            "version": "0.1.11",
+            "version": "dev-fix/lines-emojis",
             "source": {
                 "type": "git",
-                "url": "https://github.com/joetannenbaum/chewie.git",
-                "reference": "7040f1c157e6756f45f49f4a821303cae3cfe424"
+                "url": "https://github.com/SRWieZ/fork-chewie.git",
+                "reference": "4bb155cbd92dcf4eb4cdda06cb0cce8884223237"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joetannenbaum/chewie/zipball/7040f1c157e6756f45f49f4a821303cae3cfe424",
-                "reference": "7040f1c157e6756f45f49f4a821303cae3cfe424",
+                "url": "https://api.github.com/repos/SRWieZ/fork-chewie/zipball/4bb155cbd92dcf4eb4cdda06cb0cce8884223237",
+                "reference": "4bb155cbd92dcf4eb4cdda06cb0cce8884223237",
                 "shasum": ""
             },
             "require": {
@@ -632,19 +632,17 @@
             },
             "type": "library",
             "autoload": {
-                "files": [
-                    "src/helpers.php"
-                ],
                 "psr-4": {
                     "Chewie\\": "src/"
-                }
+                },
+                "files": [
+                    "src/helpers.php"
+                ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "support": {
-                "issues": "https://github.com/joetannenbaum/chewie/issues",
-                "source": "https://github.com/joetannenbaum/chewie/tree/0.1.11"
+                "source": "https://github.com/SRWieZ/fork-chewie/tree/fix/lines-emojis"
             },
-            "time": "2024-12-07T01:53:54+00:00"
+            "time": "2025-10-25T11:41:27+00:00"
         },
         {
             "name": "laravel/prompts",
@@ -8339,7 +8337,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "joetannenbaum/chewie": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

@@ -178,7 +178,7 @@ it('generates summarized markdown with combined sections', function () {
     $markdown = $collection->toSummarizedMarkdown();
 
     expect($markdown)->toContain('# Release Notes Summary')
-        ->and($markdown)->toContain('**Releases:** 2')
+        ->and($markdown)->toContain('**Releases:** v1.0.0 → v1.1.0 (2 versions)')
         ->and($markdown)->toContain('## Breaking Changes')
         ->and($markdown)->toContain('- Breaking A')
         ->and($markdown)->toContain('## Changes')
@@ -226,7 +226,7 @@ it('handles empty sections in summarized markdown', function () {
     $markdown = $collection->toSummarizedMarkdown();
 
     expect($markdown)->toContain('# Release Notes Summary')
-        ->and($markdown)->toContain('**Releases:** 1')
+        ->and($markdown)->toContain('**Releases:** v1.0.0 → v1.0.0 (1 versions)')
         ->and($markdown)->not->toContain('## Breaking Changes')
         ->and($markdown)->not->toContain('## Changes')
         ->and($markdown)->not->toContain('## Fixes');
