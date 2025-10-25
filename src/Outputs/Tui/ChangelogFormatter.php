@@ -7,6 +7,7 @@ namespace Whatsdiff\Outputs\Tui;
 use Laravel\Prompts\Concerns\Colors;
 use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
+use Whatsdiff\Helpers\GithubUrlFormatter;
 
 /**
  * Formats changelog/release notes for display in the TUI right pane.
@@ -92,7 +93,9 @@ class ChangelogFormatter
         if (!$release->isStructured()) {
             $body = $release->getBody();
             if (!empty($body)) {
-                $bodyLines = $this->wrapText($body, $maxWidth);
+                // Format links before wrapping
+                $formattedBody = $this->formatTextWithLinks($body);
+                $bodyLines = $this->wrapText($formattedBody, $maxWidth);
                 foreach ($bodyLines as $line) {
                     $lines[] = $line;
                 }
@@ -102,7 +105,9 @@ class ChangelogFormatter
             // Description (if any)
             $description = $release->getDescription();
             if (!empty($description)) {
-                $descriptionLines = $this->wrapText($description, $maxWidth);
+                // Format links before wrapping
+                $formattedDescription = $this->formatTextWithLinks($description);
+                $descriptionLines = $this->wrapText($formattedDescription, $maxWidth);
                 foreach ($descriptionLines as $line) {
                     $lines[] = $line;
                 }
@@ -114,7 +119,9 @@ class ChangelogFormatter
             if (!empty($breakingChanges)) {
                 $lines[] = $this->red($this->bold('Breaking Changes:'));
                 foreach ($breakingChanges as $change) {
-                    $wrappedLines = $this->wrapText($change, $maxWidth - 4);
+                    // Format links before wrapping
+                    $formattedChange = $this->formatTextWithLinks($change);
+                    $wrappedLines = $this->wrapText($formattedChange, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
                             $lines[] = '  ' . $this->red('•') . ' ' . $line;
@@ -131,7 +138,9 @@ class ChangelogFormatter
             if (!empty($changes)) {
                 $lines[] = $this->green($this->bold('Changes:'));
                 foreach ($changes as $change) {
-                    $wrappedLines = $this->wrapText($change, $maxWidth - 4);
+                    // Format links before wrapping
+                    $formattedChange = $this->formatTextWithLinks($change);
+                    $wrappedLines = $this->wrapText($formattedChange, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
                             $lines[] = '  ' . $this->green('•') . ' ' . $line;
@@ -148,7 +157,9 @@ class ChangelogFormatter
             if (!empty($fixes)) {
                 $lines[] = $this->blue($this->bold('Fixes:'));
                 foreach ($fixes as $fix) {
-                    $wrappedLines = $this->wrapText($fix, $maxWidth - 4);
+                    // Format links before wrapping
+                    $formattedFix = $this->formatTextWithLinks($fix);
+                    $wrappedLines = $this->wrapText($formattedFix, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
                             $lines[] = '  ' . $this->blue('•') . ' ' . $line;
@@ -198,7 +209,9 @@ class ChangelogFormatter
             if (!empty($allBulletPoints)) {
                 $lines[] = $this->green($this->bold('Changes:'));
                 foreach ($allBulletPoints as $bulletPoint) {
-                    $wrappedLines = $this->wrapText($bulletPoint, $maxWidth - 4);
+                    // Format links before wrapping
+                    $formattedBulletPoint = $this->formatTextWithLinks($bulletPoint);
+                    $wrappedLines = $this->wrapText($formattedBulletPoint, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
                             $lines[] = '  ' . $this->green('•') . ' ' . $line;
@@ -218,7 +231,9 @@ class ChangelogFormatter
         if (!empty($breakingChanges)) {
             $lines[] = $this->red($this->bold('Breaking Changes:'));
             foreach ($breakingChanges as $change) {
-                $wrappedLines = $this->wrapText($change, $maxWidth - 4);
+                // Format links before wrapping
+                $formattedChange = $this->formatTextWithLinks($change);
+                $wrappedLines = $this->wrapText($formattedChange, $maxWidth - 4);
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
                         $lines[] = '  ' . $this->red('•') . ' ' . $line;
@@ -235,7 +250,9 @@ class ChangelogFormatter
         if (!empty($changes)) {
             $lines[] = $this->green($this->bold('Changes:'));
             foreach ($changes as $change) {
-                $wrappedLines = $this->wrapText($change, $maxWidth - 4);
+                // Format links before wrapping
+                $formattedChange = $this->formatTextWithLinks($change);
+                $wrappedLines = $this->wrapText($formattedChange, $maxWidth - 4);
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
                         $lines[] = '  ' . $this->green('•') . ' ' . $line;
@@ -252,7 +269,9 @@ class ChangelogFormatter
         if (!empty($fixes)) {
             $lines[] = $this->blue($this->bold('Fixes:'));
             foreach ($fixes as $fix) {
-                $wrappedLines = $this->wrapText($fix, $maxWidth - 4);
+                // Format links before wrapping
+                $formattedFix = $this->formatTextWithLinks($fix);
+                $wrappedLines = $this->wrapText($formattedFix, $maxWidth - 4);
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
                         $lines[] = '  ' . $this->blue('•') . ' ' . $line;
@@ -268,7 +287,9 @@ class ChangelogFormatter
     }
 
     /**
-     * Strip ANSI escape sequences from a string.
+     * Strip ANSI color codes from a string.
+     *
+     * Removes ANSI color codes (e.g., \033[31m for red) to calculate visible text length.
      */
     private function stripAnsiCodes(string $text): string
     {
@@ -345,5 +366,28 @@ class ChangelogFormatter
         }
 
         return $lines;
+    }
+
+    /**
+     * Format text by shortening URLs for better display in the TUI.
+     * GitHub PR/issue URLs are displayed in compact format (#123).
+     * Note: Links are not clickable in TUI mode, only shortened for readability.
+     *
+     * @param string $text Text containing potential markdown links and URLs
+     * @return string Text with shortened URLs
+     */
+    private function formatTextWithLinks(string $text): string
+    {
+        // Convert markdown links [text](url) to just the link text
+        $text = preg_replace(
+            '/\[([^\]]+)\]\([^)]+\)/',
+            '$1',
+            $text
+        );
+
+        // Convert GitHub PR/issue URLs to compact format: https://github.com/owner/repo/pull/123 -> #123
+        $text = GithubUrlFormatter::toShortText($text);
+
+        return $text;
     }
 }
