@@ -76,7 +76,7 @@ class ChangelogFormatter
 
         // Release header
         $header = $release->tagName;
-        if ($release->title !== $release->tagName) {
+        if (!empty($release->title) && $release->title !== $release->tagName) {
             $header .= ' - ' . $release->title;
         }
         $lines[] = $this->yellow($this->bold($header));

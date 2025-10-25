@@ -14,6 +14,7 @@ use Whatsdiff\Analyzers\Registries\NpmRegistry;
 use Whatsdiff\Analyzers\Registries\PackagistRegistry;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Data\ReleaseNotesCollection;
+use Whatsdiff\Services\ConfigService;
 use Whatsdiff\Services\GitRepository;
 
 class TerminalUI extends Prompt
@@ -30,6 +31,7 @@ class TerminalUI extends Prompt
 
     public function __construct(
         array $packages,
+        private readonly ConfigService $configService,
         private readonly GitRepository $gitRepository,
         private readonly PackagistRegistry $packagistRegistry,
         private readonly NpmRegistry $npmRegistry,
@@ -40,6 +42,9 @@ class TerminalUI extends Prompt
 
         // Initialize data we are working with
         $this->packages = array_values($packages);
+
+        // Load saved TUI mode preference
+        $this->summaryMode = $this->configService->get('tui.mode') === 'summary';
         // Remove duplication - was used for testing only
         // $this->packages = array_merge($this->packages, $this->packages);
 
@@ -272,6 +277,8 @@ class TerminalUI extends Prompt
             $this->summaryMode = ! $this->summaryMode;
             // Reset scroll position when toggling
             $this->initializeMultipleScrolling('content', 0);
+            // Save the preference to config
+            $this->configService->set('tui.mode', $this->summaryMode ? 'summary' : 'detailed');
         }
     }
 }

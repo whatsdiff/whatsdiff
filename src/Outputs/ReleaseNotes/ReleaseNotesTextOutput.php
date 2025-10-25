@@ -49,7 +49,7 @@ class ReleaseNotesTextOutput
     {
         // Release header
         $header = $release->tagName;
-        if ($release->title !== $release->tagName) {
+        if (!empty($release->title) && $release->title !== $release->tagName) {
             $header .= ' - ' . $release->title;
         }
         $output->writeln($this->colorize('<fg=bright-yellow>' . $header . '</>', $header));

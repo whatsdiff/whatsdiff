@@ -103,7 +103,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
         foreach ($this->releases as $release) {
             $markdown .= "## {$release->tagName}";
 
-            if ($release->title !== $release->tagName) {
+            if (!empty($release->title) && $release->title !== $release->tagName) {
                 $markdown .= " - {$release->title}";
             }
 

@@ -14,6 +14,7 @@ use Whatsdiff\Analyzers\Registries\PackagistRegistry;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Outputs\Tui\TerminalUI;
 use Whatsdiff\Services\CacheService;
+use Whatsdiff\Services\ConfigService;
 use Whatsdiff\Services\DiffCalculator;
 use Whatsdiff\Services\GitRepository;
 
@@ -28,6 +29,7 @@ class TuiCommand extends Command
 
     public function __construct(
         private readonly CacheService $cacheService,
+        private readonly ConfigService $configService,
         private readonly DiffCalculator $diffCalculator,
         private readonly GitRepository $gitRepository,
         private readonly PackagistRegistry $packagistRegistry,
@@ -99,6 +101,7 @@ class TuiCommand extends Command
             // Launch TUI
             $tui = new TerminalUI(
                 packages: $packageDiffs,
+                configService: $this->configService,
                 gitRepository: $this->gitRepository,
                 packagistRegistry: $this->packagistRegistry,
                 npmRegistry: $this->npmRegistry,
