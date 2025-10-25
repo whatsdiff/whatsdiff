@@ -63,10 +63,34 @@ class TerminalUI extends Prompt
             ->on(Key::ENTER, fn () => $this->enter())
             ->on(Key::ESCAPE, fn () => $this->escape())
             ->on(['t', 'T'], fn () => $this->toggleSummaryMode())
+            ->on(Key::TAB, fn () => $this->selectNextInSidebar())
+            ->on(Key::SHIFT_TAB, fn () => $this->selectPreviousInSidebar())
             // ->on([Key::HOME, Key::CTRL_A], fn() => $this->highlighted !== null ? $this->highlight(0) : null)
             // ->on([Key::END, Key::CTRL_E],
             //     fn() => $this->highlighted !== null ? $this->highlight(count($this->packages) - 1) : null)
             ->listen();
+    }
+
+    public function selectNextInSidebar()
+    {
+        if (! $this->isPackageSelected()) {
+            return;
+        }
+
+        $this->highlightNext('sidebar', count($this->packages), true);
+        $this->selected = null;
+        $this->enter();
+    }
+
+    public function selectPreviousInSidebar()
+    {
+        if (! $this->isPackageSelected()) {
+            return;
+        }
+
+        $this->highlightPrevious('sidebar', count($this->packages), true);
+        $this->selected = null;
+        $this->enter();
     }
 
     public function sidebarPackages()
@@ -90,7 +114,7 @@ class TerminalUI extends Prompt
         $package = $this->packages[$this->selected];
 
         // Fetch changelog if not already cached
-        if (!isset($this->changelogCache[$package['name']])) {
+        if (! isset($this->changelogCache[$package['name']])) {
             $this->changelogCache[$package['name']] = $this->fetchChangelogForPackage($package);
         }
 
@@ -120,6 +144,7 @@ class TerminalUI extends Prompt
 
         // Format the changelog
         $formatter = new ChangelogFormatter();
+
         return $formatter->format($changelog, $this->summaryMode, $rightPaneWidth);
     }
 
@@ -165,8 +190,8 @@ class TerminalUI extends Prompt
             $relativePath = $packageManagerType === PackageManagerType::COMPOSER
                 ? "vendor/{$package['name']}"
                 : "node_modules/{$package['name']}";
-            $localPath = $basePath . DIRECTORY_SEPARATOR . $relativePath;
-            if (!file_exists($localPath)) {
+            $localPath = $basePath.DIRECTORY_SEPARATOR.$relativePath;
+            if (! file_exists($localPath)) {
                 $localPath = null;
             }
 
@@ -244,7 +269,7 @@ class TerminalUI extends Prompt
     {
         // Only toggle if a package is selected
         if ($this->isPackageSelected()) {
-            $this->summaryMode = !$this->summaryMode;
+            $this->summaryMode = ! $this->summaryMode;
             // Reset scroll position when toggling
             $this->initializeMultipleScrolling('content', 0);
         }

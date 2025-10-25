@@ -108,22 +108,22 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
     private function layoutHeader(): Collection
     {
-        $logo = $this->blue('Δ') . ' ' . $this->green('⊕') . ' ' . $this->red('⊖');
+        $logo = $this->blue('Δ').' '.$this->green('⊕').' '.$this->red('⊖');
         $leftText = "What's Diff?";
-        $left = ' '.$logo . ' ' . $leftText;
+        $left = ' '.$logo.' '.$leftText;
 
         $githubText = 'Source Code';
         $websiteText = 'whatsdiff.app';
-        $github = "\e]8;;https://github.com/whatsdiff/whatsdiff\e\\" . $this->dim($githubText) . "\e]8;;\e\\";
-        $website = "\e]8;;https://whatsdiff.app\e\\" . $this->dim($websiteText) . "\e]8;;\e\\";
-        $right = $github . ' ' . $website. ' ';
+        $github = "\e]8;;https://github.com/whatsdiff/whatsdiff\e\\".$this->dim($githubText)."\e]8;;\e\\";
+        $website = "\e]8;;https://whatsdiff.app\e\\".$this->dim($websiteText)."\e]8;;\e\\";
+        $right = $github.' '.$website.' ';
 
         // Calculate spacing: total width - left text length - right text length
-        $leftLength = mb_strwidth('Δ ⊕ ⊖ ' . $leftText);
-        $rightLength = mb_strwidth(' '.$githubText . ' ' . $websiteText);
+        $leftLength = mb_strwidth('Δ ⊕ ⊖ '.$leftText);
+        $rightLength = mb_strwidth(' '.$githubText.' '.$websiteText);
         $spacing = max(1, $this->uiWidth - 2 - $leftLength - $rightLength);
 
-        $headerLine = $left . str_repeat(' ', $spacing) . $right;
+        $headerLine = $left.str_repeat(' ', $spacing).$right;
 
         return collect([
             '',
@@ -135,13 +135,15 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
     private function layoutFooter(): Collection
     {
-
         // Hotkeys
         $this->hotkey('↑', 'Up');
         $this->hotkey('↓', 'Down');
         $this->hotkey('Enter', 'Select');
         $this->hotkey('Esc', 'Back', active: ($this->terminalUI->selected > -1));
-        $this->hotkey('T', 'Toggle View', active: $this->terminalUI->isPackageSelected());
+        if ($this->terminalUI->isPackageSelected()) {
+            $this->hotkey('T', 'Toggle mode');
+            $this->hotkey('TAB', 'Next package');
+        }
         $this->hotkeyQuit();
 
         $name = '';
@@ -158,7 +160,7 @@ class TerminalUIRenderer extends Renderer implements Scrolling
             $versions = match ($status) {
                 'added' => $to,
                 'removed' => $from,
-                default => $from . ' → ' . $to,
+                default => $from.' → '.$to,
             };
 
             // Format semver/status badge
@@ -172,9 +174,9 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
             // Package info and mode indicator
             $this->spaceBetween($this->uiWidth, ...[
-                $semverBadge . ' ' . $name,
+                $semverBadge.' '.$name,
                 $versions,
-                ($this->terminalUI->isPackageSelected() ? ($this->terminalUI->summaryMode ? 'Mode: Summary' : 'Mode: Detailed') : '') . ' ',
+                ($this->terminalUI->isPackageSelected() ? ($this->terminalUI->summaryMode ? 'Mode: Summary' : 'Mode: Detailed') : '').' ',
             ]),
 
             // Another border
@@ -255,6 +257,7 @@ class TerminalUIRenderer extends Renderer implements Scrolling
         $content = array_map(function ($line, $key) use ($highlighted) {
             // Remove any embedded newlines or carriage returns that might cause display issues
             $line = str_replace(["\r\n", "\r", "\n"], '', $line);
+
             return $key === $highlighted ? '➤ '.$line : '  '.$line;
         }, $content, array_keys($content));
 
@@ -271,20 +274,21 @@ class TerminalUIRenderer extends Renderer implements Scrolling
     {
         // For added/removed packages, show status badge
         if ($status === 'added') {
-            return ' ' . $this->bgGreen($this->black(' ADDED '));
+            return ' '.$this->bgGreen($this->black(' ADDED '));
         }
 
         if ($status === 'removed') {
-            return ' ' . $this->bgRed($this->white(' REMOVED '));
+            return ' '.$this->bgRed($this->white(' REMOVED '));
         }
 
         // For updated/downgraded packages, show semver badge if available
         if ($semverType) {
             $badge = strtoupper($semverType);
+
             return match ($semverType) {
-                'major' => ' ' . $this->bgRed($this->white(' ' . $badge . ' ')),
-                'minor' => ' ' . $this->bgBlue($this->white(' ' . $badge . ' ')),
-                'patch' => ' ' . $this->bgGreen($this->black(' ' . $badge . ' ')),
+                'major' => ' '.$this->bgRed($this->white(' '.$badge.' ')),
+                'minor' => ' '.$this->bgBlue($this->white(' '.$badge.' ')),
+                'patch' => ' '.$this->bgGreen($this->black(' '.$badge.' ')),
                 default => '',
             };
         }
