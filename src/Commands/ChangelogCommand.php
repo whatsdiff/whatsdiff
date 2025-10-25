@@ -559,7 +559,7 @@ class ChangelogCommand extends Command
     private function getFormatter(string $format, bool $summary, bool $noAnsi): object
     {
         return match ($format) {
-            'json' => new ReleaseNotesJsonOutput(),
+            'json' => new ReleaseNotesJsonOutput($summary),
             'markdown' => new ReleaseNotesMarkdownOutput($summary),
             default => new ReleaseNotesTextOutput($summary, ! $noAnsi),
         };
