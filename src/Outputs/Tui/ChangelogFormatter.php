@@ -48,11 +48,17 @@ class ChangelogFormatter
     {
         $lines = [];
         $lines[] = $this->cyan($this->bold('Release Notes'));
-        $lines[] = $this->gray(str_repeat('─', min($maxWidth, 20)));
+        $lines[] = $this->gray(str_repeat('─', min($maxWidth, 60)));
 
         foreach ($collection as $release) {
             $lines = array_merge($lines, $this->formatRelease($release, $maxWidth));
         }
+
+
+        $lines[] = '';
+        $lines[] = '';
+        $lines[] = '';
+        $lines[] = '';
 
         return $lines;
     }
@@ -83,10 +89,9 @@ class ChangelogFormatter
             $lines[] = $this->gray('URL: ') . $this->dim($release->url);
         }
 
-        $lines[] = '';
-
         // If changelog is not structured, display raw body
         if (!$release->isStructured()) {
+            $lines[] = '';
             $body = $release->getBody();
             if (!empty($body)) {
                 // Format links before wrapping
@@ -95,24 +100,24 @@ class ChangelogFormatter
                 foreach ($bodyLines as $line) {
                     $lines[] = $line;
                 }
-                $lines[] = '';
             }
         } else {
             // Description (if any)
             $description = $release->getDescription();
             if (!empty($description)) {
+                $lines[] = '';
                 // Format links before wrapping
                 $formattedDescription = $this->formatTextWithLinks($description);
                 $descriptionLines = $this->wrapText($formattedDescription, $maxWidth);
                 foreach ($descriptionLines as $line) {
                     $lines[] = $line;
                 }
-                $lines[] = '';
             }
 
             // Breaking changes
             $breakingChanges = $release->getBreakingChanges();
             if (!empty($breakingChanges)) {
+                $lines[] = '';
                 $lines[] = $this->red($this->bold('Breaking Changes:'));
                 foreach ($breakingChanges as $change) {
                     // Format links before wrapping
@@ -126,12 +131,12 @@ class ChangelogFormatter
                         }
                     }
                 }
-                $lines[] = '';
             }
 
             // Changes
             $changes = $release->getChanges();
             if (!empty($changes)) {
+                $lines[] = '';
                 $lines[] = $this->green($this->bold('Changes:'));
                 foreach ($changes as $change) {
                     // Format links before wrapping
@@ -145,12 +150,12 @@ class ChangelogFormatter
                         }
                     }
                 }
-                $lines[] = '';
             }
 
             // Fixes
             $fixes = $release->getFixes();
             if (!empty($fixes)) {
+                $lines[] = '';
                 $lines[] = $this->blue($this->bold('Fixes:'));
                 foreach ($fixes as $fix) {
                     // Format links before wrapping
@@ -164,12 +169,11 @@ class ChangelogFormatter
                         }
                     }
                 }
-                $lines[] = '';
             }
         }
+        $lines[] = '';
 
         $lines[] = $this->gray(str_repeat('─', min($maxWidth, 60)));
-        $lines[] = '';
 
         return $lines;
     }
@@ -184,10 +188,8 @@ class ChangelogFormatter
     private function formatSummary(ReleaseNotesCollection $collection, int $maxWidth): array
     {
         $lines = [];
-        $lines[] = '';
         $lines[] = $this->cyan($this->bold('Release Notes Summary'));
         $lines[] = $this->gray(str_repeat('─', min($maxWidth, 60)));
-        $lines[] = '';
 
         // Show version range and count
         $releases = $collection->getReleases();
