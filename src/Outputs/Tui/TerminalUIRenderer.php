@@ -108,10 +108,27 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
     private function layoutHeader(): Collection
     {
+        $logo = $this->blue('Δ') . ' ' . $this->green('⊕') . ' ' . $this->red('⊖');
+        $leftText = "What's Diff?";
+        $left = ' '.$logo . ' ' . $leftText;
+
+        $githubText = 'Source Code';
+        $websiteText = 'whatsdiff.app';
+        $github = "\e]8;;https://github.com/whatsdiff/whatsdiff\e\\" . $this->dim($githubText) . "\e]8;;\e\\";
+        $website = "\e]8;;https://whatsdiff.app\e\\" . $this->dim($websiteText) . "\e]8;;\e\\";
+        $right = $github . ' ' . $website. ' ';
+
+        // Calculate spacing: total width - left text length - right text length
+        $leftLength = mb_strwidth('Δ ⊕ ⊖ ' . $leftText);
+        $rightLength = mb_strwidth(' '.$githubText . ' ' . $websiteText);
+        $spacing = max(1, $this->uiWidth-2 - $leftLength - $rightLength);
+
+        $headerLine = $left . str_repeat(' ', $spacing) . $right;
+
         return collect([
             '',
             $this->dim(str_repeat('─', $this->uiWidth)),
-            ... $this->centerHorizontally("What's Diff?", $this->uiWidth)->toArray(),
+            $headerLine,
             $this->dim(str_repeat('─', $this->uiWidth)),
         ]);
     }
@@ -133,10 +150,10 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
             // Package info and mode indicator
             $this->spaceBetween($this->uiWidth, ...[
-                $this->terminalUI->isPackageSelected() ? 'Selected: '.$this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['name'] : 'No package selected',
+                ' '.($this->terminalUI->isPackageSelected() ? 'Selected: '.$this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['name'] : 'No package selected'),
                 $this->terminalUI->isPackageSelected() ? $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['from'] ?? '' : '',
                 $this->terminalUI->isPackageSelected() ? $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['to'] ?? '' : '',
-                $this->terminalUI->isPackageSelected() ? ($this->terminalUI->summaryMode ? 'Mode: Summary' : 'Mode: Detailed') : '',
+                ($this->terminalUI->isPackageSelected() ? ($this->terminalUI->summaryMode ? 'Mode: Summary' : 'Mode: Detailed') : ''). '',
             ]),
 
             // Another border
