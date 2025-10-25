@@ -9,9 +9,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Whatsdiff\Analyzers\Registries\NpmRegistry;
+use Whatsdiff\Analyzers\Registries\PackagistRegistry;
+use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Outputs\Tui\TerminalUI;
 use Whatsdiff\Services\CacheService;
 use Whatsdiff\Services\DiffCalculator;
+use Whatsdiff\Services\GitRepository;
 
 #[AsCommand(
     name: 'tui',
@@ -25,6 +29,10 @@ class TuiCommand extends Command
     public function __construct(
         private readonly CacheService $cacheService,
         private readonly DiffCalculator $diffCalculator,
+        private readonly GitRepository $gitRepository,
+        private readonly PackagistRegistry $packagistRegistry,
+        private readonly NpmRegistry $npmRegistry,
+        private readonly ReleaseNotesResolver $releaseNotesResolver,
     ) {
         parent::__construct();
     }
@@ -34,6 +42,8 @@ class TuiCommand extends Command
         $this
             ->setHelp('This command launches an interactive TUI to browse changes in your project dependencies')
             ->addIgnoreLastOption()
+            ->addFromOption('Commit hash, branch, or tag to compare from (older version)')
+            ->addToOption('Commit hash, branch, or tag to compare to (newer version, defaults to HEAD)')
             ->addNoCacheOption()
             ->addOption('no-alt-screen', null, InputOption::VALUE_NONE, 'Disable alternate screen (useful for debugging)');
     }
@@ -43,6 +53,15 @@ class TuiCommand extends Command
         $ignoreLast = (bool) $input->getOption('ignore-last');
         $noCache = (bool) $input->getOption('no-cache');
         $noAltScreen = (bool) $input->getOption('no-alt-screen');
+        $fromCommit = $input->getOption('from');
+        $toCommit = $input->getOption('to');
+
+        // Validate options
+        if (($fromCommit || $toCommit) && $ignoreLast) {
+            $output->writeln('<error>Cannot use --ignore-last with --from or --to options</error>');
+
+            return Command::FAILURE;
+        }
 
         try {
             // Disable alternate screen if requested (for debugging)
@@ -59,6 +78,14 @@ class TuiCommand extends Command
                 $this->diffCalculator->ignoreLastCommit();
             }
 
+            if ($fromCommit !== null) {
+                $this->diffCalculator->fromCommit($fromCommit);
+            }
+
+            if ($toCommit !== null) {
+                $this->diffCalculator->toCommit($toCommit);
+            }
+
             $result = $this->diffCalculator->run();
 
             if (!$result->hasAnyChanges()) {
@@ -70,7 +97,13 @@ class TuiCommand extends Command
             $packageDiffs = $this->convertToTuiFormat($result);
 
             // Launch TUI
-            $tui = new TerminalUI($packageDiffs);
+            $tui = new TerminalUI(
+                packages: $packageDiffs,
+                gitRepository: $this->gitRepository,
+                packagistRegistry: $this->packagistRegistry,
+                npmRegistry: $this->npmRegistry,
+                releaseNotesResolver: $this->releaseNotesResolver,
+            );
             $tui->prompt();
 
             return Command::SUCCESS;

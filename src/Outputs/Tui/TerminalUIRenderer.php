@@ -124,18 +124,19 @@ class TerminalUIRenderer extends Renderer implements Scrolling
         $this->hotkey('↓', 'Down');
         $this->hotkey('Enter', 'Select');
         $this->hotkey('Esc', 'Back', active: ($this->terminalUI->selected > -1));
+        $this->hotkey('T', 'Toggle View', active: $this->terminalUI->isPackageSelected());
         $this->hotkeyQuit();
 
         $footer = [
             // Bottom border
             $this->dim(str_repeat('─', $this->uiWidth)),
 
-            // Debug infos
+            // Package info and mode indicator
             $this->spaceBetween($this->uiWidth, ...[
                 $this->terminalUI->isPackageSelected() ? 'Selected: '.$this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['name'] : 'No package selected',
                 $this->terminalUI->isPackageSelected() ? $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['from'] ?? '' : '',
                 $this->terminalUI->isPackageSelected() ? $this->terminalUI->sidebarPackages()[$this->terminalUI->getHighlighted('sidebar')]['to'] ?? '' : '',
-                // $this->terminalUI->getHighlighted('sidebar')??'',
+                $this->terminalUI->isPackageSelected() ? ($this->terminalUI->summaryMode ? 'Mode: Summary' : 'Mode: Detailed') : '',
             ]),
 
             // Another border
@@ -214,9 +215,10 @@ class TerminalUIRenderer extends Renderer implements Scrolling
         // Put a carret in the highlighted line and space for other lines
         $highlighted = $this->terminalUI->getHighlighted('content');
         $content = array_map(function ($line, $key) use ($highlighted) {
+            // Remove any embedded newlines or carriage returns that might cause display issues
+            $line = str_replace(["\r\n", "\r", "\n"], '', $line);
             return $key === $highlighted ? '➤ '.$line : '  '.$line;
         }, $content, array_keys($content));
-
 
         return collect($this->scrollbar(
             visible: $content,
@@ -226,4 +228,5 @@ class TerminalUIRenderer extends Renderer implements Scrolling
             width: $this->uiWidth - $this->sideBarWidth - 3,
         ));
     }
+
 }

@@ -25,6 +25,7 @@ final readonly class ReleaseNote
     public function getChanges(): array
     {
         $changes = $this->extractSection([
+            // Markdown headings
             '## Changes',
             '## Added',
             '## What\'s Changed',
@@ -37,6 +38,15 @@ final readonly class ReleaseNote
             '### New Features',
             '### Features',
             '### Enhancements',
+            // Bold text (with or without emoji prefix)
+            '**Changes**',
+            '**Added**',
+            '**What\'s Changed**',
+            '**New Features**',
+            '**New features**',
+            '**Features**',
+            '**Enhancements**',
+            '**Improvements**',
         ]);
 
         // Fallback: If no recognized sections found and body is not empty, return entire body as changes
@@ -55,6 +65,7 @@ final readonly class ReleaseNote
     public function getFixes(): array
     {
         return $this->extractSection([
+            // Markdown headings
             '## Fixes',
             '## Fixed',
             '## Bug Fixes',
@@ -63,6 +74,11 @@ final readonly class ReleaseNote
             '### Fixed',
             '### Bug Fixes',
             '### Bugfixes',
+            // Bold text
+            '**Fixes**',
+            '**Fixed**',
+            '**Bug Fixes**',
+            '**Bugfixes**',
         ]);
     }
 
@@ -74,11 +90,17 @@ final readonly class ReleaseNote
     public function getBreakingChanges(): array
     {
         return $this->extractSection([
+            // Markdown headings
             '## Breaking Changes',
             '## BREAKING CHANGES',
             '## Breaking',
             '### Breaking Changes',
             '### Breaking',
+            // Bold text
+            '**Breaking Changes**',
+            '**Breaking changes**',
+            '**BREAKING CHANGES**',
+            '**Breaking**',
         ]);
     }
 
@@ -114,6 +136,7 @@ final readonly class ReleaseNote
         $hasSeenHeading = false;
 
         $recognizedHeadings = [
+            // Markdown headings
             '## Changes', '## Added', '## What\'s Changed', '## New Features',
             '## Features', '## Enhancements', '## Fixes', '## Fixed',
             '## Bug Fixes', '## Bugfixes', '## Breaking Changes', '## BREAKING CHANGES',
@@ -121,19 +144,27 @@ final readonly class ReleaseNote
             '### Changes', '### Added', '### What\'s Changed', '### New Features',
             '### Features', '### Enhancements', '### Fixes', '### Fixed',
             '### Bug Fixes', '### Bugfixes', '### Breaking Changes', '### Breaking',
+            // Bold headings (with or without emoji)
+            '**Changes**', '**Added**', '**What\'s Changed**', '**New Features**',
+            '**New features**', '**Features**', '**Enhancements**', '**Improvements**',
+            '**Fixes**', '**Fixed**', '**Bug Fixes**', '**Bugfixes**',
+            '**Breaking Changes**', '**Breaking changes**', '**BREAKING CHANGES**', '**Breaking**',
         ];
 
         foreach ($lines as $line) {
             $trimmedLine = trim($line);
 
-            // Check if this is a markdown heading
-            if (str_starts_with($trimmedLine, '## ') || str_starts_with($trimmedLine, '### ')) {
+            // Check if this is a heading (## or ### or **bold**)
+            $isMarkdownHeading = str_starts_with($trimmedLine, '## ') || str_starts_with($trimmedLine, '### ');
+            $isBoldHeading = preg_match('/\*\*[^*]+\*\*/', $trimmedLine);
+
+            if ($isMarkdownHeading || $isBoldHeading) {
                 $hasSeenHeading = true;
 
                 // Check if it's a recognized section
                 $isRecognized = false;
                 foreach ($recognizedHeadings as $heading) {
-                    if (stripos($trimmedLine, $heading) === 0) {
+                    if (stripos($trimmedLine, $heading) !== false) {
                         $isRecognized = true;
                         break;
                     }
@@ -201,9 +232,10 @@ final readonly class ReleaseNote
             $trimmedLine = trim($line);
 
             // Check if we're starting a section we care about
+            // Supports both "## Heading" and "**Heading**" (with optional emoji prefix)
             $matchedHeading = false;
             foreach ($headings as $heading) {
-                if (stripos($trimmedLine, $heading) === 0) {
+                if (stripos($trimmedLine, $heading) !== false) {
                     $inSection = true;
                     $matchedHeading = true;
                     break;
@@ -215,11 +247,16 @@ final readonly class ReleaseNote
             }
 
             // Check if we're starting a different section (stop collecting for this section)
-            if ($inSection && (str_starts_with($trimmedLine, '## ') || str_starts_with($trimmedLine, '### '))) {
+            // A new section starts with ## or ### or contains **text**
+            $isNewSection = str_starts_with($trimmedLine, '## ')
+                         || str_starts_with($trimmedLine, '### ')
+                         || preg_match('/\*\*[^*]+\*\*/', $trimmedLine);
+
+            if ($inSection && $isNewSection) {
                 // Check if this new section is also one we care about
                 $isRelevantSection = false;
                 foreach ($headings as $heading) {
-                    if (stripos($trimmedLine, $heading) === 0) {
+                    if (stripos($trimmedLine, $heading) !== false) {
                         $isRelevantSection = true;
                         break;
                     }
