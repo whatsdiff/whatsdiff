@@ -43,21 +43,14 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
         [$owner, $repo] = $ownerRepo;
 
         try {
-            $apiUrl = self::GITHUB_API_URL . "/repos/{$owner}/{$repo}/releases";
-            $response = $this->httpService->get($apiUrl, [
-                'headers' => [
-                    'Accept' => 'application/vnd.github+json',
-                ],
-            ]);
+            $allReleases = $this->fetchAllReleases($owner, $repo, $fromVersion);
 
-            $releases = json_decode($response, true);
-
-            if (!is_array($releases)) {
+            if (empty($allReleases)) {
                 return null;
             }
 
             return $this->buildReleaseNotesCollection(
-                $releases,
+                $allReleases,
                 $fromVersion,
                 $toVersion,
                 $includePrerelease
@@ -71,6 +64,79 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
     public function supports(string $repositoryUrl, ?string $localPath): bool
     {
         return str_contains($repositoryUrl, 'github.com');
+    }
+
+    /**
+     * Fetch all releases from GitHub API, handling pagination.
+     * Stops fetching when we've gone past the fromVersion (optimization).
+     *
+     * @param string $owner Repository owner
+     * @param string $repo Repository name
+     * @param string $fromVersion Starting version (to optimize pagination)
+     * @return array<int, mixed> All releases from the API
+     */
+    private function fetchAllReleases(string $owner, string $repo, string $fromVersion): array
+    {
+        $allReleases = [];
+        $page = 1;
+        $perPage = 100; // Maximum allowed by GitHub API
+        $normalizedFrom = VersionNormalizer::normalize($fromVersion);
+
+        while (true) {
+            $apiUrl = self::GITHUB_API_URL . "/repos/{$owner}/{$repo}/releases?per_page={$perPage}&page={$page}";
+            $responseData = $this->httpService->getWithHeaders($apiUrl, [
+                'headers' => [
+                    'Accept' => 'application/vnd.github+json',
+                ],
+            ]);
+
+            $releases = json_decode($responseData['body'], true);
+
+            if (!is_array($releases) || empty($releases)) {
+                // No more releases
+                break;
+            }
+
+            // Add releases to our collection
+            $allReleases = array_merge($allReleases, $releases);
+
+            // Optimization: Check if we've gone past the fromVersion
+            // If the oldest release on this page is still newer than fromVersion, continue
+            // If we find a release older than fromVersion, we can stop after this page
+            $shouldContinue = false;
+            foreach ($releases as $release) {
+                $tagName = $release['tag_name'] ?? '';
+                if (empty($tagName)) {
+                    continue;
+                }
+
+                try {
+                    $version = VersionNormalizer::normalize($tagName);
+                    if (Comparator::greaterThan($version, $normalizedFrom)) {
+                        // Still newer than fromVersion, might need more pages
+                        $shouldContinue = true;
+                    } else {
+                        // Found a release <= fromVersion, we have enough data
+                        return $allReleases;
+                    }
+                } catch (\Exception $e) {
+                    // Invalid version, skip
+                    continue;
+                }
+            }
+
+            // If all releases on this page are newer than fromVersion and we got a full page,
+            // there might be more releases on the next page
+            if ($shouldContinue && count($releases) === $perPage) {
+                $page++;
+                continue;
+            }
+
+            // Either we didn't get a full page, or no releases were newer than fromVersion
+            break;
+        }
+
+        return $allReleases;
     }
 
     /**

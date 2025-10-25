@@ -5,12 +5,10 @@ declare(strict_types=1);
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubReleaseFetcher;
 use Whatsdiff\Services\HttpService;
-use Whatsdiff\Services\VersionNormalizer;
 
 beforeEach(function () {
     $this->httpService = Mockery::mock(HttpService::class);
-    $this->versionNormalizer = Mockery::mock(VersionNormalizer::class);
-    $this->fetcher = new GithubReleaseFetcher($this->httpService, $this->versionNormalizer);
+    $this->fetcher = new GithubReleaseFetcher($this->httpService);
 });
 
 it('supports github.com URLs', function () {
@@ -47,16 +45,15 @@ it('fetches releases from github api', function () {
     ];
 
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
-        ->with('https://api.github.com/repos/symfony/console/releases', [
+        ->with(Mockery::pattern('#/repos/symfony/console/releases\?per_page=100&page=1$#'), [
             'headers' => ['Accept' => 'application/vnd.github+json'],
         ])
-        ->andReturn(json_encode($apiResponse));
-
-    $this->versionNormalizer
-        ->shouldReceive('normalize')
-        ->andReturnUsing(fn ($v) => str_replace('v', '', $v) . '.0.0');
+        ->andReturn([
+            'body' => json_encode($apiResponse),
+            'headers' => []
+        ]);
 
     $result = $this->fetcher->fetch(
         package: 'symfony/console',
@@ -114,13 +111,12 @@ it('filters releases by version range', function () {
     ];
 
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
-        ->andReturn(json_encode($apiResponse));
-
-    $this->versionNormalizer
-        ->shouldReceive('normalize')
-        ->andReturnUsing(fn ($v) => str_replace('v', '', $v) . '.0.0');
+        ->andReturn([
+            'body' => json_encode($apiResponse),
+            'headers' => []
+        ]);
 
     $result = $this->fetcher->fetch(
         package: 'owner/repo',
@@ -152,13 +148,12 @@ it('excludes draft releases', function () {
     ];
 
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
-        ->andReturn(json_encode($apiResponse));
-
-    $this->versionNormalizer
-        ->shouldReceive('normalize')
-        ->andReturnUsing(fn ($v) => str_replace('v', '', $v) . '.0.0');
+        ->andReturn([
+            'body' => json_encode($apiResponse),
+            'headers' => []
+        ]);
 
     $result = $this->fetcher->fetch(
         package: 'owner/repo',
@@ -188,13 +183,12 @@ it('excludes prerelease when not included', function () {
     ];
 
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
-        ->andReturn(json_encode($apiResponse));
-
-    $this->versionNormalizer
-        ->shouldReceive('normalize')
-        ->andReturnUsing(fn ($v) => str_replace('v', '', $v) . '.0.0');
+        ->andReturn([
+            'body' => json_encode($apiResponse),
+            'headers' => []
+        ]);
 
     $result = $this->fetcher->fetch(
         package: 'owner/repo',
@@ -224,13 +218,12 @@ it('includes prerelease when requested', function () {
     ];
 
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
-        ->andReturn(json_encode($apiResponse));
-
-    $this->versionNormalizer
-        ->shouldReceive('normalize')
-        ->andReturnUsing(fn ($v) => str_replace('v', '', $v) . '.0.0');
+        ->andReturn([
+            'body' => json_encode($apiResponse),
+            'headers' => []
+        ]);
 
     $result = $this->fetcher->fetch(
         package: 'owner/repo',
@@ -263,7 +256,7 @@ it('returns null when repository URL is not github', function () {
 
 it('returns null when http request fails', function () {
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
         ->andThrow(new Exception('Network error'));
 
@@ -294,14 +287,13 @@ it('handles git@github.com URL format', function () {
     ];
 
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
-        ->with('https://api.github.com/repos/owner/repo/releases', Mockery::any())
-        ->andReturn(json_encode($apiResponse));
-
-    $this->versionNormalizer
-        ->shouldReceive('normalize')
-        ->andReturnUsing(fn ($v) => str_replace('v', '', $v) . '.0.0');
+        ->with(Mockery::pattern('#/repos/owner/repo/releases\?per_page=100&page=1$#'), Mockery::any())
+        ->andReturn([
+            'body' => json_encode($apiResponse),
+            'headers' => []
+        ]);
 
     $result = $this->fetcher->fetch(
         package: 'owner/repo',
@@ -331,13 +323,12 @@ it('handles versions without v prefix', function () {
     ];
 
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
-        ->andReturn(json_encode($apiResponse));
-
-    $this->versionNormalizer
-        ->shouldReceive('normalize')
-        ->andReturnUsing(fn ($v) => str_replace('v', '', $v) . '.0.0');
+        ->andReturn([
+            'body' => json_encode($apiResponse),
+            'headers' => []
+        ]);
 
     $result = $this->fetcher->fetch(
         package: 'owner/repo',
@@ -355,9 +346,12 @@ it('handles versions without v prefix', function () {
 
 it('returns null when api response is invalid json', function () {
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
-        ->andReturn('invalid json');
+        ->andReturn([
+            'body' => 'invalid json',
+            'headers' => []
+        ]);
 
     $result = $this->fetcher->fetch(
         package: 'owner/repo',
@@ -395,13 +389,12 @@ it('fetches exact version when from and to are the same', function () {
     ];
 
     $this->httpService
-        ->shouldReceive('get')
+        ->shouldReceive('getWithHeaders')
         ->once()
-        ->andReturn(json_encode($apiResponse));
-
-    $this->versionNormalizer
-        ->shouldReceive('normalize')
-        ->andReturnUsing(fn ($v) => str_replace('v', '', $v) . '.0.0');
+        ->andReturn([
+            'body' => json_encode($apiResponse),
+            'headers' => []
+        ]);
 
     $result = $this->fetcher->fetch(
         package: 'owner/repo',
@@ -416,4 +409,83 @@ it('fetches exact version when from and to are the same', function () {
     expect($result)->not->toBeNull()
         ->and($result->count())->toBe(1)
         ->and($result->getReleases()[0]->tagName)->toBe('v1.1.0');
+});
+
+it('handles pagination when fetching releases', function () {
+    // First page of releases (v2.0.0 to v1.11.0)
+    $firstPageResponse = [
+        [
+            'tag_name' => 'v2.0.0',
+            'name' => 'v2.0.0',
+            'body' => 'Release 2.0.0',
+            'published_at' => '2024-03-01T10:00:00Z',
+            'html_url' => 'https://github.com/owner/repo/releases/tag/v2.0.0',
+            'draft' => false,
+            'prerelease' => false,
+        ],
+        [
+            'tag_name' => 'v1.11.0',
+            'name' => 'v1.11.0',
+            'body' => 'Release 1.11.0',
+            'published_at' => '2024-02-15T10:00:00Z',
+            'html_url' => 'https://github.com/owner/repo/releases/tag/v1.11.0',
+            'draft' => false,
+            'prerelease' => false,
+        ],
+    ];
+
+    // Second page of releases (v1.10.0 to v1.9.0)
+    $secondPageResponse = [
+        [
+            'tag_name' => 'v1.10.0',
+            'name' => 'v1.10.0',
+            'body' => 'Release 1.10.0',
+            'published_at' => '2024-02-10T10:00:00Z',
+            'html_url' => 'https://github.com/owner/repo/releases/tag/v1.10.0',
+            'draft' => false,
+            'prerelease' => false,
+        ],
+        [
+            'tag_name' => 'v1.9.0',
+            'name' => 'v1.9.0',
+            'body' => 'Release 1.9.0',
+            'published_at' => '2024-02-05T10:00:00Z',
+            'html_url' => 'https://github.com/owner/repo/releases/tag/v1.9.0',
+            'draft' => false,
+            'prerelease' => false,
+        ],
+    ];
+
+    $this->httpService
+        ->shouldReceive('getWithHeaders')
+        ->once()
+        ->with(Mockery::pattern('#per_page=100&page=1$#'), Mockery::any())
+        ->andReturn([
+            'body' => json_encode($firstPageResponse),
+            'headers' => []
+        ]);
+
+    $this->httpService
+        ->shouldReceive('getWithHeaders')
+        ->once()
+        ->with(Mockery::pattern('#per_page=100&page=2$#'), Mockery::any())
+        ->andReturn([
+            'body' => json_encode($secondPageResponse),
+            'headers' => []
+        ]);
+
+    $result = $this->fetcher->fetch(
+        package: 'owner/repo',
+        fromVersion: 'v1.9.0',
+        toVersion: 'v1.11.0',
+        repositoryUrl: 'https://github.com/owner/repo',
+        packageManagerType: PackageManagerType::COMPOSER,
+        localPath: null,
+        includePrerelease: false
+    );
+
+    expect($result)->not->toBeNull()
+        ->and($result->count())->toBe(2) // v1.10.0 and v1.11.0
+        ->and($result->getReleases()[0]->tagName)->toBe('v1.11.0')
+        ->and($result->getReleases()[1]->tagName)->toBe('v1.10.0');
 });
