@@ -42,9 +42,11 @@ composer update --no-interaction
 chmod +x bin/spc-alpine-docker
 
 # Build PHP Micro with only the extensions we need
-CACHE_API_EXEC=yes ./bin/spc-alpine-docker download --with-php="8.3" --for-extensions="dom,phar,zlib" --prefer-pre-built
-./bin/spc-alpine-docker switch-php-version "8.3"
-./bin/spc-alpine-docker build --build-micro "dom,phar,zlib"
+./bin/spc-alpine-docker doctor --auto-fix
+#./bin/spc-alpine-docker install-pkg upx
+CACHE_API_EXEC=yes ./bin/spc-alpine-docker download --with-php="8.4" --for-extensions="ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib" --prefer-pre-built
+./bin/spc-alpine-docker switch-php-version "8.4"
+./bin/spc-alpine-docker build --build-micro "ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib"
 
 # Build binary
 cat buildroot/bin/micro.sfx ../bin/whatsdiff.phar > "../bin/$binary_name"

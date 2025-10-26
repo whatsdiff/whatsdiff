@@ -9,7 +9,7 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   BINARY_NAME: 'whatsdiff-windows-x86_64.exe'
-  COMPILE_PHP_VERSION: "8.3"
+  COMPILE_PHP_VERSION: "8.4"
 
 
 jobs:
@@ -78,9 +78,13 @@ jobs:
         working-directory: build/static-php-cli/
         run: ./bin/spc doctor
 
+#      - name: SPC Install UPX
+#        working-directory: build/static-php-cli/
+#        run: ./bin/spc install-pkg upx
+
       - name: SPC Download
         working-directory: build/static-php-cli/
-        run: ./bin/spc download --with-php="${{ env.COMPILE_PHP_VERSION }}" --for-extensions="dom,phar,zlib" --prefer-pre-built
+        run: ./bin/spc download --with-php="${{ env.COMPILE_PHP_VERSION }}" --for-extensions="ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib" --prefer-pre-built
 
       - name: SPC Switch PHP version
         working-directory: build/static-php-cli/
@@ -88,7 +92,7 @@ jobs:
 
       - name: SPC Build
         working-directory: build/static-php-cli/
-        run: ./bin/spc build --build-micro "dom,phar,zlib"
+        run: ./bin/spc build --build-micro "ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib"
 
       - name: PHP Micro combine
         working-directory: build/static-php-cli/

@@ -2,6 +2,7 @@
   "main": "src/whatsdiff.php",
   "output": "build/bin/whatsdiff.phar",
   "banner": false,
+  "check-requirements": false,
   "blacklist": [
     "tests"
   ],

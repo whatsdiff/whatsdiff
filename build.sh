@@ -45,10 +45,10 @@ chmod +x bin/spc
 cd ../
 
 # Build PHP Micro with only the extensions we need
-./static-php-cli/bin/spc doctor
-./static-php-cli/bin/spc download --with-php="8.3" --for-extensions="dom,phar,zlib" --prefer-pre-built
-./static-php-cli/bin/spc switch-php-version "8.3"
-./static-php-cli/bin/spc build --build-micro "dom,phar,zlib"
+./static-php-cli/bin/spc doctor --auto-fix
+./static-php-cli/bin/spc download --with-php="8.4" --for-extensions="ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib" --prefer-pre-built
+./static-php-cli/bin/spc switch-php-version "8.4"
+./static-php-cli/bin/spc build --build-micro "ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib"
 
 # Build binary
 ./static-php-cli/bin/spc micro:combine bin/whatsdiff.phar --output="bin/$binary_name"

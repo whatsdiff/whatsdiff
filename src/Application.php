@@ -31,13 +31,6 @@ class Application extends BaseApplication
 
     public function __construct()
     {
-        // Set up error handling
-        if (class_exists('\NunoMaduro\Collision\Provider')) {
-            (new \NunoMaduro\Collision\Provider())->register();
-        } else {
-            error_reporting(0);
-        }
-
         parent::__construct('whatsdiff', self::getVersionString());
 
         // Initialize container with autowiring and service configuration

@@ -45,9 +45,11 @@ chmod +x bin/spc-alpine-docker
 #cd ../
 
 # Build PHP Micro with only the extensions we need
-SPC_USE_ARCH=aarch64 ./bin/spc-alpine-docker download --with-php="8.3" --for-extensions="dom,phar,zlib" --prefer-pre-built
-SPC_USE_ARCH=aarch64 ./bin/spc-alpine-docker switch-php-version "8.3"
-SPC_USE_ARCH=aarch64 ./bin/spc-alpine-docker build --build-micro "dom,phar,zlib"
+SPC_USE_ARCH=aarch64 ./bin/spc-alpine-docker doctor --auto-fix
+#SPC_USE_ARCH=aarch64 ./bin/spc-alpine-docker install-pkg upx
+SPC_USE_ARCH=aarch64 ./bin/spc-alpine-docker download --with-php="8.4" --for-extensions="ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib" --prefer-pre-built
+SPC_USE_ARCH=aarch64 ./bin/spc-alpine-docker switch-php-version "8.4"
+SPC_USE_ARCH=aarch64 ./bin/spc-alpine-docker build --build-micro "ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib"
 
 # Build binary
 cat buildroot/bin/micro.sfx ../bin/whatsdiff.phar > "../bin/$binary_name"
