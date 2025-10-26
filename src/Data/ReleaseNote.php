@@ -52,12 +52,12 @@ final readonly class ReleaseNote
             }
 
             // Check for common section headings (markdown ## or ###)
-            if (preg_match('/^#{2,3}\s+(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES)/i', $trimmedLine)) {
+            if (preg_match('/^#{2,3}\s+(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES|Removed?|Deprecated|Security)/i', $trimmedLine)) {
                 return true;
             }
 
             // Check for bold section headings
-            if (preg_match('/\*\*\s*(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES)\s*\*\*/i', $trimmedLine)) {
+            if (preg_match('/\*\*\s*(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES|Removed?|Deprecated|Security)\s*\*\*/i', $trimmedLine)) {
                 return true;
             }
         }
@@ -105,6 +105,48 @@ final readonly class ReleaseNote
         }
 
         return $this->extractSectionByPattern('/^#{2,3}\s+(Breaking( Changes)?|BREAKING CHANGES)/i');
+    }
+
+    /**
+     * Extract "Deprecated" section from markdown body.
+     *
+     * @return array<int, string>
+     */
+    public function getDeprecated(): array
+    {
+        if (!$this->isStructured()) {
+            return [];
+        }
+
+        return $this->extractSectionByPattern('/^#{2,3}\s+(Deprecated)/i');
+    }
+
+    /**
+     * Extract "Removed" section from markdown body.
+     *
+     * @return array<int, string>
+     */
+    public function getRemoved(): array
+    {
+        if (!$this->isStructured()) {
+            return [];
+        }
+
+        return $this->extractSectionByPattern('/^#{2,3}\s+(Removed?)/i');
+    }
+
+    /**
+     * Extract "Security" section from markdown body.
+     *
+     * @return array<int, string>
+     */
+    public function getSecurity(): array
+    {
+        if (!$this->isStructured()) {
+            return [];
+        }
+
+        return $this->extractSectionByPattern('/^#{2,3}\s+(Security)/i');
     }
 
     /**
@@ -176,8 +218,8 @@ final readonly class ReleaseNote
                 $hasSeenHeading = true;
 
                 // Check if it's a recognized section using regex
-                $isRecognized = preg_match('/^#{2,3}\s+(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES)/i', $trimmedLine)
-                    || preg_match('/\*\*\s*(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES)\s*\*\*/i', $trimmedLine);
+                $isRecognized = preg_match('/^#{2,3}\s+(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES|Removed?|Deprecated|Security)/i', $trimmedLine)
+                    || preg_match('/\*\*\s*(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES|Removed?|Deprecated|Security)\s*\*\*/i', $trimmedLine);
 
                 $inRecognizedSection = (bool) $isRecognized;
                 continue;

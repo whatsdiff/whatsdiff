@@ -247,3 +247,134 @@ it('does not duplicate title when tag name equals title in markdown', function (
     expect($markdown)->toContain('## v1.0.0')
         ->and($markdown)->not->toContain('## v1.0.0 - v1.0.0');
 });
+
+it('collects all deprecated items from multiple releases', function () {
+    $release1 = new ReleaseNote(
+        tagName: 'v1.5.0',
+        title: 'Release 1',
+        body: "## Deprecated\n- Old API method A\n- Legacy feature B",
+        date: new DateTimeImmutable()
+    );
+
+    $release2 = new ReleaseNote(
+        tagName: 'v1.6.0',
+        title: 'Release 2',
+        body: "## Deprecated\n- Component C will be removed",
+        date: new DateTimeImmutable()
+    );
+
+    $collection = new ReleaseNotesCollection([$release1, $release2]);
+
+    $deprecated = $collection->getDeprecated();
+
+    expect($deprecated)->toBe([
+        'Old API method A',
+        'Legacy feature B',
+        'Component C will be removed',
+    ]);
+});
+
+it('collects all removed items from multiple releases', function () {
+    $release1 = new ReleaseNote(
+        tagName: 'v2.0.0',
+        title: 'Major Release',
+        body: "## Removed\n- Deleted deprecated API\n- Removed legacy support",
+        date: new DateTimeImmutable()
+    );
+
+    $release2 = new ReleaseNote(
+        tagName: 'v2.1.0',
+        title: 'Release 2',
+        body: "## Removed\n- Removed old configuration format",
+        date: new DateTimeImmutable()
+    );
+
+    $collection = new ReleaseNotesCollection([$release1, $release2]);
+
+    $removed = $collection->getRemoved();
+
+    expect($removed)->toBe([
+        'Deleted deprecated API',
+        'Removed legacy support',
+        'Removed old configuration format',
+    ]);
+});
+
+it('collects all security items from multiple releases', function () {
+    $release1 = new ReleaseNote(
+        tagName: 'v1.0.1',
+        title: 'Security Patch 1',
+        body: "## Security\n- Fixed XSS vulnerability\n- Patched SQL injection",
+        date: new DateTimeImmutable()
+    );
+
+    $release2 = new ReleaseNote(
+        tagName: 'v1.0.2',
+        title: 'Security Patch 2',
+        body: "## Security\n- Updated dependencies with security fixes",
+        date: new DateTimeImmutable()
+    );
+
+    $collection = new ReleaseNotesCollection([$release1, $release2]);
+
+    $security = $collection->getSecurity();
+
+    expect($security)->toBe([
+        'Fixed XSS vulnerability',
+        'Patched SQL injection',
+        'Updated dependencies with security fixes',
+    ]);
+});
+
+it('generates summarized markdown with all Keep a Changelog sections', function () {
+    $release1 = new ReleaseNote(
+        tagName: 'v2.0.0',
+        title: 'Major Release',
+        body: "## Breaking Changes\n- Breaking A\n## Changes\n- Feature A\n## Fixes\n- Bug A\n## Deprecated\n- Old method A\n## Removed\n- Legacy feature A\n## Security\n- Security fix A",
+        date: new DateTimeImmutable()
+    );
+
+    $release2 = new ReleaseNote(
+        tagName: 'v2.1.0',
+        title: 'Minor Release',
+        body: "## Changes\n- Feature B\n## Deprecated\n- Old method B\n## Security\n- Security fix B",
+        date: new DateTimeImmutable()
+    );
+
+    $collection = new ReleaseNotesCollection([$release1, $release2]);
+
+    $markdown = $collection->toSummarizedMarkdown();
+
+    expect($markdown)->toContain('# Release Notes Summary')
+        ->and($markdown)->toContain('**Releases:** v2.0.0 → v2.1.0 (2 versions)')
+        ->and($markdown)->toContain('## Breaking Changes')
+        ->and($markdown)->toContain('- Breaking A')
+        ->and($markdown)->toContain('## Changes')
+        ->and($markdown)->toContain('- Feature A')
+        ->and($markdown)->toContain('- Feature B')
+        ->and($markdown)->toContain('## Fixes')
+        ->and($markdown)->toContain('- Bug A')
+        ->and($markdown)->toContain('## Deprecated')
+        ->and($markdown)->toContain('- Old method A')
+        ->and($markdown)->toContain('- Old method B')
+        ->and($markdown)->toContain('## Removed')
+        ->and($markdown)->toContain('- Legacy feature A')
+        ->and($markdown)->toContain('## Security')
+        ->and($markdown)->toContain('- Security fix A')
+        ->and($markdown)->toContain('- Security fix B');
+});
+
+it('returns empty arrays for new sections when no releases have them', function () {
+    $release = new ReleaseNote(
+        tagName: 'v1.0.0',
+        title: 'Release',
+        body: "## Changes\n- Feature A",
+        date: new DateTimeImmutable()
+    );
+
+    $collection = new ReleaseNotesCollection([$release]);
+
+    expect($collection->getDeprecated())->toBe([])
+        ->and($collection->getRemoved())->toBe([])
+        ->and($collection->getSecurity())->toBe([]);
+});

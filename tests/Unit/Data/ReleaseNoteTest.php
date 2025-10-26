@@ -406,3 +406,152 @@ MD;
         ->and($releaseNote->getFixes())->toBe(['Fixed bug X', 'Fixed bug Y'])
         ->and($releaseNote->getBreakingChanges())->toBe(['Removed old API']);
 });
+
+it('extracts deprecated items from markdown body', function () {
+    $body = <<<'MD'
+## Deprecated
+
+- Old method X is deprecated
+- Legacy feature Y will be removed
+- Component Z is deprecated
+
+## Changes
+
+- Some change
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v1.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    $deprecated = $releaseNote->getDeprecated();
+
+    expect($deprecated)->toBe([
+        'Old method X is deprecated',
+        'Legacy feature Y will be removed',
+        'Component Z is deprecated',
+    ]);
+});
+
+it('extracts removed items from markdown body', function () {
+    $body = <<<'MD'
+## Removed
+
+- Removed deprecated API endpoint
+- Deleted old configuration option
+- Removed legacy support
+
+## Changes
+
+- Some change
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v2.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    $removed = $releaseNote->getRemoved();
+
+    expect($removed)->toBe([
+        'Removed deprecated API endpoint',
+        'Deleted old configuration option',
+        'Removed legacy support',
+    ]);
+});
+
+it('extracts security items from markdown body', function () {
+    $body = <<<'MD'
+## Security
+
+- Fixed XSS vulnerability in input handler
+- Patched SQL injection vulnerability
+- Updated dependencies with security fixes
+
+## Changes
+
+- Some change
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v1.0.1',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    $security = $releaseNote->getSecurity();
+
+    expect($security)->toBe([
+        'Fixed XSS vulnerability in input handler',
+        'Patched SQL injection vulnerability',
+        'Updated dependencies with security fixes',
+    ]);
+});
+
+it('handles all Keep a Changelog sections together', function () {
+    $body = <<<'MD'
+## Added
+
+- New feature X
+
+## Changed
+
+- Updated feature Y
+
+## Deprecated
+
+- Old method Z
+
+## Removed
+
+- Legacy support
+
+## Fixed
+
+- Bug A
+
+## Security
+
+- Security patch B
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v2.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->getChanges())->toBe(['New feature X', 'Updated feature Y'])
+        ->and($releaseNote->getDeprecated())->toBe(['Old method Z'])
+        ->and($releaseNote->getRemoved())->toBe(['Legacy support'])
+        ->and($releaseNote->getFixes())->toBe(['Bug A'])
+        ->and($releaseNote->getSecurity())->toBe(['Security patch B']);
+});
+
+it('returns empty arrays for new sections when unstructured', function () {
+    $body = <<<'MD'
+## Some Other Section
+
+- Item A
+- Item B
+MD;
+
+    $releaseNote = new ReleaseNote(
+        tagName: 'v1.0.0',
+        title: 'Release',
+        body: $body,
+        date: new DateTimeImmutable()
+    );
+
+    expect($releaseNote->isStructured())->toBeFalse()
+        ->and($releaseNote->getDeprecated())->toBe([])
+        ->and($releaseNote->getRemoved())->toBe([])
+        ->and($releaseNote->getSecurity())->toBe([]);
+});

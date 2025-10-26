@@ -35,6 +35,9 @@ class ReleaseNotesJsonOutput
                     'breaking_changes' => $isStructured ? $collection->getBreakingChanges() : [],
                     'changes' => $isStructured ? $collection->getChanges() : [],
                     'fixes' => $isStructured ? $collection->getFixes() : [],
+                    'deprecated' => $isStructured ? $collection->getDeprecated() : [],
+                    'removed' => $isStructured ? $collection->getRemoved() : [],
+                    'security' => $isStructured ? $collection->getSecurity() : [],
                     'all_bullet_points' => $collection->getAllBulletPoints(),
                 ];
             }
@@ -53,6 +56,9 @@ class ReleaseNotesJsonOutput
                 'changes' => $release->getChanges(),
                 'fixes' => $release->getFixes(),
                 'breaking_changes' => $release->getBreakingChanges(),
+                'deprecated' => $release->getDeprecated(),
+                'removed' => $release->getRemoved(),
+                'security' => $release->getSecurity(),
                 'all_bullet_points' => $release->getAllBulletPoints(),
             ];
         }

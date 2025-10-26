@@ -89,6 +89,60 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
     }
 
     /**
+     * Get all deprecated items from all releases.
+     *
+     * @return array<int, string>
+     */
+    public function getDeprecated(): array
+    {
+        $deprecated = [];
+
+        foreach ($this->releases as $release) {
+            foreach ($release->getDeprecated() as $item) {
+                $deprecated[] = $item;
+            }
+        }
+
+        return $deprecated;
+    }
+
+    /**
+     * Get all removed items from all releases.
+     *
+     * @return array<int, string>
+     */
+    public function getRemoved(): array
+    {
+        $removed = [];
+
+        foreach ($this->releases as $release) {
+            foreach ($release->getRemoved() as $item) {
+                $removed[] = $item;
+            }
+        }
+
+        return $removed;
+    }
+
+    /**
+     * Get all security items from all releases.
+     *
+     * @return array<int, string>
+     */
+    public function getSecurity(): array
+    {
+        $security = [];
+
+        foreach ($this->releases as $release) {
+            foreach ($release->getSecurity() as $item) {
+                $security[] = $item;
+            }
+        }
+
+        return $security;
+    }
+
+    /**
      * Merge all release notes into a single markdown document.
      */
     public function toMarkdown(): string
@@ -180,6 +234,36 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
             $markdown .= "## Fixes\n\n";
             foreach ($fixes as $fix) {
                 $markdown .= "- {$this->formatGithubUrls($fix)}\n";
+            }
+            $markdown .= "\n";
+        }
+
+        // Deprecated section
+        $deprecated = $this->getDeprecated();
+        if (!empty($deprecated)) {
+            $markdown .= "## Deprecated\n\n";
+            foreach ($deprecated as $item) {
+                $markdown .= "- {$this->formatGithubUrls($item)}\n";
+            }
+            $markdown .= "\n";
+        }
+
+        // Removed section
+        $removed = $this->getRemoved();
+        if (!empty($removed)) {
+            $markdown .= "## Removed\n\n";
+            foreach ($removed as $item) {
+                $markdown .= "- {$this->formatGithubUrls($item)}\n";
+            }
+            $markdown .= "\n";
+        }
+
+        // Security section
+        $security = $this->getSecurity();
+        if (!empty($security)) {
+            $markdown .= "## Security\n\n";
+            foreach ($security as $item) {
+                $markdown .= "- {$this->formatGithubUrls($item)}\n";
             }
             $markdown .= "\n";
         }

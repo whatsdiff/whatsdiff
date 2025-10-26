@@ -126,6 +126,39 @@ class ReleaseNotesTextOutput
                 }
                 $output->writeln('');
             }
+
+            // Deprecated (if any)
+            $deprecated = $release->getDeprecated();
+            if (! empty($deprecated)) {
+                $output->writeln($this->colorize('<fg=bright-yellow>Deprecated:</>', 'Deprecated:'));
+                foreach ($deprecated as $item) {
+                    $formatted = $this->formatTextWithLinks($item);
+                    $output->writeln($this->colorize('  <fg=yellow>•</> ' . $formatted, '  • ' . $item));
+                }
+                $output->writeln('');
+            }
+
+            // Removed (if any)
+            $removed = $release->getRemoved();
+            if (! empty($removed)) {
+                $output->writeln($this->colorize('<fg=bright-red>Removed:</>', 'Removed:'));
+                foreach ($removed as $item) {
+                    $formatted = $this->formatTextWithLinks($item);
+                    $output->writeln($this->colorize('  <fg=red>•</> ' . $formatted, '  • ' . $item));
+                }
+                $output->writeln('');
+            }
+
+            // Security (if any)
+            $security = $release->getSecurity();
+            if (! empty($security)) {
+                $output->writeln($this->colorize('<fg=bright-magenta>Security:</>', 'Security:'));
+                foreach ($security as $item) {
+                    $formatted = $this->formatTextWithLinks($item);
+                    $output->writeln($this->colorize('  <fg=magenta>•</> ' . $formatted, '  • ' . $item));
+                }
+                $output->writeln('');
+            }
         }
 
         $output->writeln($this->colorize('<fg=gray>' . str_repeat('─', 80) . '</>', str_repeat('-', 80)));
@@ -143,7 +176,7 @@ class ReleaseNotesTextOutput
         $firstTag = $releases[0]->tagName;
         $lastTag = $releases[count($releases) - 1]->tagName;
         $count = $collection->count();
-        $releasesInfo = "Releases: {$firstTag} → {$lastTag} ({$count} versions)";
+        $releasesInfo = "Changelog of: {$lastTag} → {$firstTag} ({$count} versions)";
 
         $output->writeln($this->colorize('<fg=gray>' . $releasesInfo . '</>', $releasesInfo));
         $output->writeln('');
@@ -192,6 +225,39 @@ class ReleaseNotesTextOutput
             foreach ($fixes as $fix) {
                 $formatted = $this->formatTextWithLinks($fix);
                 $output->writeln($this->colorize('  <fg=blue>•</> ' . $formatted, '  • ' . $fix));
+            }
+            $output->writeln('');
+        }
+
+        // Deprecated
+        $deprecated = $collection->getDeprecated();
+        if (! empty($deprecated)) {
+            $output->writeln($this->colorize('<fg=bright-yellow>Deprecated:</>', 'Deprecated:'));
+            foreach ($deprecated as $item) {
+                $formatted = $this->formatTextWithLinks($item);
+                $output->writeln($this->colorize('  <fg=yellow>•</> ' . $formatted, '  • ' . $item));
+            }
+            $output->writeln('');
+        }
+
+        // Removed
+        $removed = $collection->getRemoved();
+        if (! empty($removed)) {
+            $output->writeln($this->colorize('<fg=bright-red>Removed:</>', 'Removed:'));
+            foreach ($removed as $item) {
+                $formatted = $this->formatTextWithLinks($item);
+                $output->writeln($this->colorize('  <fg=red>•</> ' . $formatted, '  • ' . $item));
+            }
+            $output->writeln('');
+        }
+
+        // Security
+        $security = $collection->getSecurity();
+        if (! empty($security)) {
+            $output->writeln($this->colorize('<fg=bright-magenta>Security:</>', 'Security:'));
+            foreach ($security as $item) {
+                $formatted = $this->formatTextWithLinks($item);
+                $output->writeln($this->colorize('  <fg=magenta>•</> ' . $formatted, '  • ' . $item));
             }
             $output->writeln('');
         }

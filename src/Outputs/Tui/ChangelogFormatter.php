@@ -170,6 +170,63 @@ class ChangelogFormatter
                     }
                 }
             }
+
+            // Deprecated
+            $deprecated = $release->getDeprecated();
+            if (!empty($deprecated)) {
+                $lines[] = '';
+                $lines[] = $this->yellow($this->bold('Deprecated:'));
+                foreach ($deprecated as $item) {
+                    // Format links before wrapping
+                    $formattedItem = $this->formatTextWithLinks($item);
+                    $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
+                    foreach ($wrappedLines as $idx => $line) {
+                        if ($idx === 0) {
+                            $lines[] = '  ' . $this->yellow('•') . ' ' . $line;
+                        } else {
+                            $lines[] = '    ' . $line;
+                        }
+                    }
+                }
+            }
+
+            // Removed
+            $removed = $release->getRemoved();
+            if (!empty($removed)) {
+                $lines[] = '';
+                $lines[] = $this->red($this->bold('Removed:'));
+                foreach ($removed as $item) {
+                    // Format links before wrapping
+                    $formattedItem = $this->formatTextWithLinks($item);
+                    $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
+                    foreach ($wrappedLines as $idx => $line) {
+                        if ($idx === 0) {
+                            $lines[] = '  ' . $this->red('•') . ' ' . $line;
+                        } else {
+                            $lines[] = '    ' . $line;
+                        }
+                    }
+                }
+            }
+
+            // Security
+            $security = $release->getSecurity();
+            if (!empty($security)) {
+                $lines[] = '';
+                $lines[] = $this->magenta($this->bold('Security:'));
+                foreach ($security as $item) {
+                    // Format links before wrapping
+                    $formattedItem = $this->formatTextWithLinks($item);
+                    $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
+                    foreach ($wrappedLines as $idx => $line) {
+                        if ($idx === 0) {
+                            $lines[] = '  ' . $this->magenta('•') . ' ' . $line;
+                        } else {
+                            $lines[] = '    ' . $line;
+                        }
+                    }
+                }
+            }
         }
         $lines[] = '';
 
@@ -277,6 +334,63 @@ class ChangelogFormatter
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
                         $lines[] = '  ' . $this->blue('•') . ' ' . $line;
+                    } else {
+                        $lines[] = '    ' . $line;
+                    }
+                }
+            }
+            $lines[] = '';
+        }
+
+        // Deprecated
+        $deprecated = $collection->getDeprecated();
+        if (!empty($deprecated)) {
+            $lines[] = $this->yellow($this->bold('Deprecated:'));
+            foreach ($deprecated as $item) {
+                // Format links before wrapping
+                $formattedItem = $this->formatTextWithLinks($item);
+                $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
+                foreach ($wrappedLines as $idx => $line) {
+                    if ($idx === 0) {
+                        $lines[] = '  ' . $this->yellow('•') . ' ' . $line;
+                    } else {
+                        $lines[] = '    ' . $line;
+                    }
+                }
+            }
+            $lines[] = '';
+        }
+
+        // Removed
+        $removed = $collection->getRemoved();
+        if (!empty($removed)) {
+            $lines[] = $this->red($this->bold('Removed:'));
+            foreach ($removed as $item) {
+                // Format links before wrapping
+                $formattedItem = $this->formatTextWithLinks($item);
+                $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
+                foreach ($wrappedLines as $idx => $line) {
+                    if ($idx === 0) {
+                        $lines[] = '  ' . $this->red('•') . ' ' . $line;
+                    } else {
+                        $lines[] = '    ' . $line;
+                    }
+                }
+            }
+            $lines[] = '';
+        }
+
+        // Security
+        $security = $collection->getSecurity();
+        if (!empty($security)) {
+            $lines[] = $this->magenta($this->bold('Security:'));
+            foreach ($security as $item) {
+                // Format links before wrapping
+                $formattedItem = $this->formatTextWithLinks($item);
+                $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
+                foreach ($wrappedLines as $idx => $line) {
+                    if ($idx === 0) {
+                        $lines[] = '  ' . $this->magenta('•') . ' ' . $line;
                     } else {
                         $lines[] = '    ' . $line;
                     }
