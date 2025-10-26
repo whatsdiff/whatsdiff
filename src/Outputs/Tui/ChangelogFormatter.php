@@ -87,7 +87,7 @@ class ChangelogFormatter
         // URL (if available)
         if ($release->url) {
             // Format URL as clickable hyperlink with truncation (already fits within maxWidth)
-            $clickableUrl = $this->formatClickableUrl($release->url, $maxWidth - 20);
+            $clickableUrl = $this->formatClickableUrl($release->url, $maxWidth - 6);
             $lines[] = $this->gray('URL: ') . $clickableUrl;
         }
 

@@ -265,8 +265,6 @@ class TerminalUI extends Prompt
     {
         if ($this->isPackageSelected()) {
             $this->selected = null;
-            // Reset to detailed mode when going back to sidebar
-            $this->summaryMode = false;
         }
     }
 
