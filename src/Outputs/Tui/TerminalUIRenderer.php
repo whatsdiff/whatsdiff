@@ -43,8 +43,8 @@ class TerminalUIRenderer extends Renderer implements Scrolling
             },
             width: 95,
             height: 25,
-        // width: 10,
-        // height: 4,
+            // width: 10,
+            // height: 4,
         );
 
         return $this;
@@ -250,7 +250,7 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
     private function rightPaneContent(): Collection
     {
-        if ( ! $this->terminalUI->isPackageSelected()) {
+        if (! $this->terminalUI->isPackageSelected()) {
             return collect();
         }
 
