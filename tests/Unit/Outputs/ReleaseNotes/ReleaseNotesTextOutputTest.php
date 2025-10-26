@@ -66,7 +66,7 @@ it('formats summary output', function () {
     $result = $output->fetch();
 
     expect($result)->toContain('Release Notes Summary')
-        ->and($result)->toContain('Releases: v1.0.0 → v1.1.0 (2 versions)')
+        ->and($result)->toContain('Changelog of: v1.1.0 → v1.0.0 (2 versions)')
         ->and($result)->toContain('Breaking Changes:')
         ->and($result)->toContain('Breaking A')
         ->and($result)->toContain('Changes:')

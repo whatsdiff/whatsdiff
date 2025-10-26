@@ -86,7 +86,9 @@ class ChangelogFormatter
 
         // URL (if available)
         if ($release->url) {
-            $lines[] = $this->gray('URL: ') . $this->dim($release->url);
+            // Format URL as clickable hyperlink with truncation (already fits within maxWidth)
+            $clickableUrl = $this->formatClickableUrl($release->url, $maxWidth - 20);
+            $lines[] = $this->gray('URL: ') . $clickableUrl;
         }
 
         // If changelog is not structured, display raw body
@@ -403,13 +405,20 @@ class ChangelogFormatter
     }
 
     /**
-     * Strip ANSI color codes from a string.
+     * Strip ANSI color codes and OSC 8 hyperlink codes from a string.
      *
-     * Removes ANSI color codes (e.g., \033[31m for red) to calculate visible text length.
+     * Removes ANSI color codes (e.g., \033[31m for red) and OSC 8 hyperlink codes
+     * (e.g., \e]8;;url\007text\e]8;;\007) to calculate visible text length.
      */
     private function stripAnsiCodes(string $text): string
     {
-        return preg_replace('/\033\[[0-9;]*m/', '', $text);
+        // Remove ANSI color codes
+        $text = preg_replace('/\033\[[0-9;]*m/', '', $text);
+
+        // Remove OSC 8 hyperlink codes: \e]8;;url\007 and \e]8;;\007
+        $text = preg_replace('/\x1b\]8;;[^\x07]*\x07/', '', $text);
+
+        return $text;
     }
 
     /**
@@ -482,6 +491,50 @@ class ChangelogFormatter
         }
 
         return $lines;
+    }
+
+    /**
+     * Format a URL as a clickable hyperlink with truncation if needed.
+     * Uses OSC 8 escape codes for terminal hyperlink support.
+     * The display text is styled with dim color.
+     *
+     * @param string $url The full URL to format
+     * @param int $maxWidth Maximum visible width for the URL text
+     * @return string OSC 8 formatted clickable URL with dim styling, truncated if necessary
+     */
+    private function formatClickableUrl(string $url, int $maxWidth): string
+    {
+        // Determine display text (full URL or truncated)
+        $displayText = $url;
+
+        if (mb_strwidth($url) > $maxWidth) {
+            // URL is too long, truncate with ellipsis
+            // Reserve 3 characters for "..."
+            $availableWidth = max(10, $maxWidth - 2); // Ensure at least 10 chars visible
+
+            // Truncate from the end
+            $truncated = '';
+            $currentWidth = 0;
+
+            for ($i = 0; $i < mb_strlen($url); $i++) {
+                $char = mb_substr($url, $i, 1);
+                $charWidth = mb_strwidth($char);
+
+                if ($currentWidth + $charWidth > $availableWidth) {
+                    break;
+                }
+
+                $truncated .= $char;
+                $currentWidth += $charWidth;
+            }
+
+            $displayText = $truncated . '…';
+        }
+
+        // Apply dim styling to display text and wrap in OSC 8 hyperlink codes
+        // Return clickable link with dim-styled display text but full URL target
+        // return $this->dim("\e]8;;{$url}\007{$displayText}\e]8;;\007"); // URLS are broken in TUI for now..
+        return $this->dim($displayText);
     }
 
     /**
