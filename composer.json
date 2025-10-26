@@ -12,12 +12,6 @@
   "bin": [
     "bin/whatsdiff"
   ],
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/SRWieZ/fork-chewie"
-    }
-  ],
   "require": {
     "php": "^8.2",
     "ext-dom": "*",
@@ -26,7 +20,7 @@
     "illuminate/collections": "^10.0|^11.0|^12.0",
     "composer/semver": "^3.4",
     "saloonphp/saloon": "^3.10",
-    "joetannenbaum/chewie": "dev-fix/lines-emojis",
+    "joetannenbaum/chewie": "0.1.11",
     "ext-mbstring": "*",
     "symfony/console": "^6.0|^7.0",
     "symfony/cache": "^6.0|^7.0",
@@ -43,11 +37,13 @@
     "nunomaduro/collision": "^7.0|^8.0",
     "phpstan/phpstan": "^2.0",
     "spatie/ray": "^1.41",
-    "mockery/mockery": "^1.6"
+    "mockery/mockery": "^1.6",
+    "cweagans/composer-patches": "^1.7"
   },
   "config": {
     "allow-plugins": {
-      "pestphp/pest-plugin": true
+      "pestphp/pest-plugin": true,
+      "cweagans/composer-patches": true
     }
   },
   "autoload": {
@@ -60,6 +56,13 @@
   "autoload-dev": {
     "psr-4": {
       "Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "patches": {
+      "joetannenbaum/chewie": {
+        "Fix emoji display width calculation": "patches/chewie-mb-strwidth-fix.patch"
+      }
     }
   },
   "scripts": {
