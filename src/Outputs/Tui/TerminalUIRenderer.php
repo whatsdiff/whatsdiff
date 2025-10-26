@@ -43,8 +43,8 @@ class TerminalUIRenderer extends Renderer implements Scrolling
             },
             width: 95,
             height: 25,
-            // width: 10,
-            // height: 4,
+        // width: 10,
+        // height: 4,
         );
 
         return $this;
@@ -108,28 +108,32 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
     private function layoutHeader(): Collection
     {
+        // Single line with inverse/white background - visible on dark terminals
         $logo = $this->blue('Δ').' '.$this->green('⊕').' '.$this->red('⊖');
-        $leftText = "What's Diff?";
-        $left = ' '.$logo.' '.$leftText;
+        $leftText = "What's Diff…?  ";
+        $left = ' '.$logo.'  '.$this->black($leftText);
 
-        $githubText = 'Source Code';
+        $githubText = 'github.com';
         $websiteText = 'whatsdiff.app';
-        $github = "\e]8;;https://github.com/whatsdiff/whatsdiff\e\\".$this->dim($githubText)."\e]8;;\e\\";
-        $website = "\e]8;;https://whatsdiff.app\e\\".$this->dim($websiteText)."\e]8;;\e\\";
-        $right = $github.' '.$website.' ';
+        // Use black text for links on white background
+        $github = "\e]8;;https://github.com/whatsdiff/whatsdiff\e\\".$githubText."\e]8;;\e\\";
+        $website = "\e]8;;https://whatsdiff.app\e\\".$websiteText."\e]8;;\e\\";
+        $right = $this->dim($github.' / '.$website.' ');
 
-        // Calculate spacing: total width - left text length - right text length
-        $leftLength = mb_strwidth('Δ ⊕ ⊖ '.$leftText);
-        $rightLength = mb_strwidth(' '.$githubText.' '.$websiteText);
+        // Calculate spacing
+        $leftLength = 6 + mb_strwidth($leftText); // 6 for the logo and spaces
+        $rightLength = mb_strwidth(' '.$githubText.' / '.$websiteText. '');
         $spacing = max(1, $this->uiWidth - 2 - $leftLength - $rightLength);
 
-        $headerLine = $left.str_repeat(' ', $spacing).$right;
+        // White background with black text - classic inverse terminal look
+        $headerLine = $this->bgGray($left).str_repeat(' ', $spacing).$right;
 
         return collect([
             '',
-            $this->dim(str_repeat('─', $this->uiWidth)),
+            // $this->bgGray(str_repeat(' ', $this->uiWidth)),
             $headerLine,
             $this->dim(str_repeat('─', $this->uiWidth)),
+            // $this->bgGray(str_repeat(' ', $this->uiWidth)),
         ]);
     }
 
@@ -246,7 +250,7 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
     private function rightPaneContent(): Collection
     {
-        if (! $this->terminalUI->isPackageSelected()) {
+        if ( ! $this->terminalUI->isPackageSelected()) {
             return collect();
         }
 
@@ -294,6 +298,16 @@ class TerminalUIRenderer extends Renderer implements Scrolling
         }
 
         return '';
+    }
+
+    public function bgGray(string $string): string
+    {
+        return "\e[47m{$string}\e[49m";
+    }
+
+    public function bgWhite(string $string): string
+    {
+        return "\e[107m{$string}\e[49m";
     }
 
 }
