@@ -438,11 +438,7 @@ class ChangelogCommand extends Command
 
             // Sort versions in ascending order
             usort($versions, function ($a, $b) {
-                try {
-                    return version_compare($a, $b);
-                } catch (\Exception $e) {
-                    return strcmp($a, $b);
-                }
+                return version_compare($a, $b);
             });
 
             // Find the version just before the current version
