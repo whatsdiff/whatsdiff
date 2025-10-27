@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Tests\Helpers\McpServerHelper;
 
+beforeEach()->skipOnWindows();
 beforeEach(function () {
     $this->mcp = new McpServerHelper();
     $this->mcp->initialize();
