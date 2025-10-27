@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 use Tests\Helpers\McpServerHelper;
 
-beforeEach(function () {
-    $this->mcp = new McpServerHelper();
-    $this->mcp->initialize();
-});
-
-afterEach(function () {
-    $this->mcp->stop();
-});
-
 describe('MCP', function () {
+
+    beforeEach(function () {
+        $this->mcp = new McpServerHelper();
+        $this->mcp->initialize();
+    });
+
+    afterEach(function () {
+        $this->mcp->stop();
+    });
+
     it('can get available upgrades for a composer package', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
+            'package'         => 'symfony/console',
             'current_version' => '6.3.0',
             'package_manager' => 'composer',
         ]);
@@ -60,7 +61,7 @@ describe('MCP', function () {
 
     it('can get available upgrades for an npm package', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'react',
+            'package'         => 'react',
             'current_version' => '18.2.0',
             'package_manager' => 'npm',
         ]);
@@ -82,7 +83,7 @@ describe('MCP', function () {
 
     it('returns error for invalid package manager', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'some/package',
+            'package'         => 'some/package',
             'current_version' => '1.0.0',
             'package_manager' => 'invalid',
         ]);
@@ -98,7 +99,7 @@ describe('MCP', function () {
 
     it('returns error for invalid version format', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
+            'package'         => 'symfony/console',
             'current_version' => 'not-a-valid-version',
             'package_manager' => 'composer',
         ]);
@@ -114,7 +115,7 @@ describe('MCP', function () {
 
     it('returns error when package is not found', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'nonexistent/package-that-does-not-exist-12345',
+            'package'         => 'nonexistent/package-that-does-not-exist-12345',
             'current_version' => '1.0.0',
             'package_manager' => 'composer',
         ]);
@@ -131,7 +132,7 @@ describe('MCP', function () {
     it('returns null for patch when no patch upgrade available', function () {
         // Use a recent version that likely doesn't have a newer patch
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
+            'package'         => 'symfony/console',
             'current_version' => '7.2.999',
             'package_manager' => 'composer',
         ]);
@@ -150,7 +151,7 @@ describe('MCP', function () {
     it('returns null for all upgrade types when already at latest version', function () {
         // Use a very high version number that doesn't exist
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
+            'package'         => 'symfony/console',
             'current_version' => '99.99.99',
             'package_manager' => 'composer',
         ]);
@@ -168,7 +169,7 @@ describe('MCP', function () {
 
     it('uses default package manager when not specified', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
+            'package'         => 'symfony/console',
             'current_version' => '6.4.0',
         ]);
 
@@ -184,7 +185,7 @@ describe('MCP', function () {
 
     it('finds latest patch version not first', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
+            'package'         => 'symfony/console',
             'current_version' => '7.0.0',
             'package_manager' => 'composer',
         ]);
@@ -203,7 +204,7 @@ describe('MCP', function () {
 
     it('finds latest minor version not first', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
+            'package'         => 'symfony/console',
             'current_version' => '7.0.0',
             'package_manager' => 'composer',
         ]);
@@ -222,7 +223,7 @@ describe('MCP', function () {
 
     it('finds latest major version not first', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
+            'package'         => 'symfony/console',
             'current_version' => '6.3.0',
             'package_manager' => 'composer',
         ]);
@@ -241,7 +242,7 @@ describe('MCP', function () {
 
     it('skips dev versions when finding upgrades', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'laravel/framework',
+            'package'         => 'laravel/framework',
             'current_version' => '11.0.0',
             'package_manager' => 'composer',
         ]);
@@ -263,7 +264,7 @@ describe('MCP', function () {
     it('handles versions with v prefix correctly', function () {
         // This is the exact issue that was reported
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
+            'package'         => 'symfony/console',
             'current_version' => '6.3.0',
             'package_manager' => 'composer',
         ]);
@@ -284,9 +285,9 @@ describe('MCP', function () {
 
     it('excludes pre-release versions by default', function () {
         $response = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
-            'current_version' => '6.3.0',
-            'package_manager' => 'composer',
+            'package'            => 'symfony/console',
+            'current_version'    => '6.3.0',
+            'package_manager'    => 'composer',
             'include_prerelease' => false,
         ]);
 
@@ -312,16 +313,16 @@ describe('MCP', function () {
 
     it('includes pre-release versions when requested', function () {
         $responseWithoutPrerelease = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
-            'current_version' => '7.3.0',
-            'package_manager' => 'composer',
+            'package'            => 'symfony/console',
+            'current_version'    => '7.3.0',
+            'package_manager'    => 'composer',
             'include_prerelease' => false,
         ]);
 
         $responseWithPrerelease = $this->mcp->callTool('get_available_upgrades', [
-            'package' => 'symfony/console',
-            'current_version' => '7.3.0',
-            'package_manager' => 'composer',
+            'package'            => 'symfony/console',
+            'current_version'    => '7.3.0',
+            'package_manager'    => 'composer',
             'include_prerelease' => true,
         ]);
 

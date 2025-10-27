@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 use Tests\Helpers\McpServerHelper;
 
-beforeEach(function () {
-    $this->mcp = new McpServerHelper();
-    $this->mcp->initialize();
-});
-
-afterEach(function () {
-    $this->mcp->stop();
-});
-
 describe('MCP', function () {
+
+    beforeEach(function () {
+        $this->mcp = new McpServerHelper();
+        $this->mcp->initialize();
+    });
+
+    afterEach(function () {
+        $this->mcp->stop();
+    });
+
     it('can get dependency constraints for a composer package version', function () {
         $response = $this->mcp->callTool('get_dependency_constraints', [
-            'package' => 'livewire/livewire',
-            'version' => 'v3.0.0',
+            'package'         => 'livewire/livewire',
+            'version'         => 'v3.0.0',
             'package_manager' => 'composer',
         ]);
 
@@ -45,8 +46,8 @@ describe('MCP', function () {
 
     it('can get dependency constraints for an npm package version', function () {
         $response = $this->mcp->callTool('get_dependency_constraints', [
-            'package' => 'react',
-            'version' => '18.2.0',
+            'package'         => 'react',
+            'version'         => '18.2.0',
             'package_manager' => 'npm',
         ]);
 
@@ -72,8 +73,8 @@ describe('MCP', function () {
 
     it('returns error for invalid package manager', function () {
         $response = $this->mcp->callTool('get_dependency_constraints', [
-            'package' => 'some/package',
-            'version' => '1.0.0',
+            'package'         => 'some/package',
+            'version'         => '1.0.0',
             'package_manager' => 'invalid',
         ]);
 
@@ -88,8 +89,8 @@ describe('MCP', function () {
 
     it('returns error when package is not found', function () {
         $response = $this->mcp->callTool('get_dependency_constraints', [
-            'package' => 'nonexistent/package-that-does-not-exist-12345',
-            'version' => '1.0.0',
+            'package'         => 'nonexistent/package-that-does-not-exist-12345',
+            'version'         => '1.0.0',
             'package_manager' => 'composer',
         ]);
 
@@ -104,8 +105,8 @@ describe('MCP', function () {
 
     it('returns error when version is not found', function () {
         $response = $this->mcp->callTool('get_dependency_constraints', [
-            'package' => 'symfony/console',
-            'version' => '999.999.999',
+            'package'         => 'symfony/console',
+            'version'         => '999.999.999',
             'package_manager' => 'composer',
         ]);
 
@@ -137,14 +138,14 @@ describe('MCP', function () {
 
     it('handles version with or without v prefix', function () {
         $responseWithV = $this->mcp->callTool('get_dependency_constraints', [
-            'package' => 'symfony/console',
-            'version' => 'v6.4.0',
+            'package'         => 'symfony/console',
+            'version'         => 'v6.4.0',
             'package_manager' => 'composer',
         ]);
 
         $responseWithoutV = $this->mcp->callTool('get_dependency_constraints', [
-            'package' => 'symfony/console',
-            'version' => '6.4.0',
+            'package'         => 'symfony/console',
+            'version'         => '6.4.0',
             'package_manager' => 'composer',
         ]);
 
@@ -159,8 +160,8 @@ describe('MCP', function () {
 
     it('returns proper dependency structure for packages', function () {
         $response = $this->mcp->callTool('get_dependency_constraints', [
-            'package' => 'symfony/console',
-            'version' => 'v6.4.0',
+            'package'         => 'symfony/console',
+            'version'         => 'v6.4.0',
             'package_manager' => 'composer',
         ]);
 

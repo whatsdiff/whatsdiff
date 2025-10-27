@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 use Tests\Helpers\McpServerHelper;
 
-beforeEach(function () {
-    $this->mcp = new McpServerHelper();
-});
-
-afterEach(function () {
-    $this->mcp->stop();
-});
 describe('MCP', function () {
+
+    beforeEach(function () {
+        $this->mcp = new McpServerHelper();
+    });
+
+    afterEach(function () {
+        $this->mcp->stop();
+    });
+
     it('can initialize the MCP server', function () {
         $response = $this->mcp->initialize();
 
