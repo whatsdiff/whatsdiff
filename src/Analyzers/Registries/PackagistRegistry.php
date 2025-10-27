@@ -137,7 +137,77 @@ class PackagistRegistry implements RegistryInterface
             return null;
         }
 
-        return $firstVersion['source']['url'] ?? $firstVersion['dist']['url'] ?? null;
+        // Try multiple sources in order of preference:
+        // 1. source.url (git repository)
+        // 2. dist.url (distribution URL - always points to release repository)
+        // 3. support.issues (can extract repo from issues URL)
+        // 4. support.source (source code repo - might be different from release repo)
+        $url = $firstVersion['source']['url']
+            ?? $firstVersion['dist']['url']
+            ?? $this->extractRepoFromIssuesUrl($firstVersion['support']['issues'] ?? null)
+            ?? $firstVersion['support']['source']
+            ?? null;
+
+        if ($url === null) {
+            return null;
+        }
+
+        return $this->normalizeRepositoryUrl($url);
+    }
+
+    /**
+     * Normalize repository URL to a clean format.
+     *
+     * Handles various URL formats from Packagist:
+     * - https://github.com/owner/repo.git -> https://github.com/owner/repo
+     * - https://api.github.com/repos/owner/repo/zipball/ref -> https://github.com/owner/repo
+     * - https://api.github.com/repos/owner/repo/tarball/ref -> https://github.com/owner/repo
+     *
+     * @param string $url URL to normalize
+     * @return string Clean repository URL
+     */
+    private function normalizeRepositoryUrl(string $url): string
+    {
+        // Remove .git suffix from source URLs
+        if (str_ends_with($url, '.git')) {
+            return rtrim($url, '.git');
+        }
+
+        // Extract owner/repo from GitHub API zipball/tarball URLs
+        // Format: https://api.github.com/repos/{owner}/{repo}/{zipball|tarball}/{ref}
+        if (preg_match('#^https?://api\.github\.com/repos/([^/]+)/([^/]+)/(?:zipball|tarball)/#', $url, $matches)) {
+            return sprintf('https://github.com/%s/%s', $matches[1], $matches[2]);
+        }
+
+        // Extract owner/repo from GitHub API repo URLs
+        // Format: https://api.github.com/repos/{owner}/{repo}
+        if (preg_match('#^https?://api\.github\.com/repos/([^/]+)/([^/]+)/?$#', $url, $matches)) {
+            return sprintf('https://github.com/%s/%s', $matches[1], $matches[2]);
+        }
+
+        // Already a clean URL
+        return $url;
+    }
+
+    /**
+     * Extract repository URL from GitHub issues URL.
+     *
+     * @param string|null $issuesUrl Issues URL (e.g., https://github.com/owner/repo/issues)
+     * @return string|null Repository URL or null
+     */
+    private function extractRepoFromIssuesUrl(?string $issuesUrl): ?string
+    {
+        if ($issuesUrl === null) {
+            return null;
+        }
+
+        // Extract owner/repo from issues URL
+        // Format: https://github.com/{owner}/{repo}/issues
+        if (preg_match('#^(https?://github\.com/[^/]+/[^/]+)/issues#', $issuesUrl, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 
     /**

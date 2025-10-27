@@ -213,7 +213,8 @@ it('gets repository url from most recent version', function () {
 
     $result = $this->registry->getRepositoryUrl('symfony/console');
 
-    expect($result)->toBe('https://github.com/symfony/console.git');
+    // Should normalize by removing .git suffix
+    expect($result)->toBe('https://github.com/symfony/console');
 });
 
 it('gets repository url from dist when source not available', function () {
@@ -235,7 +236,8 @@ it('gets repository url from dist when source not available', function () {
 
     $result = $this->registry->getRepositoryUrl('symfony/console');
 
-    expect($result)->toBe('https://api.github.com/repos/symfony/console/zipball/abc123');
+    // Should normalize zipball URL to clean repository URL
+    expect($result)->toBe('https://github.com/symfony/console');
 });
 
 it('returns null when repository url cannot be found', function () {
@@ -264,6 +266,82 @@ it('returns null when package metadata fetch fails', function () {
     $result = $this->registry->getRepositoryUrl('symfony/console');
 
     expect($result)->toBeNull();
+});
+
+it('prefers dist url over support.source when source.url is missing', function () {
+    $packageData = [
+        'packages' => [
+            'phpstan/phpstan' => [
+                [
+                    'version' => '2.1.17',
+                    'dist' => ['url' => 'https://api.github.com/repos/phpstan/phpstan/zipball/abc123'],
+                    'support' => [
+                        'source' => 'https://github.com/phpstan/phpstan-src',
+                        'issues' => 'https://github.com/phpstan/phpstan/issues',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    $this->httpService
+        ->shouldReceive('get')
+        ->once()
+        ->andReturn(json_encode($packageData));
+
+    $result = $this->registry->getRepositoryUrl('phpstan/phpstan');
+
+    // Should use dist URL (phpstan/phpstan) not support.source (phpstan-src)
+    // because dist URL always points to the release repository
+    expect($result)->toBe('https://github.com/phpstan/phpstan');
+});
+
+it('extracts repository url from support.issues when dist is not available', function () {
+    $packageData = [
+        'packages' => [
+            'some/package' => [
+                [
+                    'version' => '1.0.0',
+                    'support' => [
+                        'issues' => 'https://github.com/some/package/issues',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    $this->httpService
+        ->shouldReceive('get')
+        ->once()
+        ->andReturn(json_encode($packageData));
+
+    $result = $this->registry->getRepositoryUrl('some/package');
+
+    expect($result)->toBe('https://github.com/some/package');
+});
+
+it('uses support.source as last resort when other sources not available', function () {
+    $packageData = [
+        'packages' => [
+            'some/package' => [
+                [
+                    'version' => '1.0.0',
+                    'support' => [
+                        'source' => 'https://github.com/some/package',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    $this->httpService
+        ->shouldReceive('get')
+        ->once()
+        ->andReturn(json_encode($packageData));
+
+    $result = $this->registry->getRepositoryUrl('some/package');
+
+    expect($result)->toBe('https://github.com/some/package');
 });
 
 it('loads auth from local auth.json and applies automatically', function () {
