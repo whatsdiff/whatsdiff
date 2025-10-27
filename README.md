@@ -82,7 +82,7 @@ fi
 ### [Changelog Command](https://whatsdiff.app/docs/cli-changelog)
 View release notes for updated packages:
 ```bash
-whatsdiff changelog
+whatsdiff changelog guzzlehttp/guzzle 7.7.0...7.8.1 --type=composer --summary
 ```
 
 ### [Configuration](https://whatsdiff.app/docs/cli-configuration)
