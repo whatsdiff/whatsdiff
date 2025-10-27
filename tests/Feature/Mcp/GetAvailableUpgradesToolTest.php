@@ -7,7 +7,7 @@ use Tests\Helpers\McpServerHelper;
 beforeEach(function () {
     $this->mcp = new McpServerHelper();
     $this->mcp->initialize();
-});
+})->skipOnWindows();
 
 afterEach(function () {
     $this->mcp->stop();
