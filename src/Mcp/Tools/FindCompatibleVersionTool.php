@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Whatsdiff\Mcp\Tools;
 
-use Composer\Semver\Constraint\Constraint;
+use Composer\Semver\Intervals;
 use Composer\Semver\VersionParser;
 use PhpMcp\Server\Attributes\McpTool;
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
@@ -112,8 +112,8 @@ class FindCompatibleVersionTool
             try {
                 $requiredConstraint = $this->versionParser->parseConstraints($requiredVersion);
 
-                // Check if the constraints intersect
-                if ($this->constraintsIntersect($requiredConstraint, $normalizedConstraint)) {
+                // Check if the constraints intersect using composer/semver's interval arithmetic
+                if (Intervals::haveIntersections($requiredConstraint, $normalizedConstraint)) {
                     if (!isset($majorVersions[$majorVersion])) {
                         $majorVersions[$majorVersion] = [
                             'major_version' => $majorVersion,
@@ -138,39 +138,5 @@ class FindCompatibleVersionTool
             'compatible_versions' => array_values($majorVersions),
             'count' => count($majorVersions),
         ];
-    }
-
-    private function constraintsIntersect($constraint1, $constraint2): bool
-    {
-        // Generate test versions from the constraint strings
-        $c1String = $constraint1->__toString();
-        $c2String = $constraint2->__toString();
-
-        // Extract version numbers from constraints
-        $testVersions = [];
-        if (preg_match_all('/(\d+\.\d+\.\d+)/', $c1String . ' ' . $c2String, $matches)) {
-            $testVersions = array_merge($testVersions, $matches[1]);
-        }
-
-        // Generate additional test versions based on major versions
-        for ($major = 0; $major <= 20; $major++) {
-            $testVersions[] = "{$major}.0.0";
-            $testVersions[] = "{$major}.1.0";
-        }
-
-        // Check if any test version satisfies both constraints
-        foreach ($testVersions as $testVersion) {
-            try {
-                // Use VersionParser to properly normalize the version
-                $testConstraint = $this->versionParser->parseConstraints($testVersion);
-                if ($constraint1->matches($testConstraint) && $constraint2->matches($testConstraint)) {
-                    return true;
-                }
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
-
-        return false;
     }
 }
