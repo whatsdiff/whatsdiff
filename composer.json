@@ -10,7 +10,8 @@
     }
   ],
   "bin": [
-    "bin/whatsdiff"
+    "bin/whatsdiff",
+    "bin/whatsdiff-mcp"
   ],
   "require": {
     "php": "^8.2",
@@ -29,7 +30,9 @@
     "symfony/yaml": "^6.0|^7.0",
     "guzzlehttp/guzzle": "^7.0",
     "psr/container": "^2.0",
-    "league/container": "^5.1"
+    "league/container": "^5.1",
+    "php-mcp/server": "^2.0",
+    "react/promise": "^3.3"
   },
   "require-dev": {
     "pestphp/pest": "^2.0|^3.0",
