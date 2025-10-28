@@ -9,6 +9,7 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   BINARY_NAME: 'whatsdiff-macos-arm64'
+  BINARY_MCP_NAME: 'whatsdiff-mcp-macos-arm64'
   COMPILE_PHP_VERSION: "8.4"
 
 
@@ -56,18 +57,27 @@ jobs:
       - name: Composer update
         run: composer update --prefer-dist --no-progress --optimize-autoloader
 
-      - name: Build Binary
-        run: ./build.sh --name "${{ env.BINARY_NAME }}"
+      - name: Build Binaries
+        run: ./build.sh --name "${{ env.BINARY_NAME }}" --mcp-name "${{ env.BINARY_MCP_NAME }}"
 
       - if: ${{ github.event_name == 'workflow_dispatch' }}
-        name: Upload binaries
+        name: Upload whatsdiff binary
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.BINARY_NAME }}
           path: build/bin/${{ env.BINARY_NAME }}
 
+      - if: ${{ github.event_name == 'workflow_dispatch' }}
+        name: Upload whatsdiff-mcp binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.BINARY_MCP_NAME }}
+          path: build/bin/${{ env.BINARY_MCP_NAME }}
+
       - if: ${{ github.event_name != 'workflow_dispatch' }}
         name: Upload binaries to release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/bin/${{ env.BINARY_NAME }}
+          files: |
+            build/bin/${{ env.BINARY_NAME }}
+            build/bin/${{ env.BINARY_MCP_NAME }}

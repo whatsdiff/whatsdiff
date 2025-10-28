@@ -53,11 +53,11 @@ jobs:
       - name: Composer update
         run: composer update --prefer-dist --no-progress --optimize-autoloader
 
-      - name: Build .phar
+      - name: Build .phar file
         shell: bash
         env:
           BOX_REQUIREMENT_CHECKER: 0
-        run: ./vendor/bin/box compile --allow-composer-check-failure --composer-bin "$(which composer)"
+        run: ./vendor/bin/box compile --config=box.json --allow-composer-check-failure --composer-bin "$(which composer)"
 
       - name: Checkout static-php-cli
         working-directory: build
@@ -99,14 +99,14 @@ jobs:
         run: ./bin/spc micro:combine "../bin/whatsdiff.phar" --output="../bin/${{ env.BINARY_NAME }}"
 
       - if: ${{ github.event_name == 'workflow_dispatch' }}
-        name: Upload binaries
+        name: Upload binary
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.BINARY_NAME }}
           path: build/bin/${{ env.BINARY_NAME }}
 
       - if: ${{ github.event_name != 'workflow_dispatch' }}
-        name: Upload binaries to release
+        name: Upload binary to release
         uses: softprops/action-gh-release@v2
         with:
           files: build/bin/${{ env.BINARY_NAME }}

@@ -1,13 +1,15 @@
 #!/bin/bash
 set -e
 
-# Initialize default binary name
+# Initialize default binary names
 binary_name="whatsdiff"
+binary_mcp_name="whatsdiff-mcp"
 
 # Parse command line arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --name) binary_name="$2"; shift ;; # Get the new binary name
+        --mcp-name) binary_mcp_name="$2"; shift ;; # Get the new MCP binary name
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
@@ -23,8 +25,12 @@ rm -rf build/bin/
 # Directories
 mkdir -p build/bin/
 
-# Build phar file using box and bos.json
-composer box compile
+# Build both PHAR files using box
+echo "Building whatsdiff.phar..."
+./vendor/bin/box compile --config=box.json
+
+echo "Building whatsdiff-mcp.phar..."
+./vendor/bin/box compile --config=box-mcp.json
 
 # Fetch or update static-php-cli
 if [ -d "build/static-php-cli" ]; then
@@ -46,10 +52,19 @@ cd ../
 
 # Build PHP Micro with only the extensions we need
 ./static-php-cli/bin/spc doctor --auto-fix
-./static-php-cli/bin/spc download --with-php="8.4" --for-extensions="ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib" --prefer-pre-built
+./static-php-cli/bin/spc download --with-php="8.4" --for-extensions="ctype,curl,dom,filter,libxml,mbstring,openssl,pcntl,phar,posix,simplexml,sockets,xml,xmlwriter,zlib" --prefer-pre-built
 ./static-php-cli/bin/spc switch-php-version "8.4"
-./static-php-cli/bin/spc build --build-micro "ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib"
+./static-php-cli/bin/spc build --build-micro "ctype,curl,dom,filter,libxml,mbstring,openssl,pcntl,phar,posix,simplexml,sockets,xml,xmlwriter,zlib"
 
-# Build binary
+# Build binaries by combining PHARs with micro.sfx
+echo "Building $binary_name binary..."
 ./static-php-cli/bin/spc micro:combine bin/whatsdiff.phar --output="bin/$binary_name"
 chmod 0755 "bin/$binary_name"
+
+echo "Building $binary_mcp_name binary..."
+./static-php-cli/bin/spc micro:combine bin/whatsdiff-mcp.phar --output="bin/$binary_mcp_name"
+chmod 0755 "bin/$binary_mcp_name"
+
+echo "Build complete!"
+echo "  - bin/$binary_name"
+echo "  - bin/$binary_mcp_name"

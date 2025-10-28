@@ -37,10 +37,12 @@ jobs:
       - name: Composer update
         run: composer update --prefer-dist --no-progress --optimize-autoloader
 
-      - name: Generate PHAR file
-        run: composer box compile
+      - name: Generate PHAR files
+        run: composer box
 
-      - name: Upload phar to release
+      - name: Upload PHARs to release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/bin/whatsdiff.phar
+          files: |
+            build/bin/whatsdiff.phar
+            build/bin/whatsdiff-mcp.phar
