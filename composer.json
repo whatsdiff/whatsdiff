@@ -82,7 +82,10 @@
       "@pint",
       "@phpstan"
     ],
-    "box": "./vendor/bin/box",
+    "box": [
+      "./vendor/bin/box compile --config=box.json",
+      "./vendor/bin/box compile --config=box-mcp.json"
+    ],
     "pint": "./vendor/bin/pint --preset psr12 --parallel",
     "phpstan": "./vendor/bin/phpstan analyse",
     "test": "./vendor/bin/pest --parallel"

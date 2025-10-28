@@ -1,0 +1,13 @@
+{
+  "main": "src/whatsdiff-mcp.php",
+  "output": "build/bin/whatsdiff-mcp.phar",
+  "banner": false,
+  "check-requirements": false,
+  "blacklist": [
+    "tests"
+  ],
+  "compactors": [
+    "KevinGH\\Box\\Compactor\\Php"
+  ],
+  "git-tag": "git_tag"
+}
