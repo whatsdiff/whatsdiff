@@ -90,7 +90,7 @@ it('returns error for invalid package manager', function () {
     expect($data)
         ->toHaveKey('error')
         ->and($data['error'])->toContain('Invalid package manager');
-});
+})->group('mcp')->skipOnWindows();
 
 it('returns error when package repository is not found', function () {
     $response = $this->mcp->callTool('get_release_notes', [

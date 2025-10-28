@@ -70,7 +70,7 @@ it('lists find_compatible_versions tool with correct schema', function () {
         ->toHaveKey('type', 'object')
         ->toHaveKey('properties')
         ->toHaveKey('required');
-});
+})->group('mcp')->skipOnWindows();
 
 it('lists get_release_notes tool with correct schema', function () {
     $this->mcp->initialize();

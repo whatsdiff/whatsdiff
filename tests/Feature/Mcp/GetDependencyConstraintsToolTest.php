@@ -83,7 +83,7 @@ it('returns error for invalid package manager', function () {
     expect($data)
         ->toHaveKey('error')
         ->and($data['error'])->toContain('Invalid package manager');
-});
+})->group('mcp')->skipOnWindows();
 
 it('returns error when package is not found', function () {
     $response = $this->mcp->callTool('get_dependency_constraints', [

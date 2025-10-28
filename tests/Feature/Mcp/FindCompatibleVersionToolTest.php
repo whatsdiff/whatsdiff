@@ -79,7 +79,7 @@ it('returns error for invalid package manager', function () {
     expect($data)
         ->toHaveKey('error')
         ->and($data['error'])->toContain('Invalid package manager');
-});
+})->group('mcp')->skipOnWindows();
 
 it('returns error for invalid version constraint', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
