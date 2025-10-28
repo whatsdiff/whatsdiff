@@ -45,5 +45,10 @@ jobs:
       - name: Install Dependencies
         run: composer update --no-interaction --prefer-dist
 
-      - name: Run tests
+      - name: Run tests (Windows)
+        if: matrix.os == 'windows-latest'
+        run: ./vendor/bin/pest --ci --parallel --exclude-group=mcp
+
+      - name: Run tests (Unix)
+        if: matrix.os != 'windows-latest'
         run: ./vendor/bin/pest --ci --parallel
