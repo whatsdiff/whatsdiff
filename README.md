@@ -7,18 +7,17 @@
 
 What's diff is a CLI tool to help you inspect what has changed in your dependencies after a `composer update` or `npm update`.
 
-![Capture d’écran 2024-09-19 à 20.00.47.png](assets/Capture%20d%E2%80%99%C3%A9cran%202024-09-19%20%C3%A0%2020.00.47.png)
-> Outdated screenshot.. Coming soon!
+![whatsdiff Terminal UI](assets/cli-tui.png)
 
+Visit [whatsdiff.app](https://whatsdiff.app) for complete documentation and usage examples.
 
-Main features are:
-- Show what has been added, removed or updated in your dependencies
-- Show how many releases have been made since your last update
-- Support for composer.lock and package-lock.json (PHP & JS)
-- Show changelog and release notes of the dependencies
-- Compare between commits, branches, or tags
-- Interactive Terminal UI with keyboard navigation
-- Multiple output formats (text, JSON, markdown)
+## ✨ Features
+- **Analyse changes** in `composer.lock` and `package-lock.json` between commits
+- **Read changelog** and release notes of updated packages
+- **Interactive Terminal UI** 
+- **Multiple output formats** (text, JSON, markdown)
+- **MCP server** to help LLM understand how to upgrade your project dependencies
+- **CI/CD integration** to check if specific packages have changed
 
 ## 🚀 Installation
 Via [Composer](https://getcomposer.org/) global require command
@@ -26,7 +25,7 @@ Via [Composer](https://getcomposer.org/) global require command
 composer global require whatsdiff/whatsdiff
 ```
 
-By [downloading binaries](https://github.com/whatsdiff/whatsdiff/releases/latest) on the latest release, currently only these binaries are compiled on the CI:
+or by [downloading binaries](https://github.com/whatsdiff/whatsdiff/releases/latest) on the latest release, currently only these binaries are compiled on the CI:
 - macOS x86_64
 - macOS arm64
 - linux x86_64
