@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.1.0 - 2025-11-27
+
+### What's Changed
+
+* feat: add PHP 8.5 support by @SRWieZ in https://github.com/whatsdiff/whatsdiff/pull/37
+
+**Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.0.0...v2.1.0
+
 ## v2.0.0 - 2025-10-29
 
 Happy to announce **whatsdiff v2.0.0**, the next version of the tool that helps you keep an eye on your dependencies.
