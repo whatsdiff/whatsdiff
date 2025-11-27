@@ -8,7 +8,9 @@ it('formats clickable URL without truncation when URL is short', function () {
     $formatter = new ChangelogFormatter();
     $reflection = new ReflectionClass($formatter);
     $method = $reflection->getMethod('formatClickableUrl');
-    $method->setAccessible(true);
+    if (PHP_VERSION_ID < 80500) {
+        $method->setAccessible(true);
+    }
 
     $url = 'https://example.com/short';
     $maxWidth = 50;
@@ -26,7 +28,9 @@ it('formats clickable URL with truncation when URL is long', function () {
     $formatter = new ChangelogFormatter();
     $reflection = new ReflectionClass($formatter);
     $method = $reflection->getMethod('formatClickableUrl');
-    $method->setAccessible(true);
+    if (PHP_VERSION_ID < 80500) {
+        $method->setAccessible(true);
+    }
 
     $url = 'https://github.com/anthropics/claude-code/releases/tag/v1.2.3-beta-very-long-name';
     $maxWidth = 30;
@@ -44,7 +48,9 @@ it('strips OSC 8 hyperlink codes when calculating visible length', function () {
     $formatter = new ChangelogFormatter();
     $reflection = new ReflectionClass($formatter);
     $stripMethod = $reflection->getMethod('stripAnsiCodes');
-    $stripMethod->setAccessible(true);
+    if (PHP_VERSION_ID < 80500) {
+        $stripMethod->setAccessible(true);
+    }
 
     $url = 'https://example.com';
     $textWithHyperlink = "\e]8;;{$url}\007Example Link\e]8;;\007";

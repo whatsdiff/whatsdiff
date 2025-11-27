@@ -131,8 +131,8 @@ it('returns empty releases when no releases found in range', function () {
 it('includes release details when releases are found', function () {
     $response = $this->mcp->callTool('get_release_notes', [
         'package'         => 'laravel/framework',
-        'from_version'    => '11.0.0',
-        'to_version'      => '11.0.8',
+        'from_version'    => '12.0.0',
+        'to_version'      => '12.1.0',
         'package_manager' => 'composer',
     ]);
 
@@ -140,16 +140,12 @@ it('includes release details when releases are found', function () {
     $content = $result['content'][0];
     $data = json_decode($content['text'], true);
 
-    if ($data['count'] > 0) {
-        $firstRelease = $data['releases'][0];
-
-        expect($firstRelease)
-            ->toHaveKey('version')
-            ->toHaveKey('title')
-            ->toHaveKey('body')
-            ->toHaveKey('date')
-            ->toHaveKey('url');
-    }
+    expect($data['releases'][0])
+        ->toHaveKey('version')
+        ->toHaveKey('title')
+        ->toHaveKey('body')
+        ->toHaveKey('date')
+        ->toHaveKey('url');
 })->group('mcp')->skipOnWindows();
 
 it('uses default package manager when not specified', function () {
