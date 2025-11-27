@@ -36,12 +36,12 @@ class Application extends BaseApplication
         // Initialize container with autowiring and service configuration
         $this->container = self::instantiateContainer();
 
-        $this->add($this->container->get(AnalyseCommand::class));
-        $this->add($this->container->get(BetweenCommand::class));
-        $this->add($this->container->get(TuiCommand::class));
-        $this->add($this->container->get(CheckCommand::class));
-        $this->add($this->container->get(ConfigCommand::class));
-        $this->add($this->container->get(ChangelogCommand::class));
+        $this->addCommand($this->container->get(AnalyseCommand::class));
+        $this->addCommand($this->container->get(BetweenCommand::class));
+        $this->addCommand($this->container->get(TuiCommand::class));
+        $this->addCommand($this->container->get(CheckCommand::class));
+        $this->addCommand($this->container->get(ConfigCommand::class));
+        $this->addCommand($this->container->get(ChangelogCommand::class));
         $this->setDefaultCommand('analyse');
     }
 

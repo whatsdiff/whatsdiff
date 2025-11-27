@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        php: ['8.2', '8.3', '8.4']
+        php: ['8.2', '8.3', '8.4' , '8.5']
 
     name: Test with php ${{ matrix.php }} on ${{ matrix.os }}
 
@@ -47,8 +47,8 @@ jobs:
 
       - name: Run tests (Windows)
         if: matrix.os == 'windows-latest'
-        run: ./vendor/bin/pest --ci --parallel --exclude-group=mcp
+        run: ./vendor/bin/pest --ci --parallel --exclude-group=mcp --fail-on-deprecation
 
       - name: Run tests (Unix)
         if: matrix.os != 'windows-latest'
-        run: ./vendor/bin/pest --ci --parallel
+        run: ./vendor/bin/pest --ci --parallel --fail-on-deprecation

@@ -233,8 +233,8 @@ it('finds latest major version not first', function () {
     $upgrades = $data['available_upgrades'];
 
     if ($upgrades['major']) {
-        // Should be latest 7.x (e.g., 7.3.x), not just 7.0.0
-        expect($upgrades['major'])->toMatch('/^v?7\.\d+\.\d+/');
+        // Should be latest 8.x (e.g., 9.3.x), not just 8.0.0
+        expect($upgrades['major'])->toMatch('/^v?8\.\d+\.\d+/');
     }
 })->group('mcp')->skipOnWindows();
 
