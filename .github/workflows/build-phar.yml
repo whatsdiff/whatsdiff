@@ -34,6 +34,9 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Setup Composer Platform
+        run: composer config platform.php 8.2
+
       - name: Composer update
         run: composer update --prefer-dist --no-progress --optimize-autoloader
 
