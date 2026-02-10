@@ -140,6 +140,8 @@ it('includes release details when releases are found', function () {
     $content = $result['content'][0];
     $data = json_decode($content['text'], true);
 
+    expect($data['releases'])->not->toBeEmpty();
+
     expect($data['releases'][0])
         ->toHaveKey('version')
         ->toHaveKey('title')
