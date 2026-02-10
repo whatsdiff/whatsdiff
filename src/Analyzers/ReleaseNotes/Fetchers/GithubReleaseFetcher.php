@@ -101,9 +101,11 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
             $allReleases = array_merge($allReleases, $releases);
 
             // Optimization: Check if we've gone past the fromVersion
-            // If the oldest release on this page is still newer than fromVersion, continue
-            // If we find a release older than fromVersion, we can stop after this page
-            $shouldContinue = false;
+            // Only consider releases in the same major version line for the stop decision,
+            // since repos may have maintenance releases for older major versions interspersed
+            $fromMajor = (int) explode('.', $normalizedFrom)[0];
+            $foundStopCondition = false;
+
             foreach ($releases as $release) {
                 $tagName = $release['tag_name'] ?? '';
                 if (empty($tagName)) {
@@ -112,12 +114,12 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
 
                 try {
                     $version = VersionNormalizer::normalize($tagName);
-                    if (Comparator::greaterThan($version, $normalizedFrom)) {
-                        // Still newer than fromVersion, might need more pages
-                        $shouldContinue = true;
-                    } else {
-                        // Found a release <= fromVersion, we have enough data
-                        return $allReleases;
+                    $releaseMajor = (int) explode('.', $version)[0];
+
+                    // Only use same-major-version releases for the stop decision
+                    if ($releaseMajor === $fromMajor && !Comparator::greaterThan($version, $normalizedFrom)) {
+                        $foundStopCondition = true;
+                        break;
                     }
                 } catch (\Exception $e) {
                     // Invalid version, skip
@@ -125,14 +127,16 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
                 }
             }
 
-            // If all releases on this page are newer than fromVersion and we got a full page,
-            // there might be more releases on the next page
-            if ($shouldContinue && count($releases) === $perPage) {
+            if ($foundStopCondition) {
+                break;
+            }
+
+            // If we got a full page, there might be more releases on the next page
+            if (count($releases) === $perPage) {
                 $page++;
                 continue;
             }
 
-            // Either we didn't get a full page, or no releases were newer than fromVersion
             break;
         }
 
