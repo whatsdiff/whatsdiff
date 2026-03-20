@@ -7,6 +7,7 @@ namespace Whatsdiff\Analyzers\Registries;
 use Composer\Semver\Comparator;
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Data\SecurityAdvisory;
 use Whatsdiff\Services\HttpService;
 
 /**
@@ -113,6 +114,60 @@ class NpmRegistry implements RegistryInterface
         }
 
         return null;
+    }
+
+    /**
+     * Get security advisories for one or more packages from GitHub Advisory Database.
+     *
+     * Uses the GitHub Advisory Database API for npm ecosystem advisories.
+     *
+     * @param array<string> $packages Package names
+     * @param array<string, mixed> $options Additional options
+     * @return array<string, array<SecurityAdvisory>> Advisories indexed by package name
+     */
+    public function getSecurityAdvisories(array $packages, array $options = []): array
+    {
+        $result = [];
+
+        foreach ($packages as $package) {
+            $url = 'https://api.github.com/advisories?affects=' . urlencode($package) . '&ecosystem=npm';
+
+            try {
+                $response = $this->httpService->get($url);
+            } catch (\Exception $e) {
+                continue;
+            }
+
+            $advisories = json_decode($response, true);
+
+            if (!is_array($advisories)) {
+                continue;
+            }
+
+            $result[$package] = [];
+
+            foreach ($advisories as $advisory) {
+                $affectedVersions = '';
+                if (isset($advisory['vulnerabilities']) && is_array($advisory['vulnerabilities'])) {
+                    foreach ($advisory['vulnerabilities'] as $vuln) {
+                        if (isset($vuln['package']['name']) && $vuln['package']['name'] === $package) {
+                            $affectedVersions = $vuln['vulnerable_version_range'] ?? '';
+                            break;
+                        }
+                    }
+                }
+
+                $result[$package][] = new SecurityAdvisory(
+                    advisoryId: $advisory['ghsa_id'] ?? '',
+                    cve: $advisory['cve_id'] ?? null,
+                    title: $advisory['summary'] ?? '',
+                    link: $advisory['html_url'] ?? '',
+                    affectedVersions: $affectedVersions,
+                );
+            }
+        }
+
+        return $result;
     }
 
     /**

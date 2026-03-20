@@ -45,4 +45,13 @@ interface RegistryInterface
      * @return string|null Repository URL or null if not available
      */
     public function getRepositoryUrl(string $package, array $options = []): ?string;
+
+    /**
+     * Get security advisories for one or more packages.
+     *
+     * @param array<string> $packages Package names
+     * @param array<string, mixed> $options Additional options
+     * @return array<string, array<\Whatsdiff\Data\SecurityAdvisory>> Advisories indexed by package name
+     */
+    public function getSecurityAdvisories(array $packages, array $options = []): array;
 }

@@ -8,6 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Data\DependencyDiff;
 use Whatsdiff\Data\DiffResult;
 use Whatsdiff\Data\PackageChange;
+use Whatsdiff\Data\SecurityAdvisory;
 
 class JsonOutput implements OutputFormatterInterface
 {
@@ -29,6 +30,13 @@ class JsonOutput implements OutputFormatterInterface
                     'status' => $change->status->value,
                     'semver' => $change->semver,
                     'release_count' => $change->releaseCount,
+                    'fixed_advisories' => array_map(fn (SecurityAdvisory $a) => [
+                        'advisory_id' => $a->advisoryId,
+                        'cve' => $a->cve,
+                        'title' => $a->title,
+                        'link' => $a->link,
+                        'affected_versions' => $a->affectedVersions,
+                    ], $change->fixedAdvisories),
                 ])->toArray(),
             ])->toArray(),
         ];

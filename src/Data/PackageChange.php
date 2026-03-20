@@ -10,6 +10,9 @@ use Whatsdiff\Enums\Semver;
 
 final readonly class PackageChange
 {
+    /**
+     * @param array<SecurityAdvisory> $fixedAdvisories
+     */
     public function __construct(
         public string $name,
         public PackageManagerType $type,
@@ -18,6 +21,7 @@ final readonly class PackageChange
         public ChangeStatus $status,
         public ?int $releaseCount = null,
         public ?Semver $semver = null,
+        public array $fixedAdvisories = [],
     ) {
     }
 
@@ -43,13 +47,17 @@ final readonly class PackageChange
         );
     }
 
+    /**
+     * @param array<SecurityAdvisory> $fixedAdvisories
+     */
     public static function updated(
         string $name,
         PackageManagerType $type,
         string $fromVersion,
         string $toVersion,
         ?int $releaseCount = null,
-        ?Semver $semver = null
+        ?Semver $semver = null,
+        array $fixedAdvisories = [],
     ): self {
         return new self(
             name: $name,
@@ -59,16 +67,21 @@ final readonly class PackageChange
             status: ChangeStatus::Updated,
             releaseCount: $releaseCount,
             semver: $semver,
+            fixedAdvisories: $fixedAdvisories,
         );
     }
 
+    /**
+     * @param array<SecurityAdvisory> $fixedAdvisories
+     */
     public static function downgraded(
         string $name,
         PackageManagerType $type,
         string $fromVersion,
         string $toVersion,
         ?int $releaseCount = null,
-        ?Semver $semver = null
+        ?Semver $semver = null,
+        array $fixedAdvisories = [],
     ): self {
         return new self(
             name: $name,
@@ -78,6 +91,7 @@ final readonly class PackageChange
             status: ChangeStatus::Downgraded,
             releaseCount: $releaseCount,
             semver: $semver,
+            fixedAdvisories: $fixedAdvisories,
         );
     }
 }

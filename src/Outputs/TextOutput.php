@@ -118,10 +118,26 @@ class TextOutput implements OutputFormatterInterface
                     if ($change->releaseCount > 1) {
                         $line .= "  ({$change->releaseCount} releases)";
                     }
+                    if (!empty($change->fixedAdvisories)) {
+                        $count = count($change->fixedAdvisories);
+                        $label = $count === 1 ? '1 CVE fixed' : "{$count} CVEs fixed";
+                        $line .= $this->useAnsi
+                            ? "  \033[33m⚠ {$label}\033[0m"
+                            : "  ⚠ {$label}";
+                    }
                     break;
             }
 
             $output->writeln($line);
+
+            // Print individual advisory details below the package line
+            if (!empty($change->fixedAdvisories)) {
+                foreach ($change->fixedAdvisories as $advisory) {
+                    $id = $advisory->cve ?? $advisory->advisoryId;
+                    $detail = "      {$id}: {$advisory->title}";
+                    $output->writeln($this->useAnsi ? "\033[33m{$detail}\033[0m" : $detail);
+                }
+            }
         }
     }
 

@@ -7,6 +7,7 @@ namespace Whatsdiff\Analyzers\Registries;
 use Composer\Semver\Comparator;
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Data\SecurityAdvisory;
 use Whatsdiff\Services\HttpService;
 
 /**
@@ -153,6 +154,59 @@ class PackagistRegistry implements RegistryInterface
         }
 
         return $this->normalizeRepositoryUrl($url);
+    }
+
+    /**
+     * Get security advisories for one or more packages from Packagist.
+     *
+     * Uses the Packagist Security Advisories API which supports batch queries.
+     *
+     * @param array<string> $packages Package names
+     * @param array<string, mixed> $options Additional options
+     * @return array<string, array<SecurityAdvisory>> Advisories indexed by package name
+     */
+    public function getSecurityAdvisories(array $packages, array $options = []): array
+    {
+        if (empty($packages)) {
+            return [];
+        }
+
+        $queryParams = implode('&', array_map(
+            fn (string $pkg) => 'packages[]=' . urlencode($pkg),
+            $packages
+        ));
+
+        $url = 'https://packagist.org/api/security-advisories/?' . $queryParams;
+
+        try {
+            $response = $this->httpService->get($url);
+        } catch (\Exception $e) {
+            return [];
+        }
+
+        $data = json_decode($response, true);
+
+        if ($data === null || !isset($data['advisories'])) {
+            return [];
+        }
+
+        $result = [];
+
+        foreach ($data['advisories'] as $packageName => $advisories) {
+            $result[$packageName] = [];
+
+            foreach ($advisories as $advisory) {
+                $result[$packageName][] = new SecurityAdvisory(
+                    advisoryId: $advisory['advisoryId'] ?? '',
+                    cve: $advisory['cve'] ?? null,
+                    title: $advisory['title'] ?? '',
+                    link: $advisory['link'] ?? '',
+                    affectedVersions: $advisory['affectedVersions'] ?? '',
+                );
+            }
+        }
+
+        return $result;
     }
 
     /**

@@ -7,6 +7,7 @@ namespace Whatsdiff\Outputs;
 use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Data\DependencyDiff;
 use Whatsdiff\Data\DiffResult;
+use Whatsdiff\Data\PackageChange;
 use Whatsdiff\Enums\Semver;
 
 class MarkdownOutput implements OutputFormatterInterface
@@ -80,12 +81,13 @@ class MarkdownOutput implements OutputFormatterInterface
         if ($updated->isNotEmpty()) {
             $output->writeln('### Updated');
             $output->writeln('');
-            $output->writeln('| Package | From | To | Change | Releases |');
-            $output->writeln('|---------|------|----|--------|----------|');
+            $output->writeln('| Package | From | To | Change | Releases | Security |');
+            $output->writeln('|---------|------|----|--------|----------|----------|');
             foreach ($updated as $change) {
                 $semverBadge = $this->getSemverEmoji($change->semver);
                 $releaseText = $this->getReleaseText($change->releaseCount);
-                $output->writeln("| **{$change->name}** | `{$change->from}` | `{$change->to}` | {$semverBadge} | {$releaseText} |");
+                $securityText = $this->getSecurityText($change);
+                $output->writeln("| **{$change->name}** | `{$change->from}` | `{$change->to}` | {$semverBadge} | {$releaseText} | {$securityText} |");
             }
             $output->writeln('');
         }
@@ -95,14 +97,33 @@ class MarkdownOutput implements OutputFormatterInterface
         if ($downgraded->isNotEmpty()) {
             $output->writeln('### Downgraded');
             $output->writeln('');
-            $output->writeln('| Package | From | To | Change | Releases |');
-            $output->writeln('|---------|------|----|--------|----------|');
+            $output->writeln('| Package | From | To | Change | Releases | Security |');
+            $output->writeln('|---------|------|----|--------|----------|----------|');
             foreach ($downgraded as $change) {
                 $semverBadge = $this->getSemverEmoji($change->semver);
                 $releaseText = $this->getReleaseText($change->releaseCount);
-                $output->writeln("| **{$change->name}** | `{$change->from}` | `{$change->to}` | {$semverBadge} | {$releaseText} |");
+                $securityText = $this->getSecurityText($change);
+                $output->writeln("| **{$change->name}** | `{$change->from}` | `{$change->to}` | {$semverBadge} | {$releaseText} | {$securityText} |");
             }
             $output->writeln('');
+        }
+
+        // Security Advisories Fixed section
+        $allChangesWithAdvisories = $diff->changes
+            ->filter(fn (PackageChange $change) => !empty($change->fixedAdvisories));
+
+        if ($allChangesWithAdvisories->isNotEmpty()) {
+            $output->writeln('### Security Advisories Fixed');
+            $output->writeln('');
+            foreach ($allChangesWithAdvisories as $change) {
+                $output->writeln("**{$change->name}**");
+                $output->writeln('');
+                foreach ($change->fixedAdvisories as $advisory) {
+                    $id = $advisory->cve ?? $advisory->advisoryId;
+                    $output->writeln("- [{$id}]({$advisory->link}): {$advisory->title}");
+                }
+                $output->writeln('');
+            }
         }
     }
 
@@ -130,6 +151,17 @@ class MarkdownOutput implements OutputFormatterInterface
             Semver::Minor => '🟡 Minor',
             Semver::Patch => '🟢 Patch',
         };
+    }
+
+    private function getSecurityText(PackageChange $change): string
+    {
+        if (empty($change->fixedAdvisories)) {
+            return '';
+        }
+
+        $count = count($change->fixedAdvisories);
+
+        return "⚠ {$count}";
     }
 
     private function getReleaseText(?int $releaseCount): string

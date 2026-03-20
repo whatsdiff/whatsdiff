@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Whatsdiff\Analyzers;
 
+use Composer\Semver\Semver;
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
 use Whatsdiff\Analyzers\LockFile\LockFileInterface;
 use Whatsdiff\Analyzers\Registries\RegistryInterface;
+use Whatsdiff\Data\SecurityAdvisory;
 
 /**
  * Base analyzer providing common functionality for dependency file analyzers.
@@ -109,6 +111,61 @@ abstract class BaseAnalyzer implements AnalyzerInterface
         }
 
         return count($releases);
+    }
+
+    /**
+     * Get security advisories that are fixed by updating from one version to another.
+     *
+     * An advisory is "fixed" if the from-version is affected but the to-version is not.
+     *
+     * @param string $package Package name
+     * @param string $from Starting version
+     * @param string $to Ending version
+     * @param array<string, mixed> $context Additional context
+     * @return array<SecurityAdvisory>
+     */
+    public function getFixedAdvisories(string $package, string $from, string $to, array $context = []): array
+    {
+        try {
+            $allAdvisories = $this->registry->getSecurityAdvisories([$package], $context);
+        } catch (\Exception $e) {
+            return [];
+        }
+
+        $advisories = $allAdvisories[$package] ?? [];
+
+        if (empty($advisories)) {
+            return [];
+        }
+
+        $fixed = [];
+
+        foreach ($advisories as $advisory) {
+            if ($advisory->affectedVersions === '') {
+                continue;
+            }
+
+            try {
+                $fromAffected = Semver::satisfies($from, $advisory->affectedVersions);
+                $toAffected = Semver::satisfies($to, $advisory->affectedVersions);
+            } catch (\Exception $e) {
+                continue;
+            }
+
+            if ($fromAffected && !$toAffected) {
+                $fixed[] = $advisory;
+            }
+        }
+
+        return $fixed;
+    }
+
+    /**
+     * Get the registry instance used by this analyzer.
+     */
+    public function getRegistry(): RegistryInterface
+    {
+        return $this->registry;
     }
 
     /**

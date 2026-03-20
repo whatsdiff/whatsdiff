@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Whatsdiff\Services;
 
 use Composer\Semver\Comparator;
+use Composer\Semver\Semver;
 use Illuminate\Support\Collection;
+use Whatsdiff\Analyzers\BaseAnalyzer;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Data\DependencyDiff;
 use Whatsdiff\Data\DependencyFile;
 use Whatsdiff\Data\DiffResult;
 use Whatsdiff\Data\PackageChange;
+use Whatsdiff\Data\SecurityAdvisory;
 use Whatsdiff\Helpers\SemverAnalyzer;
 
 class DiffCalculator
@@ -331,8 +334,10 @@ class DiffCalculator
         PackageManagerType $type,
         bool $skipReleaseCount = false
     ): \Generator {
+        $prefetchedAdvisories = $skipReleaseCount ? [] : $this->prefetchAdvisories($diff, $type);
+
         foreach ($diff as $package => $infos) {
-            $packageChange = $this->createPackageChange($package, $infos, $type, $skipReleaseCount);
+            $packageChange = $this->createPackageChange($package, $infos, $type, $skipReleaseCount, $prefetchedAdvisories);
             if ($packageChange !== null) {
                 yield $packageChange;
             }
@@ -351,6 +356,65 @@ class DiffCalculator
             $infos['to'],
             $context
         );
+    }
+
+    /**
+     * Prefetch security advisories for all updated/downgraded packages in a single batch request.
+     *
+     * @return array<string, array<SecurityAdvisory>>
+     */
+    private function prefetchAdvisories(array $diff, PackageManagerType $type): array
+    {
+        $packages = [];
+        foreach ($diff as $package => $infos) {
+            if ($infos['from'] !== null && $infos['to'] !== null) {
+                $packages[] = $package;
+            }
+        }
+
+        if (empty($packages)) {
+            return [];
+        }
+
+        $analyzer = $this->analyzerRegistry->get($type);
+
+        if (! $analyzer instanceof BaseAnalyzer) {
+            return [];
+        }
+
+        try {
+            return $analyzer->getRegistry()->getSecurityAdvisories($packages);
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Filter advisories to only those fixed by updating from one version to another.
+     *
+     * @param array<SecurityAdvisory> $advisories
+     * @return array<SecurityAdvisory>
+     */
+    private function filterFixedAdvisories(array $advisories, string $from, string $to): array
+    {
+        $fixed = [];
+
+        foreach ($advisories as $advisory) {
+            if ($advisory->affectedVersions === '') {
+                continue;
+            }
+
+            try {
+                if (Semver::satisfies($from, $advisory->affectedVersions)
+                    && ! Semver::satisfies($to, $advisory->affectedVersions)) {
+                    $fixed[] = $advisory;
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        return $fixed;
     }
 
     /**
@@ -420,11 +484,17 @@ class DiffCalculator
         string $package,
         array $infos,
         PackageManagerType $type,
-        bool $skipReleaseCount
+        bool $skipReleaseCount,
+        array $prefetchedAdvisories = []
     ): ?PackageChange {
         // Both versions exist - either updated or downgraded
         if ($infos['from'] !== null && $infos['to'] !== null) {
             $releasesCount = $skipReleaseCount ? null : $this->getReleasesCount($type, $package, $infos);
+            $fixedAdvisories = $skipReleaseCount ? [] : $this->filterFixedAdvisories(
+                $prefetchedAdvisories[$package] ?? [],
+                $infos['from'],
+                $infos['to']
+            );
             $semverChangeType = SemverAnalyzer::determineSemverChangeType($infos['from'], $infos['to']);
 
             if (Comparator::greaterThan($infos['to'], $infos['from'])) {
@@ -435,6 +505,7 @@ class DiffCalculator
                     toVersion: $infos['to'],
                     releaseCount: $releasesCount,
                     semver: $semverChangeType,
+                    fixedAdvisories: $fixedAdvisories,
                 );
             } else {
                 return PackageChange::downgraded(
@@ -444,6 +515,7 @@ class DiffCalculator
                     toVersion: $infos['to'],
                     releaseCount: $releasesCount,
                     semver: $semverChangeType,
+                    fixedAdvisories: $fixedAdvisories,
                 );
             }
         }
