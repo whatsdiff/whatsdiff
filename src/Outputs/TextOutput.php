@@ -123,8 +123,18 @@ class TextOutput implements OutputFormatterInterface
                     $toVersion = str_pad($change->to, $maxToLen);
 
                     $line .= $fromVersion.'  →  '.$toVersion;
+
+                    $parenthetical = [];
                     if ($change->releaseCount > 1) {
-                        $line .= "  ({$change->releaseCount} releases)";
+                        $parenthetical[] = "{$change->releaseCount} releases";
+                    }
+                    if (! empty($change->fixedAdvisories)) {
+                        $count = count($change->fixedAdvisories);
+                        $cveText = $count === 1 ? '1 CVE fixed' : "{$count} CVEs fixed";
+                        $parenthetical[] = $this->useAnsi ? "\033[33m{$cveText}\033[0m" : $cveText;
+                    }
+                    if (! empty($parenthetical)) {
+                        $line .= '  ('.implode(', ', $parenthetical).')';
                     }
                     break;
             }
@@ -136,8 +146,9 @@ class TextOutput implements OutputFormatterInterface
                 foreach ($change->fixedAdvisories as $advisory) {
                     $id = $advisory->cve ?? $advisory->advisoryId;
                     $coloredId = $this->useAnsi ? "\033[33m{$id}\033[0m" : $id;
-                    $detail = "      ↳ {$coloredId}: \033[2m{$advisory->title}\033[0m";
-                    $output->writeln($this->useAnsi ? $detail : "      ↳ {$id}: {$advisory->title}");
+                    $arrow = $this->useAnsi ? "\033[33m↳\033[0m" : '↳';
+                    $title = $this->useAnsi ? "\033[2m{$advisory->title}\033[0m" : $advisory->title;
+                    $output->writeln("     {$arrow} {$coloredId} {$title}");
                 }
             }
         }
