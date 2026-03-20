@@ -135,8 +135,9 @@ class TextOutput implements OutputFormatterInterface
             if (! empty($change->fixedAdvisories)) {
                 foreach ($change->fixedAdvisories as $advisory) {
                     $id = $advisory->cve ?? $advisory->advisoryId;
-                    $detail = "        {$id}: {$advisory->title}";
-                    $output->writeln($this->useAnsi ? "\033[2m{$detail}\033[0m" : $detail);
+                    $coloredId = $this->useAnsi ? "\033[33m{$id}\033[0m" : $id;
+                    $detail = "      ↳ {$coloredId}: \033[2m{$advisory->title}\033[0m";
+                    $output->writeln($this->useAnsi ? $detail : "      ↳ {$id}: {$advisory->title}");
                 }
             }
         }
