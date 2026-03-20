@@ -85,6 +85,8 @@ class TextOutput implements OutputFormatterInterface
             ->filter(fn (PackageChange $c) => $c->to !== null)
             ->max(fn (PackageChange $c) => strlen($c->to)) ?: 0;
 
+        $hasAnyCveFixed = $diff->changes->contains(fn (PackageChange $c) => ! empty($c->fixedAdvisories));
+
         foreach ($changes as $change) {
             $symbol = $this->getSymbol($change->status, $change->semver);
             $line = $symbol;
@@ -99,6 +101,12 @@ class TextOutput implements OutputFormatterInterface
             // } else {
             //     $line .= '        ';
             // }
+
+            if ($hasAnyCveFixed) {
+                $line .= ! empty($change->fixedAdvisories)
+                    ? ($this->useAnsi ? " \033[33m⚠\033[0m" : ' ⚠')
+                    : '  ';
+            }
 
             $line .= ' '.str_pad($change->name, $maxNameLen).'    ';
 
@@ -118,24 +126,17 @@ class TextOutput implements OutputFormatterInterface
                     if ($change->releaseCount > 1) {
                         $line .= "  ({$change->releaseCount} releases)";
                     }
-                    if (!empty($change->fixedAdvisories)) {
-                        $count = count($change->fixedAdvisories);
-                        $label = $count === 1 ? '1 CVE fixed' : "{$count} CVEs fixed";
-                        $line .= $this->useAnsi
-                            ? "  \033[33m⚠ {$label}\033[0m"
-                            : "  ⚠ {$label}";
-                    }
                     break;
             }
 
             $output->writeln($line);
 
             // Print individual advisory details below the package line
-            if (!empty($change->fixedAdvisories)) {
+            if (! empty($change->fixedAdvisories)) {
                 foreach ($change->fixedAdvisories as $advisory) {
                     $id = $advisory->cve ?? $advisory->advisoryId;
-                    $detail = "      {$id}: {$advisory->title}";
-                    $output->writeln($this->useAnsi ? "\033[33m{$detail}\033[0m" : $detail);
+                    $detail = "        {$id}: {$advisory->title}";
+                    $output->writeln($this->useAnsi ? "\033[2m{$detail}\033[0m" : $detail);
                 }
             }
         }
