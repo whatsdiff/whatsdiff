@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.3.0 - 2026-03-27
+
+### New features
+
+Added CVE advisory checks
+
+* style: refine CVE advisory display formatting in [`e5feb26`](https://github.com/whatsdiff/whatsdiff/commit/e5feb26e2a2151dd4613b6384fc7149c26edd3a3)
+* style: use ↳ prefix and yellow CVE ID with dim title for advisory details in [`0094e52`](https://github.com/whatsdiff/whatsdiff/commit/0094e523bffc003517fda9bf439395a484439a0a)
+* style: show CVE indicator as column next to arrows, use dim text for details in [`1dfbc3a`](https://github.com/whatsdiff/whatsdiff/commit/1dfbc3a6d6df90b87a856afd833da5b9942dba76)
+* feat: add fixed CVE advisories output with batch prefetching in [`6f26854`](https://github.com/whatsdiff/whatsdiff/commit/6f2685469542ea1b94a0b99bdfa61a1119da4ee5)
+* chore: update macOS runner version to 15-intel for build jobs in [`cae96bd`](https://github.com/whatsdiff/whatsdiff/commit/cae96bd8b0579ec4dfb131a88a2dcce2df0ba6c5)
+
+### Fixes
+
+* chore: update saloonphp/saloon to version 4.0 in [`f2bd5a7`](https://github.com/whatsdiff/whatsdiff/commit/f2bd5a7edb5dc2386816e14cca1de138450b1e14)
+
+**Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.2.0..v2.3.0
+
 ## v2.2.0 - 2026-02-10
 
 ### What's Changed
