@@ -14,8 +14,11 @@ use Whatsdiff\Application;
 class HttpService
 {
     private CacheService $cache;
+
     private Client $client;
+
     private array $lastResponseHeaders = [];
+
     private GithubAuthService $githubAuth;
 
     public function __construct(CacheService $cache, GithubAuthService $githubAuth)
@@ -37,7 +40,7 @@ class HttpService
 
     public function get(string $url, array $options = []): string
     {
-        $cacheKey = 'http_' . $url;
+        $cacheKey = 'http_'.$url;
 
         return $this->cache->get($cacheKey, function () use ($url, $options) {
             return $this->fetchUrl($url, $options);
@@ -46,10 +49,11 @@ class HttpService
 
     public function getWithHeaders(string $url, array $options = []): array
     {
-        $cacheKey = 'http_with_headers_' . $url;
+        $cacheKey = 'http_with_headers_'.$url;
 
         return $this->cache->get($cacheKey, function () use ($url, $options) {
             $content = $this->fetchUrl($url, $options);
+
             return [
                 'body' => $content,
                 'headers' => $this->lastResponseHeaders,
@@ -68,7 +72,7 @@ class HttpService
         $guzzleOptions = [];
 
         // Set User-Agent
-        $userAgent = $options['user_agent'] ?? 'whatsdiff/' . Application::getVersionString();
+        $userAgent = $options['user_agent'] ?? 'whatsdiff/'.Application::getVersionString();
         $guzzleOptions['headers']['User-Agent'] = $userAgent;
 
         // Handle HTTP authentication if provided
@@ -87,10 +91,10 @@ class HttpService
         }
 
         // Automatically add GitHub authentication for api.github.com requests
-        if ($this->isGithubApiUrl($url) && !isset($guzzleOptions['headers']['Authorization'])) {
+        if ($this->isGithubApiUrl($url) && ! isset($guzzleOptions['headers']['Authorization'])) {
             $token = $this->githubAuth->getToken();
             if ($token !== null) {
-                $guzzleOptions['headers']['Authorization'] = 'Bearer ' . $token;
+                $guzzleOptions['headers']['Authorization'] = 'Bearer '.$token;
             }
         }
 
@@ -102,9 +106,9 @@ class HttpService
                 $statusCode = $response->getStatusCode();
                 throw new RuntimeException("HTTP request failed with status code: {$statusCode}");
             }
-            throw new RuntimeException('Failed to fetch URL: ' . $e->getMessage());
+            throw new RuntimeException('Failed to fetch URL: '.$e->getMessage());
         } catch (GuzzleException $e) {
-            throw new RuntimeException('Failed to fetch URL: ' . $e->getMessage());
+            throw new RuntimeException('Failed to fetch URL: '.$e->getMessage());
         }
 
         $statusCode = $response->getStatusCode();
@@ -121,7 +125,7 @@ class HttpService
         // Update cache duration based on headers
         $cacheDuration = $this->cache->getCacheDuration($this->lastResponseHeaders);
         if ($cacheDuration > 0) {
-            $cacheKey = 'http_' . $url;
+            $cacheKey = 'http_'.$url;
             $this->cache->set($cacheKey, $body, $cacheDuration);
         }
 
@@ -147,13 +151,13 @@ class HttpService
     /**
      * Check if a URL is a GitHub API URL.
      *
-     * @param string $url The URL to check
+     * @param  string  $url  The URL to check
      * @return bool True if the URL is a GitHub API URL
      */
     private function isGithubApiUrl(string $url): bool
     {
         $host = parse_url($url, PHP_URL_HOST);
+
         return $host === 'api.github.com';
     }
-
 }

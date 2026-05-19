@@ -16,13 +16,13 @@ use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\Registries\NpmRegistry;
 use Whatsdiff\Analyzers\Registries\PackagistRegistry;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
+use Whatsdiff\Helpers\CommandErrorHandler;
+use Whatsdiff\Helpers\VersionNormalizer;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesJsonOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesMarkdownOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesTextOutput;
 use Whatsdiff\Services\CacheService;
-use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Services\GitRepository;
-use Whatsdiff\Helpers\VersionNormalizer;
 
 #[AsCommand(
     name: 'changelog',
@@ -544,7 +544,7 @@ class ChangelogCommand extends Command
             ? "vendor/{$package}"
             : "node_modules/{$package}";
 
-        $fullPath = $basePath . DIRECTORY_SEPARATOR . $relativePath;
+        $fullPath = $basePath.DIRECTORY_SEPARATOR.$relativePath;
 
         return file_exists($fullPath) ? $fullPath : null;
     }

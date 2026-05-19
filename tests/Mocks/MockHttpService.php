@@ -9,7 +9,9 @@ use Whatsdiff\Services\HttpService;
 class MockHttpService extends HttpService
 {
     public array $responses = [];
+
     public array $capturedOptions = [];
+
     public ?string $lastRequestUrl = null;
 
     public function __construct()
@@ -27,11 +29,12 @@ class MockHttpService extends HttpService
         $this->capturedOptions = $options; // Capture the auth options
         $this->lastRequestUrl = $url; // Track which URL was called
 
-        if (!isset($this->responses[$url])) {
+        if (! isset($this->responses[$url])) {
             // Simulate authentication failure for private packages
             if (str_contains($url, 'flux-pro')) {
                 throw new \Exception('HTTP 401 Unauthorized');
             }
+
             return '{"packages":{}}'; // Default empty response for public packages
         }
 
@@ -42,7 +45,7 @@ class MockHttpService extends HttpService
     {
         return [
             'content' => $this->get($url, $options),
-            'headers' => []
+            'headers' => [],
         ];
     }
 }

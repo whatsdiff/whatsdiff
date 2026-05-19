@@ -24,7 +24,7 @@ interface LockFileInterface
      * Create a new parser with lock file content.
      * The parser will parse and store the data internally.
      *
-     * @param string $lockFileContent Raw lock file content (JSON)
+     * @param  string  $lockFileContent  Raw lock file content (JSON)
      */
     public function __construct(string $lockFileContent);
 
@@ -38,7 +38,7 @@ interface LockFileInterface
     /**
      * Get version for a specific package.
      *
-     * @param string $package Package name
+     * @param  string  $package  Package name
      * @return string|null Version or null if package not found
      */
     public function getVersion(string $package): ?string;
@@ -46,7 +46,7 @@ interface LockFileInterface
     /**
      * Get repository URL for a specific package.
      *
-     * @param string $package Package name
+     * @param  string  $package  Package name
      * @return string|null Repository URL or null if not found
      */
     public function getRepositoryUrl(string $package): ?string;

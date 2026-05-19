@@ -11,20 +11,19 @@ class ReleaseNotesJsonOutput
 {
     public function __construct(
         private bool $summary = false
-    ) {
-    }
+    ) {}
 
     public function format(ReleaseNotesCollection $collection, OutputInterface $output): void
     {
         $releases = $collection->getReleases();
-        $isStructured = !$collection->hasUnstructuredReleases();
+        $isStructured = ! $collection->hasUnstructuredReleases();
 
         $data = [
             'total_releases' => $collection->count(),
         ];
 
         // Add version range and summary only if there are releases
-        if (!empty($releases)) {
+        if (! empty($releases)) {
             $data['first_tag'] = $releases[0]->tagName;
             $data['last_tag'] = $releases[count($releases) - 1]->tagName;
 

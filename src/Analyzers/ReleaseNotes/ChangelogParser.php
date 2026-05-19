@@ -21,16 +21,15 @@ use Whatsdiff\Helpers\VersionNormalizer;
  */
 class ChangelogParser
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
+
     /**
      * Parse changelog content and extract releases within version range.
      *
-     * @param string $content Changelog markdown content
-     * @param string $fromVersion Starting version (exclusive)
-     * @param string $toVersion Ending version (inclusive)
-     * @param bool $includePrerelease Whether to include pre-release versions
+     * @param  string  $content  Changelog markdown content
+     * @param  string  $fromVersion  Starting version (exclusive)
+     * @param  string  $toVersion  Ending version (inclusive)
+     * @param  bool  $includePrerelease  Whether to include pre-release versions
      * @return ReleaseNotesCollection Collection of release notes
      */
     public function parse(
@@ -71,6 +70,7 @@ class ChangelogParser
                 $currentVersion = $versionData['version'];
                 $currentDate = $versionData['date'];
                 $currentContent = [];
+
                 continue;
             }
 
@@ -147,8 +147,8 @@ class ChangelogParser
 
         // Parse date
         $date = $dateString !== null
-            ? DateTimeImmutable::createFromFormat('Y-m-d', $dateString) ?: new DateTimeImmutable()
-            : new DateTimeImmutable();
+            ? DateTimeImmutable::createFromFormat('Y-m-d', $dateString) ?: new DateTimeImmutable
+            : new DateTimeImmutable;
 
         return new ReleaseNote(
             tagName: $version,
@@ -174,7 +174,7 @@ class ChangelogParser
         $normalizedVersion = VersionNormalizer::normalize($version);
 
         // Skip pre-release versions if not included
-        if (!$includePrerelease && $this->isPrerelease($normalizedVersion)) {
+        if (! $includePrerelease && $this->isPrerelease($normalizedVersion)) {
             return false;
         }
 
@@ -198,6 +198,7 @@ class ChangelogParser
     private function isPrerelease(string $version): bool
     {
         $stability = VersionParser::parseStability($version);
+
         return in_array($stability, ['alpha', 'beta', 'RC', 'dev'], true);
     }
 }

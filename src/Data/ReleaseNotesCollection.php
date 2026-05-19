@@ -17,12 +17,11 @@ use Whatsdiff\Helpers\GithubUrlFormatter;
 final readonly class ReleaseNotesCollection implements Countable, IteratorAggregate
 {
     /**
-     * @param array<int, ReleaseNote> $releases
+     * @param  array<int, ReleaseNote>  $releases
      */
     public function __construct(
         private array $releases = []
-    ) {
-    }
+    ) {}
 
     /**
      * Get all release notes.
@@ -157,7 +156,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
         foreach ($this->releases as $release) {
             $markdown .= "## {$release->tagName}";
 
-            if (!empty($release->title) && $release->title !== $release->tagName) {
+            if (! empty($release->title) && $release->title !== $release->tagName) {
                 $markdown .= " - {$release->title}";
             }
 
@@ -197,20 +196,21 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
         // If any release is unstructured, show all bullet points in a flat list
         if ($this->hasUnstructuredReleases()) {
             $allBulletPoints = $this->getAllBulletPoints();
-            if (!empty($allBulletPoints)) {
+            if (! empty($allBulletPoints)) {
                 $markdown .= "## All Changes\n\n";
                 foreach ($allBulletPoints as $bulletPoint) {
                     $markdown .= "- {$this->formatGithubUrls($bulletPoint)}\n";
                 }
                 $markdown .= "\n";
             }
+
             return trim($markdown);
         }
 
         // All releases are structured - show categorized sections
         // Breaking Changes section
         $breakingChanges = $this->getBreakingChanges();
-        if (!empty($breakingChanges)) {
+        if (! empty($breakingChanges)) {
             $markdown .= "## Breaking Changes\n\n";
             foreach ($breakingChanges as $change) {
                 $markdown .= "- {$this->formatGithubUrls($change)}\n";
@@ -220,7 +220,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
 
         // Changes section
         $changes = $this->getChanges();
-        if (!empty($changes)) {
+        if (! empty($changes)) {
             $markdown .= "## Changes\n\n";
             foreach ($changes as $change) {
                 $markdown .= "- {$this->formatGithubUrls($change)}\n";
@@ -230,7 +230,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
 
         // Fixes section
         $fixes = $this->getFixes();
-        if (!empty($fixes)) {
+        if (! empty($fixes)) {
             $markdown .= "## Fixes\n\n";
             foreach ($fixes as $fix) {
                 $markdown .= "- {$this->formatGithubUrls($fix)}\n";
@@ -240,7 +240,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
 
         // Deprecated section
         $deprecated = $this->getDeprecated();
-        if (!empty($deprecated)) {
+        if (! empty($deprecated)) {
             $markdown .= "## Deprecated\n\n";
             foreach ($deprecated as $item) {
                 $markdown .= "- {$this->formatGithubUrls($item)}\n";
@@ -250,7 +250,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
 
         // Removed section
         $removed = $this->getRemoved();
-        if (!empty($removed)) {
+        if (! empty($removed)) {
             $markdown .= "## Removed\n\n";
             foreach ($removed as $item) {
                 $markdown .= "- {$this->formatGithubUrls($item)}\n";
@@ -260,7 +260,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
 
         // Security section
         $security = $this->getSecurity();
-        if (!empty($security)) {
+        if (! empty($security)) {
             $markdown .= "## Security\n\n";
             foreach ($security as $item) {
                 $markdown .= "- {$this->formatGithubUrls($item)}\n";
@@ -306,7 +306,7 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
     public function hasUnstructuredReleases(): bool
     {
         foreach ($this->releases as $release) {
-            if (!$release->isStructured()) {
+            if (! $release->isStructured()) {
                 return true;
             }
         }

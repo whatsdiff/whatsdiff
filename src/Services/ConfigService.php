@@ -11,8 +11,11 @@ use Symfony\Component\Yaml\Yaml;
 class ConfigService
 {
     private Filesystem $filesystem;
+
     private string $configPath;
+
     private array $config = [];
+
     private array $defaults = [
         'cache' => [
             'enabled' => true,
@@ -26,7 +29,7 @@ class ConfigService
 
     public function __construct(?string $configPath = null)
     {
-        $this->filesystem = new Filesystem();
+        $this->filesystem = new Filesystem;
         $this->configPath = $configPath ?? $this->getDefaultConfigPath();
         $this->loadConfig();
     }
@@ -62,11 +65,11 @@ class ConfigService
     private function getDefaultConfigPath(): string
     {
         $home = getenv('HOME') ?: getenv('USERPROFILE');
-        if (!$home) {
+        if (! $home) {
             throw new \RuntimeException('Cannot determine home directory');
         }
 
-        return $home . DIRECTORY_SEPARATOR . '.whatsdiff' . DIRECTORY_SEPARATOR . 'config.yaml';
+        return $home.DIRECTORY_SEPARATOR.'.whatsdiff'.DIRECTORY_SEPARATOR.'config.yaml';
     }
 
     private function loadConfig(): void
@@ -92,13 +95,12 @@ class ConfigService
     private function ensureConfigExists(): void
     {
         $dir = dirname($this->configPath);
-        if (!$this->filesystem->exists($dir)) {
+        if (! $this->filesystem->exists($dir)) {
             $this->filesystem->mkdir($dir, 0755);
         }
 
-        if (!$this->filesystem->exists($this->configPath)) {
+        if (! $this->filesystem->exists($this->configPath)) {
             $this->filesystem->dumpFile($this->configPath, Yaml::dump($this->defaults, 4, 2));
         }
     }
-
 }

@@ -32,12 +32,10 @@ class GithubChangelogFetcher implements ReleaseNotesFetcherInterface
         // 'NEWS',
     ];
 
-
     public function __construct(
         private readonly HttpService $httpService,
         private readonly ChangelogParser $parser
-    ) {
-    }
+    ) {}
 
     public function fetch(
         string $package,
@@ -120,5 +118,4 @@ class GithubChangelogFetcher implements ReleaseNotesFetcherInterface
 
         return null;
     }
-
 }

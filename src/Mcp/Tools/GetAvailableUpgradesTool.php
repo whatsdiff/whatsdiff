@@ -20,7 +20,7 @@ class GetAvailableUpgradesTool
         private PackagistRegistry $packagistRegistry,
         private NpmRegistry $npmRegistry
     ) {
-        $this->versionParser = new VersionParser();
+        $this->versionParser = new VersionParser;
     }
 
     #[McpTool(
@@ -60,7 +60,7 @@ class GetAvailableUpgradesTool
             ];
         }
 
-        if (!preg_match('/^(\d+)\.(\d+)\.(\d+)/', $normalized, $matches)) {
+        if (! preg_match('/^(\d+)\.(\d+)\.(\d+)/', $normalized, $matches)) {
             return [
                 'error' => 'Could not parse version number',
                 'package' => $package,
@@ -105,7 +105,7 @@ class GetAvailableUpgradesTool
             }
 
             // Skip pre-release versions unless explicitly requested
-            if (!$include_prerelease) {
+            if (! $include_prerelease) {
                 try {
                     $stability = $this->versionParser->parseStability($version);
                     if ($stability !== 'stable') {
@@ -131,13 +131,13 @@ class GetAvailableUpgradesTool
                 $normalizedVersion = ltrim($version, 'vV');
 
                 // Skip if version is not greater than current
-                if (!Comparator::greaterThan($normalizedVersion, $normalizedCurrentVersion)) {
+                if (! Comparator::greaterThan($normalizedVersion, $normalizedCurrentVersion)) {
                     continue;
                 }
 
                 // Parse version
                 $vNormalized = $this->versionParser->normalize($normalizedVersion);
-                if (!preg_match('/^(\d+)\.(\d+)\.(\d+)/', $vNormalized, $vMatches)) {
+                if (! preg_match('/^(\d+)\.(\d+)\.(\d+)/', $vNormalized, $vMatches)) {
                     continue;
                 }
 

@@ -9,12 +9,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Outputs\JsonOutput;
 use Whatsdiff\Outputs\MarkdownOutput;
 use Whatsdiff\Outputs\OutputFormatterInterface;
 use Whatsdiff\Outputs\TextOutput;
 use Whatsdiff\Services\CacheService;
-use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Services\DiffCalculator;
 
 use function Laravel\Prompts\clear;
@@ -103,7 +103,6 @@ class AnalyseCommand extends Command
                 $this->diffCalculator->toCommit($toCommit);
             }
 
-
             if ($this->shouldShowProgress($format, $noAnsi, $input)) {
                 [$total, $generator] = $this->diffCalculator->run(withProgress: true);
 
@@ -135,8 +134,8 @@ class AnalyseCommand extends Command
     private function getFormatter(string $format, bool $noAnsi): OutputFormatterInterface
     {
         return match ($format) {
-            'json' => new JsonOutput(),
-            'markdown' => new MarkdownOutput(),
+            'json' => new JsonOutput,
+            'markdown' => new MarkdownOutput,
             default => new TextOutput(! $noAnsi),
         };
     }
@@ -152,11 +151,6 @@ class AnalyseCommand extends Command
             && ! $input->getParameterOption('--no-interaction', false);
     }
 
-    /**
-     * @param  mixed  $total
-     * @param  mixed  $generator
-     * @return void
-     */
     public function showProgressBar(mixed $total, mixed $generator): void
     {
         $startTime = microtime(true);
@@ -170,7 +164,7 @@ class AnalyseCommand extends Command
             // Check if 1 second has passed
             $elapsedTime = microtime(true) - $startTime;
 
-            if (!$progressStarted && $elapsedTime >= 1.0) {
+            if (! $progressStarted && $elapsedTime >= 1.0) {
                 // Start showing the progress bar
                 $progress = progress(label: 'Analysing changes..', steps: $total);
                 $progress->start();
@@ -203,7 +197,7 @@ class AnalyseCommand extends Command
         $allTypes = PackageManagerType::cases();
 
         // If neither include nor exclude is specified, return all types
-        if (!$includeTypes && !$excludeTypes) {
+        if (! $includeTypes && ! $excludeTypes) {
             return $allTypes;
         }
 
@@ -216,6 +210,7 @@ class AnalyseCommand extends Command
                 $type = $this->parsePackageManagerType($typeString);
                 if ($type === null) {
                     $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+
                     return null;
                 }
                 $parsedTypes[] = $type;
@@ -232,13 +227,14 @@ class AnalyseCommand extends Command
             $type = $this->parsePackageManagerType($typeString);
             if ($type === null) {
                 $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+
                 return null;
             }
             $excludeTypesArray[] = $type;
         }
 
         // Return all types except the excluded ones
-        return array_filter($allTypes, fn (PackageManagerType $type) => !in_array($type, $excludeTypesArray));
+        return array_filter($allTypes, fn (PackageManagerType $type) => ! in_array($type, $excludeTypesArray));
     }
 
     private function parsePackageManagerType(string $typeString): ?PackageManagerType

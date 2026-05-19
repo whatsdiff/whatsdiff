@@ -11,9 +11,7 @@ class MarkdownToConsole
     use Colors;
 
     public function __construct(
-    ) {
-
-    }
+    ) {}
 
     public function parseMarkdown($markdown): array
     {
@@ -49,7 +47,6 @@ class MarkdownToConsole
             fn ($matches) => $this->bgBlue($matches[1]),
             $markdown
         );
-
 
         // // Convert bold
         // $markdown = preg_replace('/\*\*(.*?)\*\*/', "\033[1m$1\033[0m", $markdown);

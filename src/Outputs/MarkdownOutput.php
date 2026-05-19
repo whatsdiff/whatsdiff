@@ -14,8 +14,9 @@ class MarkdownOutput implements OutputFormatterInterface
 {
     public function format(DiffResult $result, OutputInterface $output): void
     {
-        if (!$result->hasAnyChanges()) {
+        if (! $result->hasAnyChanges()) {
             $output->writeln('No dependency changes detected.');
+
             return;
         }
 
@@ -34,7 +35,7 @@ class MarkdownOutput implements OutputFormatterInterface
 
     private function formatDiff(DependencyDiff $diff, OutputInterface $output): void
     {
-        if (!$diff->hasChanges()) {
+        if (! $diff->hasChanges()) {
             return;
         }
 
@@ -110,7 +111,7 @@ class MarkdownOutput implements OutputFormatterInterface
 
         // Security Advisories Fixed section
         $allChangesWithAdvisories = $diff->changes
-            ->filter(fn (PackageChange $change) => !empty($change->fixedAdvisories));
+            ->filter(fn (PackageChange $change) => ! empty($change->fixedAdvisories));
 
         if ($allChangesWithAdvisories->isNotEmpty()) {
             $output->writeln('### Security Advisories Fixed');

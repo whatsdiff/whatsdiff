@@ -15,6 +15,7 @@ namespace Whatsdiff\Services;
 class GithubAuthService
 {
     private ?string $cachedToken = null;
+
     private bool $tokenLoaded = false;
 
     /**
@@ -36,9 +37,10 @@ class GithubAuthService
 
         // Priority 1: GITHUB_TOKEN environment variable
         $envToken = getenv('GITHUB_TOKEN');
-        if ($envToken !== false && !empty($envToken)) {
+        if ($envToken !== false && ! empty($envToken)) {
             $this->cachedToken = $envToken;
             $this->tokenLoaded = true;
+
             return $this->cachedToken;
         }
 
@@ -47,21 +49,24 @@ class GithubAuthService
         if ($token !== null) {
             $this->cachedToken = $token;
             $this->tokenLoaded = true;
+
             return $this->cachedToken;
         }
 
         // Priority 4: COMPOSER_AUTH environment variable
         $composerAuth = getenv('COMPOSER_AUTH');
-        if ($composerAuth !== false && !empty($composerAuth)) {
+        if ($composerAuth !== false && ! empty($composerAuth)) {
             $authData = json_decode($composerAuth, true);
             if (is_array($authData) && isset($authData['github-oauth']['github.com'])) {
                 $this->cachedToken = $authData['github-oauth']['github.com'];
                 $this->tokenLoaded = true;
+
                 return $this->cachedToken;
             }
         }
 
         $this->tokenLoaded = true;
+
         return null;
     }
 
@@ -85,10 +90,10 @@ class GithubAuthService
     private function loadTokenFromAuthJson(): ?string
     {
         $currentDir = getcwd() ?: '';
-        $localAuthPath = $currentDir . DIRECTORY_SEPARATOR . 'auth.json';
+        $localAuthPath = $currentDir.DIRECTORY_SEPARATOR.'auth.json';
 
         $HOME = getenv('HOME') ?: getenv('USERPROFILE');
-        $globalAuthPath = $HOME . DIRECTORY_SEPARATOR . '.composer/auth.json';
+        $globalAuthPath = $HOME.DIRECTORY_SEPARATOR.'.composer/auth.json';
 
         // Check local auth.json first (higher priority)
         if (file_exists($localAuthPath)) {
@@ -112,7 +117,7 @@ class GithubAuthService
     /**
      * Extract GitHub OAuth token from an auth.json file.
      *
-     * @param string $filePath Path to the auth.json file
+     * @param  string  $filePath  Path to the auth.json file
      * @return string|null GitHub token or null if not found
      */
     private function extractTokenFromFile(string $filePath): ?string
@@ -123,13 +128,13 @@ class GithubAuthService
         }
 
         $authData = json_decode($content, true);
-        if (!is_array($authData)) {
+        if (! is_array($authData)) {
             return null;
         }
 
         if (isset($authData['github-oauth']['github.com'])) {
             $token = $authData['github-oauth']['github.com'];
-            if (is_string($token) && !empty($token)) {
+            if (is_string($token) && ! empty($token)) {
                 return $token;
             }
         }

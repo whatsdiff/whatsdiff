@@ -24,11 +24,12 @@ class McpServerHelper
     private $stderr;
 
     private int $requestId = 1;
+
     private bool $initialized = false;
 
     public function __construct()
     {
-        $serverPath = __DIR__ . '/../../bin/whatsdiff-mcp';
+        $serverPath = __DIR__.'/../../bin/whatsdiff-mcp';
 
         $descriptorspec = [
             0 => ['pipe', 'r'],  // stdin
@@ -42,7 +43,7 @@ class McpServerHelper
             $pipes
         );
 
-        if (!is_resource($this->process)) {
+        if (! is_resource($this->process)) {
             throw new \RuntimeException('Failed to start MCP server process');
         }
 
@@ -65,7 +66,7 @@ class McpServerHelper
         $response = $this->sendRequest('initialize', [
             'protocolVersion' => '2024-11-05',
             'capabilities' => [
-                'tools' => new \stdClass(),
+                'tools' => new \stdClass,
             ],
             'clientInfo' => [
                 'name' => 'whatsdiff-test-client',
@@ -84,8 +85,8 @@ class McpServerHelper
     /**
      * Send a JSON-RPC notification (no response expected).
      *
-     * @param string $method JSON-RPC method name
-     * @param array<string, mixed> $params Method parameters
+     * @param  string  $method  JSON-RPC method name
+     * @param  array<string, mixed>  $params  Method parameters
      */
     private function sendNotification(string $method, array $params): void
     {
@@ -95,7 +96,7 @@ class McpServerHelper
             'params' => $params,
         ];
 
-        $notificationJson = json_encode($notification, JSON_UNESCAPED_SLASHES) . "\n";
+        $notificationJson = json_encode($notification, JSON_UNESCAPED_SLASHES)."\n";
 
         // Write notification to server stdin
         fwrite($this->stdin, $notificationJson);
@@ -118,8 +119,8 @@ class McpServerHelper
     /**
      * Call a specific tool with given arguments.
      *
-     * @param string $toolName Tool name to call
-     * @param array<string, mixed> $arguments Tool arguments
+     * @param  string  $toolName  Tool name to call
+     * @param  array<string, mixed>  $arguments  Tool arguments
      */
     public function callTool(string $toolName, array $arguments): array
     {
@@ -134,9 +135,10 @@ class McpServerHelper
     /**
      * Send a JSON-RPC request to the server and wait for response.
      *
-     * @param string $method JSON-RPC method name
-     * @param array<string, mixed> $params Method parameters
+     * @param  string  $method  JSON-RPC method name
+     * @param  array<string, mixed>  $params  Method parameters
      * @return array<string, mixed> Response data
+     *
      * @throws \RuntimeException If server communication fails
      */
     public function sendRequest(string $method, array $params): array
@@ -150,7 +152,7 @@ class McpServerHelper
             'params' => $params,
         ];
 
-        $requestJson = json_encode($request, JSON_UNESCAPED_SLASHES) . "\n";
+        $requestJson = json_encode($request, JSON_UNESCAPED_SLASHES)."\n";
 
         // Write request to server stdin
         fwrite($this->stdin, $requestJson);
@@ -165,8 +167,9 @@ class McpServerHelper
     /**
      * Read a JSON-RPC response from the server stdout.
      *
-     * @param int $expectedId Expected request ID
+     * @param  int  $expectedId  Expected request ID
      * @return array<string, mixed> Response data
+     *
      * @throws \RuntimeException If response cannot be read or parsed
      */
     private function readResponse(int $expectedId): array
@@ -178,7 +181,7 @@ class McpServerHelper
         while ($attempts < $maxAttempts) {
             // Check if process is still running
             $status = proc_get_status($this->process);
-            if (!$status['running']) {
+            if (! $status['running']) {
                 $errorOutput = stream_get_contents($this->stderr);
                 throw new \RuntimeException(
                     "MCP server process terminated unexpectedly. Error output: {$errorOutput}"
@@ -188,7 +191,7 @@ class McpServerHelper
             // Read available output from stdout
             $output = fread($this->stdout, 8192);
 
-            if ($output !== false && !empty($output)) {
+            if ($output !== false && ! empty($output)) {
                 $accumulatedOutput .= $output;
 
                 // Try to parse complete JSON lines
@@ -212,7 +215,7 @@ class McpServerHelper
                     }
 
                     // Check if this is a JSON-RPC response for our request
-                    if (!isset($response['jsonrpc']) || $response['jsonrpc'] !== '2.0') {
+                    if (! isset($response['jsonrpc']) || $response['jsonrpc'] !== '2.0') {
                         continue;
                     }
 
@@ -221,7 +224,7 @@ class McpServerHelper
                         // Check for JSON-RPC error
                         if (isset($response['error'])) {
                             throw new \RuntimeException(
-                                'MCP server returned error: ' . json_encode($response['error'])
+                                'MCP server returned error: '.json_encode($response['error'])
                             );
                         }
 
@@ -234,7 +237,7 @@ class McpServerHelper
             $attempts++;
         }
 
-        throw new \RuntimeException('Timeout waiting for MCP server response (ID: ' . $expectedId . ')');
+        throw new \RuntimeException('Timeout waiting for MCP server response (ID: '.$expectedId.')');
     }
 
     /**
@@ -242,7 +245,7 @@ class McpServerHelper
      */
     private function ensureInitialized(): void
     {
-        if (!$this->initialized) {
+        if (! $this->initialized) {
             $this->initialize();
         }
     }
@@ -252,7 +255,7 @@ class McpServerHelper
      */
     public function stop(): void
     {
-        if (!is_resource($this->process)) {
+        if (! is_resource($this->process)) {
             return; // Already stopped
         }
 

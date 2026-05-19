@@ -49,7 +49,7 @@ trait SharedCommandOptions
      *
      * This option allows users to specify the output format (text, json, markdown).
      *
-     * @param string $default Default format (typically 'text')
+     * @param  string  $default  Default format (typically 'text')
      */
     protected function addFormatOption(string $default = 'text'): self
     {
@@ -67,7 +67,7 @@ trait SharedCommandOptions
      *
      * This option allows users to specify a starting commit/branch/tag.
      *
-     * @param string $description Custom description (optional)
+     * @param  string  $description  Custom description (optional)
      */
     protected function addFromOption(string $description = 'Git commit, branch, or tag to get the starting version from'): self
     {
@@ -84,7 +84,7 @@ trait SharedCommandOptions
      *
      * This option allows users to specify an ending commit/branch/tag.
      *
-     * @param string $description Custom description (optional)
+     * @param  string  $description  Custom description (optional)
      */
     protected function addToOption(string $description = 'Git commit, branch, or tag to get the ending version from (defaults to HEAD)'): self
     {

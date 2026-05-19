@@ -52,7 +52,7 @@ it('fetches releases from github api', function () {
         ])
         ->andReturn([
             'body' => json_encode($apiResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(
@@ -115,7 +115,7 @@ it('filters releases by version range', function () {
         ->once()
         ->andReturn([
             'body' => json_encode($apiResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(
@@ -152,7 +152,7 @@ it('excludes draft releases', function () {
         ->once()
         ->andReturn([
             'body' => json_encode($apiResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(
@@ -187,7 +187,7 @@ it('excludes prerelease when not included', function () {
         ->once()
         ->andReturn([
             'body' => json_encode($apiResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(
@@ -222,7 +222,7 @@ it('includes prerelease when requested', function () {
         ->once()
         ->andReturn([
             'body' => json_encode($apiResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(
@@ -292,7 +292,7 @@ it('handles git@github.com URL format', function () {
         ->with(Mockery::pattern('#/repos/owner/repo/releases\?per_page=100&page=1$#'), Mockery::any())
         ->andReturn([
             'body' => json_encode($apiResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(
@@ -327,7 +327,7 @@ it('handles versions without v prefix', function () {
         ->once()
         ->andReturn([
             'body' => json_encode($apiResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(
@@ -350,7 +350,7 @@ it('returns null when api response is invalid json', function () {
         ->once()
         ->andReturn([
             'body' => 'invalid json',
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(
@@ -393,7 +393,7 @@ it('fetches exact version when from and to are the same', function () {
         ->once()
         ->andReturn([
             'body' => json_encode($apiResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(
@@ -463,7 +463,7 @@ it('handles pagination when fetching releases', function () {
         ->with(Mockery::pattern('#per_page=100&page=1$#'), Mockery::any())
         ->andReturn([
             'body' => json_encode($firstPageResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $this->httpService
@@ -472,7 +472,7 @@ it('handles pagination when fetching releases', function () {
         ->with(Mockery::pattern('#per_page=100&page=2$#'), Mockery::any())
         ->andReturn([
             'body' => json_encode($secondPageResponse),
-            'headers' => []
+            'headers' => [],
         ]);
 
     $result = $this->fetcher->fetch(

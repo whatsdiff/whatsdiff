@@ -20,15 +20,19 @@ class TerminalUIRenderer extends Renderer implements Scrolling
     use Aligns;
     use DrawsHotkeys;
     use DrawsScrollbars;
-    use InteractsWithStrings;
     use HasMinimumDimensions;
+    use InteractsWithStrings;
 
     public int $rightPaneWidth;
+
     public int $sideBarWidth;
+
     protected int $uiWidth;
+
     protected int $uiHeight;
 
     protected TerminalUI $terminalUI;
+
     protected int $contentHeight;
 
     public function __invoke(TerminalUI $prompt): static
@@ -68,7 +72,6 @@ class TerminalUIRenderer extends Renderer implements Scrolling
         $this->sideBarWidth = intval(ceil($this->uiWidth / 3));
         $this->rightPaneWidth = $this->uiWidth - $this->sideBarWidth;
 
-
         // Render the sidebar and the content
         $sidebar = $this->layoutSidebar();
         $content = $this->rightPaneContent();
@@ -85,7 +88,6 @@ class TerminalUIRenderer extends Renderer implements Scrolling
         $this->renderBottom($this->uiHeight, $footer);
 
     }
-
 
     protected function renderBottom(int $height, $bottom)
     {
@@ -122,7 +124,7 @@ class TerminalUIRenderer extends Renderer implements Scrolling
 
         // Calculate spacing
         $leftLength = 6 + mb_strwidth($leftText); // 6 for the logo and spaces
-        $rightLength = mb_strwidth(' '.$githubText.' / '.$websiteText. '');
+        $rightLength = mb_strwidth(' '.$githubText.' / '.$websiteText.'');
         $spacing = max(1, $this->uiWidth - 2 - $leftLength - $rightLength);
 
         // White background with black text - classic inverse terminal look
@@ -212,9 +214,7 @@ class TerminalUIRenderer extends Renderer implements Scrolling
                 // $name = $icon.' '.$name;
                 $label = $name;
 
-
                 $index = array_search($key, array_keys($this->terminalUI->sidebarPackages()));
-
 
                 // Cursor represented by an arrow
                 // $name = $this->terminalUI->highlighted === $index ? '➤'.$name : ' '.$name;
@@ -224,7 +224,6 @@ class TerminalUIRenderer extends Renderer implements Scrolling
                 $innerWidth = $this->sideBarWidth - 1;
                 $label = $this->truncate($label, $innerWidth);
                 $label = $this->pad($label, $innerWidth + 1, ' ');
-
 
                 // If nothing is selected and the cursor is on it, highlight it
                 if ($this->terminalUI->selected === null && $this->terminalUI->getHighlighted('sidebar') === $index) {
@@ -309,5 +308,4 @@ class TerminalUIRenderer extends Renderer implements Scrolling
     {
         return "\e[107m{$string}\e[49m";
     }
-
 }

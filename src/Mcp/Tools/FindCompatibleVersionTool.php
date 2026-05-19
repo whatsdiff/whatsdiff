@@ -20,7 +20,7 @@ class FindCompatibleVersionTool
         private PackagistRegistry $packagistRegistry,
         private NpmRegistry $npmRegistry
     ) {
-        $this->versionParser = new VersionParser();
+        $this->versionParser = new VersionParser;
     }
 
     #[McpTool(
@@ -95,7 +95,7 @@ class FindCompatibleVersionTool
                 PackageManagerType::NPM => $versionData['dependencies'] ?? [],
             };
 
-            if (!isset($requires[$dependency_package])) {
+            if (! isset($requires[$dependency_package])) {
                 continue;
             }
 
@@ -114,7 +114,7 @@ class FindCompatibleVersionTool
 
                 // Check if the constraints intersect using composer/semver's interval arithmetic
                 if (Intervals::haveIntersections($requiredConstraint, $normalizedConstraint)) {
-                    if (!isset($majorVersions[$majorVersion])) {
+                    if (! isset($majorVersions[$majorVersion])) {
                         $majorVersions[$majorVersion] = [
                             'major_version' => $majorVersion,
                             'example_version' => $version,

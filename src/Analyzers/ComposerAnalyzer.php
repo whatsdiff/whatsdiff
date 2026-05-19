@@ -50,8 +50,8 @@ class ComposerAnalyzer extends BaseAnalyzer
     /**
      * Get the package information URL, detecting private repositories.
      *
-     * @param string $name Package name
-     * @param array $composerLock Composer lock file content as array
+     * @param  string  $name  Package name
+     * @param  array  $composerLock  Composer lock file content as array
      * @return string Package information URL
      */
     private function getPackageUrl(string $name, array $composerLock): string
@@ -63,7 +63,7 @@ class ComposerAnalyzer extends BaseAnalyzer
             ->merge($composerLock['packages-dev'] ?? [])
             ->first(fn ($package) => $package['name'] === $name);
 
-        if (!$packageInfo) {
+        if (! $packageInfo) {
             return $url;
         }
 
@@ -82,10 +82,10 @@ class ComposerAnalyzer extends BaseAnalyzer
      *
      * Accepts URL as array context for compatibility with BaseAnalyzer.
      *
-     * @param string $package Package name
-     * @param string $from Starting version
-     * @param string $to Ending version
-     * @param array $context Context array containing 'url' key for private repos
+     * @param  string  $package  Package name
+     * @param  string  $from  Starting version
+     * @param  string  $to  Ending version
+     * @param  array  $context  Context array containing 'url' key for private repos
      * @return int|null Number of releases, or null on error
      */
     public function getReleasesCount(string $package, string $from, string $to, array $context = []): ?int
@@ -96,10 +96,10 @@ class ComposerAnalyzer extends BaseAnalyzer
     /**
      * Convenience method for getting release count with URL string.
      *
-     * @param string $package Package name
-     * @param string $from Starting version
-     * @param string $to Ending version
-     * @param string $url Package information URL (for private repos)
+     * @param  string  $package  Package name
+     * @param  string  $from  Starting version
+     * @param  string  $to  Ending version
+     * @param  string  $url  Package information URL (for private repos)
      * @return int|null Number of releases, or null on error
      */
     public function getReleasesCountWithUrl(string $package, string $from, string $to, string $url): ?int

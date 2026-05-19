@@ -11,7 +11,7 @@ use Whatsdiff\Enums\Semver;
 final readonly class PackageChange
 {
     /**
-     * @param array<SecurityAdvisory> $fixedAdvisories
+     * @param  array<SecurityAdvisory>  $fixedAdvisories
      */
     public function __construct(
         public string $name,
@@ -22,8 +22,7 @@ final readonly class PackageChange
         public ?int $releaseCount = null,
         public ?Semver $semver = null,
         public array $fixedAdvisories = [],
-    ) {
-    }
+    ) {}
 
     public static function added(string $name, PackageManagerType $type, string $version): self
     {
@@ -48,7 +47,7 @@ final readonly class PackageChange
     }
 
     /**
-     * @param array<SecurityAdvisory> $fixedAdvisories
+     * @param  array<SecurityAdvisory>  $fixedAdvisories
      */
     public static function updated(
         string $name,
@@ -72,7 +71,7 @@ final readonly class PackageChange
     }
 
     /**
-     * @param array<SecurityAdvisory> $fixedAdvisories
+     * @param  array<SecurityAdvisory>  $fixedAdvisories
      */
     public static function downgraded(
         string $name,

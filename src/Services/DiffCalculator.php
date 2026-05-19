@@ -21,13 +21,18 @@ class DiffCalculator
     private GitRepository $git;
 
     private Collection $dependencyFiles;
+
     private array $dependencyTypes;
 
     // Fluent interface state
     private ?string $fromCommit = null;
+
     private ?string $toCommit = null;
+
     private bool $ignoreLast = false;
+
     private bool $skipReleaseCount = false;
+
     private ?DiffResult $diffResult = null;
 
     public function __construct(
@@ -214,12 +219,12 @@ class DiffCalculator
         $this->diffResult = new DiffResult($diffs, $recentlyUpdated);
     }
 
-
     /**
      * Calculate diff between commits with progress reporting
      * Yields individual PackageChange objects as they're processed
      *
      * @return \Generator<PackageChange>
+     *
      * @noinspection PhpInconsistentReturnPointsInspection
      */
     private function calculateDiffBetweenCommitsWithProgress(
@@ -275,7 +280,6 @@ class DiffCalculator
         return $dependencyDiff;
     }
 
-
     private function initializeDependencyFiles(bool $ignoreLast): void
     {
         // Initialize dependency files structure if not already done
@@ -306,7 +310,6 @@ class DiffCalculator
         });
     }
 
-
     private function getCommitHashToCompare(array $commitLogs, bool $recentlyUpdated): array
     {
         $last = $recentlyUpdated ? null : $commitLogs[0];
@@ -316,12 +319,10 @@ class DiffCalculator
         return [$last, $previous];
     }
 
-
     private function calculatePackageDiff(PackageManagerType $type, string $last, ?string $previous): array
     {
         return $this->analyzerRegistry->get($type)->calculateDiff($last, $previous);
     }
-
 
     /**
      * Convert package diffs to PackageChange objects with progress reporting
@@ -392,7 +393,7 @@ class DiffCalculator
     /**
      * Filter advisories to only those fixed by updating from one version to another.
      *
-     * @param array<SecurityAdvisory> $advisories
+     * @param  array<SecurityAdvisory>  $advisories
      * @return array<SecurityAdvisory>
      */
     private function filterFixedAdvisories(array $advisories, string $from, string $to): array

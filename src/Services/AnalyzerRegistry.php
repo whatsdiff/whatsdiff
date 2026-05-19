@@ -29,14 +29,13 @@ class AnalyzerRegistry
 
     public function __construct(
         private readonly ContainerInterface $container
-    ) {
-    }
+    ) {}
 
     /**
      * Register an analyzer for a specific package manager type.
      *
-     * @param PackageManagerType $type Package manager type
-     * @param string $analyzerClass Fully qualified analyzer class name
+     * @param  PackageManagerType  $type  Package manager type
+     * @param  string  $analyzerClass  Fully qualified analyzer class name
      * @return self For method chaining
      */
     public function register(PackageManagerType $type, string $analyzerClass): self
@@ -51,8 +50,9 @@ class AnalyzerRegistry
      *
      * Lazy loads the analyzer on first access and caches it for subsequent calls.
      *
-     * @param PackageManagerType $type Package manager type
+     * @param  PackageManagerType  $type  Package manager type
      * @return AnalyzerInterface The analyzer instance
+     *
      * @throws \RuntimeException If no analyzer is registered for the type
      */
     public function get(PackageManagerType $type): AnalyzerInterface
@@ -86,7 +86,7 @@ class AnalyzerRegistry
     /**
      * Check if an analyzer is registered for the specified type.
      *
-     * @param PackageManagerType $type Package manager type
+     * @param  PackageManagerType  $type  Package manager type
      * @return bool True if an analyzer is registered
      */
     public function has(PackageManagerType $type): bool

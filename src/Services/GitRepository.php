@@ -7,14 +7,18 @@ namespace Whatsdiff\Services;
 class GitRepository
 {
     private ?string $gitRoot = null;
+
     private ?string $currentDir = null;
+
     private ?string $relativeCurrentDir = null;
+
     private ProcessService $processService;
+
     private bool $initialized = false;
 
     public function __construct(?ProcessService $processService = null)
     {
-        $this->processService = $processService ?? new ProcessService();
+        $this->processService = $processService ?? new ProcessService;
     }
 
     /**
@@ -31,7 +35,7 @@ class GitRepository
 
         $process = $this->processService->git(['rev-parse', '--show-toplevel']);
 
-        if (!$process->isSuccessful() || empty(trim($process->getOutput()))) {
+        if (! $process->isSuccessful() || empty(trim($process->getOutput()))) {
             throw new \RuntimeException('Not in a git repository or git command failed');
         }
 
@@ -85,8 +89,7 @@ class GitRepository
 
         $process = $this->processService->git($args, $this->gitRoot);
 
-
-        if (!$process->isSuccessful() || empty(trim($process->getOutput()))) {
+        if (! $process->isSuccessful() || empty(trim($process->getOutput()))) {
             return [];
         }
 
@@ -101,7 +104,7 @@ class GitRepository
 
         $process = $this->processService->git($args, $this->gitRoot);
 
-        if (!$process->isSuccessful() || empty(trim($process->getOutput()))) {
+        if (! $process->isSuccessful() || empty(trim($process->getOutput()))) {
             return [];
         }
 
@@ -114,7 +117,7 @@ class GitRepository
 
         $process = $this->processService->git(['status', '--porcelain'], $this->gitRoot);
 
-        if (!$process->isSuccessful() || empty(trim($process->getOutput()))) {
+        if (! $process->isSuccessful() || empty(trim($process->getOutput()))) {
             return false;
         }
 
@@ -123,11 +126,12 @@ class GitRepository
             ->filter()
             ->mapWithKeys(function ($line) {
                 $parts = array_values(array_filter(explode(' ', $line)));
+
                 return isset($parts[1]) ? [$parts[1] => $parts[0]] : [];
             });
 
         // If the file exists and is not in the list of untracked files
-        if (!empty($this->relativeCurrentDir) && file_exists($filename) && !$status->has($filename)) {
+        if (! empty($this->relativeCurrentDir) && file_exists($filename) && ! $status->has($filename)) {
             return true; // Created
         }
 
@@ -144,7 +148,7 @@ class GitRepository
         $this->ensureInitialized();
 
         $process = $this->processService->git(
-            ['show', $commitHash . ':' . $filename],
+            ['show', $commitHash.':'.$filename],
             $this->gitRoot
         );
 

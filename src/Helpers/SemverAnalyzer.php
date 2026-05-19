@@ -20,7 +20,7 @@ final class SemverAnalyzer
     private static function getParser(): VersionParser
     {
         if (self::$versionParser === null) {
-            self::$versionParser = new VersionParser();
+            self::$versionParser = new VersionParser;
         }
 
         return self::$versionParser;
@@ -29,8 +29,8 @@ final class SemverAnalyzer
     /**
      * Determine the type of semantic version change between two versions.
      *
-     * @param string $fromVersion Starting version
-     * @param string $toVersion Ending version
+     * @param  string  $fromVersion  Starting version
+     * @param  string  $toVersion  Ending version
      * @return Semver|null Major, Minor, Patch, or null if cannot be determined
      */
     public static function determineSemverChangeType(string $fromVersion, string $toVersion): ?Semver
@@ -65,7 +65,7 @@ final class SemverAnalyzer
     /**
      * Parse a version string into major, minor, and patch components.
      *
-     * @param string $version Version string
+     * @param  string  $version  Version string
      * @return array{major: int, minor: int, patch: int}|null
      */
     private static function parseVersion(string $version): ?array
@@ -76,7 +76,7 @@ final class SemverAnalyzer
             return null;
         }
 
-        if (!preg_match('/^(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?(?:-(.+))?(?:\+(.+))?$/', $normalized, $matches)) {
+        if (! preg_match('/^(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?(?:-(.+))?(?:\+(.+))?$/', $normalized, $matches)) {
             return null;
         }
 
@@ -90,8 +90,7 @@ final class SemverAnalyzer
     /**
      * Check if a version is a development version.
      *
-     * @param string $version Version string
-     * @return bool
+     * @param  string  $version  Version string
      */
     private static function isDevVersion(string $version): bool
     {

@@ -72,7 +72,7 @@ final readonly class ReleaseNote
      */
     public function getChanges(): array
     {
-        if (!$this->isStructured()) {
+        if (! $this->isStructured()) {
             return [];
         }
 
@@ -86,7 +86,7 @@ final readonly class ReleaseNote
      */
     public function getFixes(): array
     {
-        if (!$this->isStructured()) {
+        if (! $this->isStructured()) {
             return [];
         }
 
@@ -100,7 +100,7 @@ final readonly class ReleaseNote
      */
     public function getBreakingChanges(): array
     {
-        if (!$this->isStructured()) {
+        if (! $this->isStructured()) {
             return [];
         }
 
@@ -114,7 +114,7 @@ final readonly class ReleaseNote
      */
     public function getDeprecated(): array
     {
-        if (!$this->isStructured()) {
+        if (! $this->isStructured()) {
             return [];
         }
 
@@ -128,7 +128,7 @@ final readonly class ReleaseNote
      */
     public function getRemoved(): array
     {
-        if (!$this->isStructured()) {
+        if (! $this->isStructured()) {
             return [];
         }
 
@@ -142,7 +142,7 @@ final readonly class ReleaseNote
      */
     public function getSecurity(): array
     {
-        if (!$this->isStructured()) {
+        if (! $this->isStructured()) {
             return [];
         }
 
@@ -198,7 +198,7 @@ final readonly class ReleaseNote
      */
     public function getDescription(): string
     {
-        if (!$this->isStructured()) {
+        if (! $this->isStructured()) {
             return '';
         }
 
@@ -222,14 +222,15 @@ final readonly class ReleaseNote
                     || preg_match('/\*\*\s*(Changed?|Added?|What\'?s Changed|New Features|Features|Enhancements|Improvements|Fixes?|Fixed|Bug ?Fixes?|Bugfixes|Breaking( Changes)?|BREAKING CHANGES|Removed?|Deprecated|Security)\s*\*\*/i', $trimmedLine);
 
                 $inRecognizedSection = (bool) $isRecognized;
+
                 continue;
             }
 
             // If we haven't seen any heading yet, or we're in an unrecognized section,
             // and this isn't a bullet point, collect it as description
-            if ((!$hasSeenHeading || !$inRecognizedSection) &&
-                !str_starts_with($trimmedLine, '- ') &&
-                !str_starts_with($trimmedLine, '* ')) {
+            if ((! $hasSeenHeading || ! $inRecognizedSection) &&
+                ! str_starts_with($trimmedLine, '- ') &&
+                ! str_starts_with($trimmedLine, '* ')) {
                 $description[] = $line; // Keep original line with indentation
             }
         }
@@ -249,7 +250,7 @@ final readonly class ReleaseNote
      *
      * This method also supports bold headings like **Changes** in addition to markdown headings.
      *
-     * @param string $headingPattern Regex pattern to match section headings
+     * @param  string  $headingPattern  Regex pattern to match section headings
      * @return array<int, string>
      */
     private function extractSectionByPattern(string $headingPattern): array
@@ -272,6 +273,7 @@ final readonly class ReleaseNote
             // Check if we're starting a section we care about
             if (preg_match($headingPattern, $trimmedLine) || preg_match($boldPattern, $trimmedLine)) {
                 $inSection = true;
+
                 continue; // Skip the heading line itself
             }
 
@@ -282,9 +284,10 @@ final readonly class ReleaseNote
 
             if ($inSection && $isNewSection) {
                 // Check if this new section matches our pattern
-                if (!preg_match($headingPattern, $trimmedLine) && !preg_match($boldPattern, $trimmedLine)) {
+                if (! preg_match($headingPattern, $trimmedLine) && ! preg_match($boldPattern, $trimmedLine)) {
                     $inSection = false;
                 }
+
                 continue;
             }
 

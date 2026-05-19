@@ -34,8 +34,7 @@ class LocalVendorChangelogFetcher implements ReleaseNotesFetcherInterface
 
     public function __construct(
         private readonly ChangelogParser $parser
-    ) {
-    }
+    ) {}
 
     public function fetch(
         string $package,

@@ -13,7 +13,7 @@ class ProcessService
 
     public function __construct()
     {
-        $this->executableFinder = new ExecutableFinder();
+        $this->executableFinder = new ExecutableFinder;
     }
 
     public function run(array $command, ?string $cwd = null, ?int $timeout = 60): Process
@@ -27,6 +27,7 @@ class ProcessService
     public function git(array $gitArgs, ?string $cwd = null): Process
     {
         $command = array_merge(['git'], $gitArgs);
+
         return $this->run($command, $cwd);
     }
 
@@ -34,11 +35,12 @@ class ProcessService
     {
         $phpBinary = $this->executableFinder->find('php');
 
-        if (!$phpBinary) {
+        if (! $phpBinary) {
             throw new \RuntimeException('PHP executable not found');
         }
 
         $command = array_merge([$phpBinary], $phpArgs);
+
         return $this->run($command, $cwd);
     }
 }

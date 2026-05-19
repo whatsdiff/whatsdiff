@@ -115,7 +115,7 @@ test('markdown format outputs proper markdown structure', function () {
     // Add a package
     $updatedComposerLock = generateComposerLock([
         'guzzlehttp/guzzle' => '7.4.0',
-        'monolog/monolog'   => '3.0.0',
+        'monolog/monolog' => '3.0.0',
     ]);
 
     file_put_contents($this->tempDir.'/composer.lock', $updatedComposerLock);

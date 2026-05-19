@@ -16,12 +16,13 @@ use Illuminate\Support\Collection;
 class ComposerLockFile implements LockFileInterface
 {
     private array $lockData;
+
     private Collection $packages;
 
     /**
      * Create a new parser and parse the lock file content.
      *
-     * @param string $lockFileContent Raw composer.lock content (JSON)
+     * @param  string  $lockFileContent  Raw composer.lock content (JSON)
      */
     public function __construct(string $lockFileContent)
     {
@@ -42,7 +43,7 @@ class ComposerLockFile implements LockFileInterface
     /**
      * Get version for a specific package.
      *
-     * @param string $package Package name
+     * @param  string  $package  Package name
      * @return string|null Version or null if package not found
      */
     public function getVersion(string $package): ?string
@@ -53,7 +54,7 @@ class ComposerLockFile implements LockFileInterface
     /**
      * Get repository URL for a specific package.
      *
-     * @param string $package Package name
+     * @param  string  $package  Package name
      * @return string|null Repository URL or null if not found
      */
     public function getRepositoryUrl(string $package): ?string

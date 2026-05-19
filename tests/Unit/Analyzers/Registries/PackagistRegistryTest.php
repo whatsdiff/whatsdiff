@@ -346,7 +346,7 @@ it('uses support.source as last resort when other sources not available', functi
 
 it('loads auth from local auth.json and applies automatically', function () {
     // Create temporary directory with auth.json
-    $tempDir = sys_get_temp_dir() . '/whatsdiff-test-' . uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
     mkdir($tempDir);
 
     $authContent = [
@@ -358,7 +358,7 @@ it('loads auth from local auth.json and applies automatically', function () {
         ],
     ];
 
-    file_put_contents($tempDir . '/auth.json', json_encode($authContent));
+    file_put_contents($tempDir.'/auth.json', json_encode($authContent));
 
     $originalDir = getcwd();
     chdir($tempDir);
@@ -391,18 +391,18 @@ it('loads auth from local auth.json and applies automatically', function () {
         expect($result)->toBe($packageData);
     } finally {
         chdir($originalDir);
-        unlink($tempDir . '/auth.json');
+        unlink($tempDir.'/auth.json');
         rmdir($tempDir);
     }
 });
 
 it('loads auth from both local and global with local taking precedence', function () {
     // Create temporary directories
-    $tempDir = sys_get_temp_dir() . '/whatsdiff-test-' . uniqid();
-    $homeDir = sys_get_temp_dir() . '/whatsdiff-home-' . uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
+    $homeDir = sys_get_temp_dir().'/whatsdiff-home-'.uniqid();
     mkdir($tempDir);
     mkdir($homeDir);
-    mkdir($homeDir . '/.composer');
+    mkdir($homeDir.'/.composer');
 
     $localAuth = [
         'http-basic' => [
@@ -426,8 +426,8 @@ it('loads auth from both local and global with local taking precedence', functio
         ],
     ];
 
-    file_put_contents($tempDir . '/auth.json', json_encode($localAuth));
-    file_put_contents($homeDir . '/.composer/auth.json', json_encode($globalAuth));
+    file_put_contents($tempDir.'/auth.json', json_encode($localAuth));
+    file_put_contents($homeDir.'/.composer/auth.json', json_encode($globalAuth));
 
     // Set HOME environment variable
     $originalHome = getenv('HOME') ?: getenv('USERPROFILE');
@@ -459,9 +459,9 @@ it('loads auth from both local and global with local taking precedence', functio
     } finally {
         chdir($originalDir);
         putenv("HOME={$originalHome}");
-        unlink($tempDir . '/auth.json');
-        unlink($homeDir . '/.composer/auth.json');
-        rmdir($homeDir . '/.composer');
+        unlink($tempDir.'/auth.json');
+        unlink($homeDir.'/.composer/auth.json');
+        rmdir($homeDir.'/.composer');
         rmdir($homeDir);
         rmdir($tempDir);
     }
@@ -469,11 +469,11 @@ it('loads auth from both local and global with local taking precedence', functio
 
 it('uses global auth when local auth.json does not exist', function () {
     // Create temporary directories
-    $tempDir = sys_get_temp_dir() . '/whatsdiff-test-' . uniqid();
-    $homeDir = sys_get_temp_dir() . '/whatsdiff-home-' . uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
+    $homeDir = sys_get_temp_dir().'/whatsdiff-home-'.uniqid();
     mkdir($tempDir);
     mkdir($homeDir);
-    mkdir($homeDir . '/.composer');
+    mkdir($homeDir.'/.composer');
 
     $globalAuth = [
         'http-basic' => [
@@ -484,7 +484,7 @@ it('uses global auth when local auth.json does not exist', function () {
         ],
     ];
 
-    file_put_contents($homeDir . '/.composer/auth.json', json_encode($globalAuth));
+    file_put_contents($homeDir.'/.composer/auth.json', json_encode($globalAuth));
 
     // Set HOME environment variable
     $originalHome = getenv('HOME') ?: getenv('USERPROFILE');
@@ -516,8 +516,8 @@ it('uses global auth when local auth.json does not exist', function () {
     } finally {
         chdir($originalDir);
         putenv("HOME={$originalHome}");
-        unlink($homeDir . '/.composer/auth.json');
-        rmdir($homeDir . '/.composer');
+        unlink($homeDir.'/.composer/auth.json');
+        rmdir($homeDir.'/.composer');
         rmdir($homeDir);
         rmdir($tempDir);
     }
@@ -525,7 +525,7 @@ it('uses global auth when local auth.json does not exist', function () {
 
 it('explicit auth options override auth.json', function () {
     // Create temporary directory with auth.json
-    $tempDir = sys_get_temp_dir() . '/whatsdiff-test-' . uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
     mkdir($tempDir);
 
     $authContent = [
@@ -537,7 +537,7 @@ it('explicit auth options override auth.json', function () {
         ],
     ];
 
-    file_put_contents($tempDir . '/auth.json', json_encode($authContent));
+    file_put_contents($tempDir.'/auth.json', json_encode($authContent));
 
     $originalDir = getcwd();
     chdir($tempDir);
@@ -568,14 +568,14 @@ it('explicit auth options override auth.json', function () {
         expect($result)->toBe($packageData);
     } finally {
         chdir($originalDir);
-        unlink($tempDir . '/auth.json');
+        unlink($tempDir.'/auth.json');
         rmdir($tempDir);
     }
 });
 
 it('does not apply auth when domain does not match auth.json', function () {
     // Create temporary directory with auth.json
-    $tempDir = sys_get_temp_dir() . '/whatsdiff-test-' . uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
     mkdir($tempDir);
 
     $authContent = [
@@ -587,7 +587,7 @@ it('does not apply auth when domain does not match auth.json', function () {
         ],
     ];
 
-    file_put_contents($tempDir . '/auth.json', json_encode($authContent));
+    file_put_contents($tempDir.'/auth.json', json_encode($authContent));
 
     $originalDir = getcwd();
     chdir($tempDir);
@@ -607,7 +607,7 @@ it('does not apply auth when domain does not match auth.json', function () {
         expect($result)->toBe($packageData);
     } finally {
         chdir($originalDir);
-        unlink($tempDir . '/auth.json');
+        unlink($tempDir.'/auth.json');
         rmdir($tempDir);
     }
 });

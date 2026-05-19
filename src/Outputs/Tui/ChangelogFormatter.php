@@ -19,9 +19,9 @@ class ChangelogFormatter
     /**
      * Format release notes collection as an array of lines for TUI display.
      *
-     * @param ReleaseNotesCollection $collection The release notes to format
-     * @param bool $summary Whether to show summary view (true) or detailed view (false)
-     * @param int $maxWidth Maximum width for line wrapping
+     * @param  ReleaseNotesCollection  $collection  The release notes to format
+     * @param  bool  $summary  Whether to show summary view (true) or detailed view (false)
+     * @param  int  $maxWidth  Maximum width for line wrapping
      * @return array<int, string> Array of formatted lines ready for TUI display
      */
     public function format(ReleaseNotesCollection $collection, bool $summary, int $maxWidth): array
@@ -40,8 +40,6 @@ class ChangelogFormatter
     /**
      * Format release notes in detailed mode (each release separately).
      *
-     * @param ReleaseNotesCollection $collection
-     * @param int $maxWidth
      * @return array<int, string>
      */
     private function formatDetailed(ReleaseNotesCollection $collection, int $maxWidth): array
@@ -54,7 +52,6 @@ class ChangelogFormatter
             $lines = array_merge($lines, $this->formatRelease($release, $maxWidth));
         }
 
-
         $lines[] = '';
         $lines[] = '';
         $lines[] = '';
@@ -66,8 +63,6 @@ class ChangelogFormatter
     /**
      * Format a single release.
      *
-     * @param ReleaseNote $release
-     * @param int $maxWidth
      * @return array<int, string>
      */
     private function formatRelease(ReleaseNote $release, int $maxWidth): array
@@ -76,26 +71,26 @@ class ChangelogFormatter
 
         // Release header
         $header = $release->tagName;
-        if (!empty($release->title) && $release->title !== $release->tagName) {
-            $header .= ' - ' . $release->title;
+        if (! empty($release->title) && $release->title !== $release->tagName) {
+            $header .= ' - '.$release->title;
         }
         $lines[] = $this->yellow($this->bold($header));
 
         // Date
-        $lines[] = $this->gray('Date: ' . $release->date->format('Y-m-d'));
+        $lines[] = $this->gray('Date: '.$release->date->format('Y-m-d'));
 
         // URL (if available)
         if ($release->url) {
             // Format URL as clickable hyperlink with truncation (already fits within maxWidth)
             $clickableUrl = $this->formatClickableUrl($release->url, $maxWidth - 6);
-            $lines[] = $this->gray('URL: ') . $clickableUrl;
+            $lines[] = $this->gray('URL: ').$clickableUrl;
         }
 
         // If changelog is not structured, display raw body
-        if (!$release->isStructured()) {
+        if (! $release->isStructured()) {
             $lines[] = '';
             $body = $release->getBody();
-            if (!empty($body)) {
+            if (! empty($body)) {
                 // Format links before wrapping
                 $formattedBody = $this->formatTextWithLinks($body);
                 $bodyLines = $this->wrapText($formattedBody, $maxWidth);
@@ -106,7 +101,7 @@ class ChangelogFormatter
         } else {
             // Description (if any)
             $description = $release->getDescription();
-            if (!empty($description)) {
+            if (! empty($description)) {
                 $lines[] = '';
                 // Format links before wrapping
                 $formattedDescription = $this->formatTextWithLinks($description);
@@ -118,7 +113,7 @@ class ChangelogFormatter
 
             // Breaking changes
             $breakingChanges = $release->getBreakingChanges();
-            if (!empty($breakingChanges)) {
+            if (! empty($breakingChanges)) {
                 $lines[] = '';
                 $lines[] = $this->red($this->bold('Breaking Changes:'));
                 foreach ($breakingChanges as $change) {
@@ -127,9 +122,9 @@ class ChangelogFormatter
                     $wrappedLines = $this->wrapText($formattedChange, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
-                            $lines[] = '  ' . $this->red('•') . ' ' . $line;
+                            $lines[] = '  '.$this->red('•').' '.$line;
                         } else {
-                            $lines[] = '    ' . $line;
+                            $lines[] = '    '.$line;
                         }
                     }
                 }
@@ -137,7 +132,7 @@ class ChangelogFormatter
 
             // Changes
             $changes = $release->getChanges();
-            if (!empty($changes)) {
+            if (! empty($changes)) {
                 $lines[] = '';
                 $lines[] = $this->green($this->bold('Changes:'));
                 foreach ($changes as $change) {
@@ -146,9 +141,9 @@ class ChangelogFormatter
                     $wrappedLines = $this->wrapText($formattedChange, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
-                            $lines[] = '  ' . $this->green('•') . ' ' . $line;
+                            $lines[] = '  '.$this->green('•').' '.$line;
                         } else {
-                            $lines[] = '    ' . $line;
+                            $lines[] = '    '.$line;
                         }
                     }
                 }
@@ -156,7 +151,7 @@ class ChangelogFormatter
 
             // Fixes
             $fixes = $release->getFixes();
-            if (!empty($fixes)) {
+            if (! empty($fixes)) {
                 $lines[] = '';
                 $lines[] = $this->blue($this->bold('Fixes:'));
                 foreach ($fixes as $fix) {
@@ -165,9 +160,9 @@ class ChangelogFormatter
                     $wrappedLines = $this->wrapText($formattedFix, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
-                            $lines[] = '  ' . $this->blue('•') . ' ' . $line;
+                            $lines[] = '  '.$this->blue('•').' '.$line;
                         } else {
-                            $lines[] = '    ' . $line;
+                            $lines[] = '    '.$line;
                         }
                     }
                 }
@@ -175,7 +170,7 @@ class ChangelogFormatter
 
             // Deprecated
             $deprecated = $release->getDeprecated();
-            if (!empty($deprecated)) {
+            if (! empty($deprecated)) {
                 $lines[] = '';
                 $lines[] = $this->yellow($this->bold('Deprecated:'));
                 foreach ($deprecated as $item) {
@@ -184,9 +179,9 @@ class ChangelogFormatter
                     $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
-                            $lines[] = '  ' . $this->yellow('•') . ' ' . $line;
+                            $lines[] = '  '.$this->yellow('•').' '.$line;
                         } else {
-                            $lines[] = '    ' . $line;
+                            $lines[] = '    '.$line;
                         }
                     }
                 }
@@ -194,7 +189,7 @@ class ChangelogFormatter
 
             // Removed
             $removed = $release->getRemoved();
-            if (!empty($removed)) {
+            if (! empty($removed)) {
                 $lines[] = '';
                 $lines[] = $this->red($this->bold('Removed:'));
                 foreach ($removed as $item) {
@@ -203,9 +198,9 @@ class ChangelogFormatter
                     $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
-                            $lines[] = '  ' . $this->red('•') . ' ' . $line;
+                            $lines[] = '  '.$this->red('•').' '.$line;
                         } else {
-                            $lines[] = '    ' . $line;
+                            $lines[] = '    '.$line;
                         }
                     }
                 }
@@ -213,7 +208,7 @@ class ChangelogFormatter
 
             // Security
             $security = $release->getSecurity();
-            if (!empty($security)) {
+            if (! empty($security)) {
                 $lines[] = '';
                 $lines[] = $this->magenta($this->bold('Security:'));
                 foreach ($security as $item) {
@@ -222,9 +217,9 @@ class ChangelogFormatter
                     $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
-                            $lines[] = '  ' . $this->magenta('•') . ' ' . $line;
+                            $lines[] = '  '.$this->magenta('•').' '.$line;
                         } else {
-                            $lines[] = '    ' . $line;
+                            $lines[] = '    '.$line;
                         }
                     }
                 }
@@ -240,8 +235,6 @@ class ChangelogFormatter
     /**
      * Format release notes in summary mode (all releases combined).
      *
-     * @param ReleaseNotesCollection $collection
-     * @param int $maxWidth
      * @return array<int, string>
      */
     private function formatSummary(ReleaseNotesCollection $collection, int $maxWidth): array
@@ -267,7 +260,7 @@ class ChangelogFormatter
         // If any release is unstructured, show all bullet points in a flat list
         if ($collection->hasUnstructuredReleases()) {
             $allBulletPoints = $collection->getAllBulletPoints();
-            if (!empty($allBulletPoints)) {
+            if (! empty($allBulletPoints)) {
                 $lines[] = $this->green($this->bold('Changes:'));
                 foreach ($allBulletPoints as $bulletPoint) {
                     // Format links before wrapping
@@ -275,21 +268,22 @@ class ChangelogFormatter
                     $wrappedLines = $this->wrapText($formattedBulletPoint, $maxWidth - 4);
                     foreach ($wrappedLines as $idx => $line) {
                         if ($idx === 0) {
-                            $lines[] = '  ' . $this->green('•') . ' ' . $line;
+                            $lines[] = '  '.$this->green('•').' '.$line;
                         } else {
-                            $lines[] = '    ' . $line;
+                            $lines[] = '    '.$line;
                         }
                     }
                 }
                 $lines[] = '';
             }
+
             return $lines;
         }
 
         // All releases are structured - show categorized sections
         // Breaking changes
         $breakingChanges = $collection->getBreakingChanges();
-        if (!empty($breakingChanges)) {
+        if (! empty($breakingChanges)) {
             $lines[] = $this->red($this->bold('Breaking Changes:'));
             foreach ($breakingChanges as $change) {
                 // Format links before wrapping
@@ -297,9 +291,9 @@ class ChangelogFormatter
                 $wrappedLines = $this->wrapText($formattedChange, $maxWidth - 4);
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
-                        $lines[] = '  ' . $this->red('•') . ' ' . $line;
+                        $lines[] = '  '.$this->red('•').' '.$line;
                     } else {
-                        $lines[] = '    ' . $line;
+                        $lines[] = '    '.$line;
                     }
                 }
             }
@@ -308,7 +302,7 @@ class ChangelogFormatter
 
         // Changes
         $changes = $collection->getChanges();
-        if (!empty($changes)) {
+        if (! empty($changes)) {
             $lines[] = $this->green($this->bold('Changes:'));
             foreach ($changes as $change) {
                 // Format links before wrapping
@@ -316,9 +310,9 @@ class ChangelogFormatter
                 $wrappedLines = $this->wrapText($formattedChange, $maxWidth - 4);
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
-                        $lines[] = '  ' . $this->green('•') . ' ' . $line;
+                        $lines[] = '  '.$this->green('•').' '.$line;
                     } else {
-                        $lines[] = '    ' . $line;
+                        $lines[] = '    '.$line;
                     }
                 }
             }
@@ -327,7 +321,7 @@ class ChangelogFormatter
 
         // Fixes
         $fixes = $collection->getFixes();
-        if (!empty($fixes)) {
+        if (! empty($fixes)) {
             $lines[] = $this->blue($this->bold('Fixes:'));
             foreach ($fixes as $fix) {
                 // Format links before wrapping
@@ -335,9 +329,9 @@ class ChangelogFormatter
                 $wrappedLines = $this->wrapText($formattedFix, $maxWidth - 4);
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
-                        $lines[] = '  ' . $this->blue('•') . ' ' . $line;
+                        $lines[] = '  '.$this->blue('•').' '.$line;
                     } else {
-                        $lines[] = '    ' . $line;
+                        $lines[] = '    '.$line;
                     }
                 }
             }
@@ -346,7 +340,7 @@ class ChangelogFormatter
 
         // Deprecated
         $deprecated = $collection->getDeprecated();
-        if (!empty($deprecated)) {
+        if (! empty($deprecated)) {
             $lines[] = $this->yellow($this->bold('Deprecated:'));
             foreach ($deprecated as $item) {
                 // Format links before wrapping
@@ -354,9 +348,9 @@ class ChangelogFormatter
                 $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
-                        $lines[] = '  ' . $this->yellow('•') . ' ' . $line;
+                        $lines[] = '  '.$this->yellow('•').' '.$line;
                     } else {
-                        $lines[] = '    ' . $line;
+                        $lines[] = '    '.$line;
                     }
                 }
             }
@@ -365,7 +359,7 @@ class ChangelogFormatter
 
         // Removed
         $removed = $collection->getRemoved();
-        if (!empty($removed)) {
+        if (! empty($removed)) {
             $lines[] = $this->red($this->bold('Removed:'));
             foreach ($removed as $item) {
                 // Format links before wrapping
@@ -373,9 +367,9 @@ class ChangelogFormatter
                 $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
-                        $lines[] = '  ' . $this->red('•') . ' ' . $line;
+                        $lines[] = '  '.$this->red('•').' '.$line;
                     } else {
-                        $lines[] = '    ' . $line;
+                        $lines[] = '    '.$line;
                     }
                 }
             }
@@ -384,7 +378,7 @@ class ChangelogFormatter
 
         // Security
         $security = $collection->getSecurity();
-        if (!empty($security)) {
+        if (! empty($security)) {
             $lines[] = $this->magenta($this->bold('Security:'));
             foreach ($security as $item) {
                 // Format links before wrapping
@@ -392,9 +386,9 @@ class ChangelogFormatter
                 $wrappedLines = $this->wrapText($formattedItem, $maxWidth - 4);
                 foreach ($wrappedLines as $idx => $line) {
                     if ($idx === 0) {
-                        $lines[] = '  ' . $this->magenta('•') . ' ' . $line;
+                        $lines[] = '  '.$this->magenta('•').' '.$line;
                     } else {
-                        $lines[] = '    ' . $line;
+                        $lines[] = '    '.$line;
                     }
                 }
             }
@@ -432,6 +426,7 @@ class ChangelogFormatter
     private function visibleLength(string $text): int
     {
         $stripped = $this->stripAnsiCodes($text);
+
         return mb_strwidth($stripped);
     }
 
@@ -441,8 +436,8 @@ class ChangelogFormatter
      * This method properly handles text that may contain ANSI escape sequences
      * by measuring only the visible characters when determining line breaks.
      *
-     * @param string $text Text to wrap (may contain ANSI codes)
-     * @param int $maxWidth Maximum visible width for each line
+     * @param  string  $text  Text to wrap (may contain ANSI codes)
+     * @param  int  $maxWidth  Maximum visible width for each line
      * @return array<int, string> Array of wrapped lines with ANSI codes preserved
      */
     private function wrapText(string $text, int $maxWidth): array
@@ -458,6 +453,7 @@ class ChangelogFormatter
             // Preserve empty lines
             if (empty(trim($this->stripAnsiCodes($paragraph)))) {
                 $lines[] = '';
+
                 continue;
             }
 
@@ -467,7 +463,7 @@ class ChangelogFormatter
 
             foreach ($words as $word) {
                 // Build test line
-                $testLine = $currentLine === '' ? $word : $currentLine . ' ' . $word;
+                $testLine = $currentLine === '' ? $word : $currentLine.' '.$word;
 
                 // Check visible length (excluding ANSI codes)
                 if ($this->visibleLength($testLine) <= $maxWidth) {
@@ -498,8 +494,8 @@ class ChangelogFormatter
      * Uses OSC 8 escape codes for terminal hyperlink support.
      * The display text is styled with dim color.
      *
-     * @param string $url The full URL to format
-     * @param int $maxWidth Maximum visible width for the URL text
+     * @param  string  $url  The full URL to format
+     * @param  int  $maxWidth  Maximum visible width for the URL text
      * @return string OSC 8 formatted clickable URL with dim styling, truncated if necessary
      */
     private function formatClickableUrl(string $url, int $maxWidth): string
@@ -528,7 +524,7 @@ class ChangelogFormatter
                 $currentWidth += $charWidth;
             }
 
-            $displayText = $truncated . '…';
+            $displayText = $truncated.'…';
         }
 
         // Apply dim styling to display text and wrap in OSC 8 hyperlink codes
@@ -542,7 +538,7 @@ class ChangelogFormatter
      * GitHub PR/issue URLs are displayed in compact format (#123).
      * Note: Links are not clickable in TUI mode, only shortened for readability.
      *
-     * @param string $text Text containing potential markdown links and URLs
+     * @param  string  $text  Text containing potential markdown links and URLs
      * @return string Text with shortened URLs
      */
     private function formatTextWithLinks(string $text): string

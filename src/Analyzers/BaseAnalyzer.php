@@ -20,13 +20,12 @@ abstract class BaseAnalyzer implements AnalyzerInterface
 {
     public function __construct(
         protected readonly RegistryInterface $registry
-    ) {
-    }
+    ) {}
 
     /**
      * Extract package versions from lock file content array.
      *
-     * @param array $lockContent Lock file content as an associative array
+     * @param  array  $lockContent  Lock file content as an associative array
      * @return array<string, string> Package name => version map
      */
     public function extractPackageVersions(array $lockContent): array
@@ -41,8 +40,8 @@ abstract class BaseAnalyzer implements AnalyzerInterface
     /**
      * Calculate the difference between two lock file versions.
      *
-     * @param string $lastLockContent Current/latest lock file content (JSON)
-     * @param string|null $previousLockContent Previous lock file content (JSON), null if no previous version
+     * @param  string  $lastLockContent  Current/latest lock file content (JSON)
+     * @param  string|null  $previousLockContent  Previous lock file content (JSON), null if no previous version
      * @return array Array of package changes with name, from, to versions, and optional metadata
      */
     public function calculateDiff(string $lastLockContent, ?string $previousLockContent): array
@@ -96,10 +95,10 @@ abstract class BaseAnalyzer implements AnalyzerInterface
     /**
      * Get the number of releases between two versions.
      *
-     * @param string $package Package name
-     * @param string $from Starting version
-     * @param string $to Ending version
-     * @param array<string, mixed> $context Additional context (e.g., registry URL)
+     * @param  string  $package  Package name
+     * @param  string  $from  Starting version
+     * @param  string  $to  Ending version
+     * @param  array<string, mixed>  $context  Additional context (e.g., registry URL)
      * @return int|null Number of releases, or null on error
      */
     public function getReleasesCount(string $package, string $from, string $to, array $context = []): ?int
@@ -118,10 +117,10 @@ abstract class BaseAnalyzer implements AnalyzerInterface
      *
      * An advisory is "fixed" if the from-version is affected but the to-version is not.
      *
-     * @param string $package Package name
-     * @param string $from Starting version
-     * @param string $to Ending version
-     * @param array<string, mixed> $context Additional context
+     * @param  string  $package  Package name
+     * @param  string  $from  Starting version
+     * @param  string  $to  Ending version
+     * @param  array<string, mixed>  $context  Additional context
      * @return array<SecurityAdvisory>
      */
     public function getFixedAdvisories(string $package, string $from, string $to, array $context = []): array
@@ -152,7 +151,7 @@ abstract class BaseAnalyzer implements AnalyzerInterface
                 continue;
             }
 
-            if ($fromAffected && !$toAffected) {
+            if ($fromAffected && ! $toAffected) {
                 $fixed[] = $advisory;
             }
         }
@@ -173,7 +172,7 @@ abstract class BaseAnalyzer implements AnalyzerInterface
      *
      * Subclasses must implement this to return their specific lock file parser.
      *
-     * @param string $content Lock file content (JSON)
+     * @param  string  $content  Lock file content (JSON)
      * @return LockFileInterface Lock file parser instance
      */
     abstract protected function createLockFileParser(string $content): LockFileInterface;
@@ -184,9 +183,9 @@ abstract class BaseAnalyzer implements AnalyzerInterface
      * Allows subclasses to add custom fields (e.g., infos_url for private repos).
      * Default implementation returns an empty array.
      *
-     * @param string $packageName Package name
-     * @param array $lastLockArray Current lock file as array
-     * @param array $previousLockArray Previous lock file as array
+     * @param  string  $packageName  Package name
+     * @param  array  $lastLockArray  Current lock file as array
+     * @param  array  $previousLockArray  Previous lock file as array
      * @return array<string, mixed> Additional fields to merge into package diff
      */
     protected function getAdditionalPackageFields(string $packageName, array $lastLockArray, array $previousLockArray): array

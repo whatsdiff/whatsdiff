@@ -29,7 +29,7 @@ enum PackageManagerType: string
     {
         return match ($this) {
             self::COMPOSER => $package ? "https://repo.packagist.org/p2/{$package}.json" : 'https://repo.packagist.org',
-            self::NPM => $package ? "https://registry.npmjs.org/" . urlencode($package) : 'https://registry.npmjs.org',
+            self::NPM => $package ? 'https://registry.npmjs.org/'.urlencode($package) : 'https://registry.npmjs.org',
         };
     }
 
@@ -37,5 +37,4 @@ enum PackageManagerType: string
     {
         return array_map(fn (self $type) => $type->getLockFileName(), self::cases());
     }
-
 }

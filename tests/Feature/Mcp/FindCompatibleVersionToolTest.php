@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Tests\Helpers\McpServerHelper;
 
 beforeEach(function () {
-    $this->mcp = new McpServerHelper();
+    $this->mcp = new McpServerHelper;
     $this->mcp->initialize();
 });
 
@@ -15,10 +15,10 @@ afterEach(function () {
 
 it('can find compatible versions for a composer package', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'phpunit/phpunit',
-        'dependency_package'    => 'php',
+        'package' => 'phpunit/phpunit',
+        'dependency_package' => 'php',
         'dependency_constraint' => '^8.2',
-        'package_manager'       => 'composer',
+        'package_manager' => 'composer',
     ]);
 
     expect($response)
@@ -43,10 +43,10 @@ it('can find compatible versions for a composer package', function () {
 
 it('can find compatible versions for an npm package', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => '@types/node',
-        'dependency_package'    => 'typescript',
+        'package' => '@types/node',
+        'dependency_package' => 'typescript',
         'dependency_constraint' => '^5.0.0',
-        'package_manager'       => 'npm',
+        'package_manager' => 'npm',
     ]);
 
     expect($response)
@@ -66,10 +66,10 @@ it('can find compatible versions for an npm package', function () {
 
 it('returns error for invalid package manager', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'some/package',
-        'dependency_package'    => 'php',
+        'package' => 'some/package',
+        'dependency_package' => 'php',
         'dependency_constraint' => '^8.0',
-        'package_manager'       => 'invalid',
+        'package_manager' => 'invalid',
     ]);
 
     $result = $response['result'];
@@ -83,10 +83,10 @@ it('returns error for invalid package manager', function () {
 
 it('returns error for invalid version constraint', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'symfony/console',
-        'dependency_package'    => 'php',
+        'package' => 'symfony/console',
+        'dependency_package' => 'php',
         'dependency_constraint' => 'not-a-valid-constraint',
-        'package_manager'       => 'composer',
+        'package_manager' => 'composer',
     ]);
 
     $result = $response['result'];
@@ -100,10 +100,10 @@ it('returns error for invalid version constraint', function () {
 
 it('returns error when package is not found', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'nonexistent/package-that-does-not-exist-12345',
-        'dependency_package'    => 'php',
+        'package' => 'nonexistent/package-that-does-not-exist-12345',
+        'dependency_package' => 'php',
         'dependency_constraint' => '^8.0',
-        'package_manager'       => 'composer',
+        'package_manager' => 'composer',
     ]);
 
     $result = $response['result'];
@@ -117,10 +117,10 @@ it('returns error when package is not found', function () {
 
 it('returns empty compatible versions when no matches found', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'symfony/console',
-        'dependency_package'    => 'nonexistent/dependency',
+        'package' => 'symfony/console',
+        'dependency_package' => 'nonexistent/dependency',
         'dependency_constraint' => '^1.0',
-        'package_manager'       => 'composer',
+        'package_manager' => 'composer',
     ]);
 
     $result = $response['result'];
@@ -135,10 +135,10 @@ it('returns empty compatible versions when no matches found', function () {
 
 it('includes example version and requires information for each compatible version', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'laravel/framework',
-        'dependency_package'    => 'php',
+        'package' => 'laravel/framework',
+        'dependency_package' => 'php',
         'dependency_constraint' => '^8.2',
-        'package_manager'       => 'composer',
+        'package_manager' => 'composer',
     ]);
 
     $result = $response['result'];
@@ -161,8 +161,8 @@ it('includes example version and requires information for each compatible versio
 
 it('uses default package manager when not specified', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'symfony/console',
-        'dependency_package'    => 'php',
+        'package' => 'symfony/console',
+        'dependency_package' => 'php',
         'dependency_constraint' => '^8.2',
     ]);
 
@@ -178,10 +178,10 @@ it('uses default package manager when not specified', function () {
 
 it('sorts compatible versions by major version', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'symfony/console',
-        'dependency_package'    => 'php',
+        'package' => 'symfony/console',
+        'dependency_package' => 'php',
         'dependency_constraint' => '^8.0',
-        'package_manager'       => 'composer',
+        'package_manager' => 'composer',
     ]);
 
     $result = $response['result'];
@@ -199,10 +199,10 @@ it('sorts compatible versions by major version', function () {
 
 it('finds livewire versions compatible with illuminate/support', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'livewire/livewire',
-        'dependency_package'    => 'illuminate/support',
+        'package' => 'livewire/livewire',
+        'dependency_package' => 'illuminate/support',
         'dependency_constraint' => '^11.0',
-        'package_manager'       => 'composer',
+        'package_manager' => 'composer',
     ]);
 
     $result = $response['result'];
@@ -225,10 +225,10 @@ it('finds livewire versions compatible with illuminate/support', function () {
 
 it('finds illuminate/support versions compatible with PHP', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'illuminate/support',
-        'dependency_package'    => 'php',
+        'package' => 'illuminate/support',
+        'dependency_package' => 'php',
         'dependency_constraint' => '^8.2',
-        'package_manager'       => 'composer',
+        'package_manager' => 'composer',
     ]);
 
     $result = $response['result'];
@@ -252,10 +252,10 @@ it('finds illuminate/support versions compatible with PHP', function () {
 
 it('finds orchestra/testbench versions compatible with laravel/framework', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
-        'package'               => 'orchestra/testbench',
-        'dependency_package'    => 'laravel/framework',
+        'package' => 'orchestra/testbench',
+        'dependency_package' => 'laravel/framework',
         'dependency_constraint' => '^11.0',
-        'package_manager'       => 'composer',
+        'package_manager' => 'composer',
     ]);
 
     $result = $response['result'];

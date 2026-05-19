@@ -32,13 +32,13 @@ class ReleaseNotesResolver
     /**
      * Resolve release notes by trying each fetcher in sequence.
      *
-     * @param string $package Package name (e.g., "symfony/console")
-     * @param string $fromVersion Starting version (exclusive)
-     * @param string $toVersion Ending version (inclusive)
-     * @param string $repositoryUrl Repository URL (e.g., "https://github.com/symfony/console")
-     * @param PackageManagerType $packageManagerType Package manager type (COMPOSER or NPM)
-     * @param string|null $localPath Local filesystem path to package (vendor/package or node_modules/package)
-     * @param bool $includePrerelease Whether to include pre-release versions
+     * @param  string  $package  Package name (e.g., "symfony/console")
+     * @param  string  $fromVersion  Starting version (exclusive)
+     * @param  string  $toVersion  Ending version (inclusive)
+     * @param  string  $repositoryUrl  Repository URL (e.g., "https://github.com/symfony/console")
+     * @param  PackageManagerType  $packageManagerType  Package manager type (COMPOSER or NPM)
+     * @param  string|null  $localPath  Local filesystem path to package (vendor/package or node_modules/package)
+     * @param  bool  $includePrerelease  Whether to include pre-release versions
      * @return ReleaseNotesCollection|null Release notes collection or null if all fetchers fail
      */
     public function resolve(
@@ -52,7 +52,7 @@ class ReleaseNotesResolver
     ): ?ReleaseNotesCollection {
         foreach ($this->fetchers as $fetcher) {
             // Check if this fetcher supports the source
-            if (!$fetcher->supports($repositoryUrl, $localPath)) {
+            if (! $fetcher->supports($repositoryUrl, $localPath)) {
                 continue;
             }
 
@@ -68,7 +68,7 @@ class ReleaseNotesResolver
             );
 
             // Return the first successful result
-            if ($result !== null && !$result->isEmpty()) {
+            if ($result !== null && ! $result->isEmpty()) {
                 return $result;
             }
         }
