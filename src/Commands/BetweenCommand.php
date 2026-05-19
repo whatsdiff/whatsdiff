@@ -44,7 +44,7 @@ class BetweenCommand extends Command
         // Passthrough the input options to the Analyse command
         $options = array_filter($input->getOptions(), fn ($value) => $value !== null);
         $options = array_combine(
-            keys: array_map(fn ($key) => '--' . $key, array_keys($options)),
+            keys: array_map(fn ($key) => '--'.$key, array_keys($options)),
             values: $options
         );
 

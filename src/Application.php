@@ -56,7 +56,7 @@ class Application extends BaseApplication
      */
     public static function instantiateContainer(): ContainerInterface
     {
-        $container = new Container();
+        $container = new Container;
 
         // Enable autowiring via ReflectionContainer delegate (with caching for performance)
         $container->delegate(new ReflectionContainer(true));

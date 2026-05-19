@@ -11,7 +11,7 @@ use Whatsdiff\Enums\ChangeStatus;
 final readonly class DependencyDiff
 {
     /**
-     * @param Collection<int, PackageChange> $changes
+     * @param  Collection<int, PackageChange>  $changes
      */
     public function __construct(
         public string $filename,
@@ -20,8 +20,7 @@ final readonly class DependencyDiff
         public ?string $toCommit,
         public Collection $changes,
         public bool $isNew = false,
-    ) {
-    }
+    ) {}
 
     public function hasChanges(): bool
     {

@@ -14,8 +14,7 @@ class ReleaseNotesTextOutput
     public function __construct(
         private bool $summary = false,
         private bool $useAnsi = true,
-    ) {
-    }
+    ) {}
 
     public function format(ReleaseNotesCollection $collection, OutputInterface $output): void
     {
@@ -36,7 +35,7 @@ class ReleaseNotesTextOutput
     {
         $output->writeln('');
         $output->writeln($this->colorize('<fg=bright-cyan>Release Notes</>', 'Release Notes'));
-        $output->writeln($this->colorize('<fg=gray>' . str_repeat('─', 80) . '</>', str_repeat('-', 80)));
+        $output->writeln($this->colorize('<fg=gray>'.str_repeat('─', 80).'</>', str_repeat('-', 80)));
         $output->writeln('');
 
         foreach ($collection as $release) {
@@ -49,30 +48,30 @@ class ReleaseNotesTextOutput
     {
         // Release header
         $header = $release->tagName;
-        if (!empty($release->title) && $release->title !== $release->tagName) {
-            $header .= ' - ' . $release->title;
+        if (! empty($release->title) && $release->title !== $release->tagName) {
+            $header .= ' - '.$release->title;
         }
-        $output->writeln($this->colorize('<fg=bright-yellow>' . $header . '</>', $header));
+        $output->writeln($this->colorize('<fg=bright-yellow>'.$header.'</>', $header));
 
         // Date and URL
-        $output->writeln($this->colorize('<fg=gray>Date: ' . $release->date->format('Y-m-d') . '</>', 'Date: ' . $release->date->format('Y-m-d')));
+        $output->writeln($this->colorize('<fg=gray>Date: '.$release->date->format('Y-m-d').'</>', 'Date: '.$release->date->format('Y-m-d')));
         if ($release->url) {
-            $urlText = '<href=' . $release->url . '>' . $release->url . '</>';
-            $output->writeln($this->colorize('<fg=gray>URL: ' . $urlText . '</>', 'URL: ' . $release->url));
+            $urlText = '<href='.$release->url.'>'.$release->url.'</>';
+            $output->writeln($this->colorize('<fg=gray>URL: '.$urlText.'</>', 'URL: '.$release->url));
         }
         $output->writeln('');
 
         // If changelog is not structured, display raw body
-        if (!$release->isStructured()) {
+        if (! $release->isStructured()) {
             $body = $release->getBody();
-            if (!empty($body)) {
+            if (! empty($body)) {
                 $bodyLines = explode("\n", $body);
                 foreach ($bodyLines as $line) {
                     if (trim($line) === '') {
                         $output->writeln('');
                     } else {
                         $formatted = $this->formatTextWithLinks($line);
-                        $output->writeln($this->colorize('<fg=default>' . $formatted . '</>', $line));
+                        $output->writeln($this->colorize('<fg=default>'.$formatted.'</>', $line));
                     }
                 }
                 $output->writeln('');
@@ -88,7 +87,7 @@ class ReleaseNotesTextOutput
                         $output->writeln('');
                     } else {
                         $formatted = $this->formatTextWithLinks($line);
-                        $output->writeln($this->colorize('<fg=default>' . $formatted . '</>', $line));
+                        $output->writeln($this->colorize('<fg=default>'.$formatted.'</>', $line));
                     }
                 }
                 $output->writeln('');
@@ -100,7 +99,7 @@ class ReleaseNotesTextOutput
                 $output->writeln($this->colorize('<fg=bright-red>Breaking Changes:</>', 'Breaking Changes:'));
                 foreach ($breakingChanges as $change) {
                     $formatted = $this->formatTextWithLinks($change);
-                    $output->writeln($this->colorize('  <fg=red>•</> ' . $formatted, '  • ' . $change));
+                    $output->writeln($this->colorize('  <fg=red>•</> '.$formatted, '  • '.$change));
                 }
                 $output->writeln('');
             }
@@ -111,7 +110,7 @@ class ReleaseNotesTextOutput
                 $output->writeln($this->colorize('<fg=bright-green>Changes:</>', 'Changes:'));
                 foreach ($changes as $change) {
                     $formatted = $this->formatTextWithLinks($change);
-                    $output->writeln($this->colorize('  <fg=green>•</> ' . $formatted, '  • ' . $change));
+                    $output->writeln($this->colorize('  <fg=green>•</> '.$formatted, '  • '.$change));
                 }
                 $output->writeln('');
             }
@@ -122,7 +121,7 @@ class ReleaseNotesTextOutput
                 $output->writeln($this->colorize('<fg=bright-blue>Fixes:</>', 'Fixes:'));
                 foreach ($fixes as $fix) {
                     $formatted = $this->formatTextWithLinks($fix);
-                    $output->writeln($this->colorize('  <fg=blue>•</> ' . $formatted, '  • ' . $fix));
+                    $output->writeln($this->colorize('  <fg=blue>•</> '.$formatted, '  • '.$fix));
                 }
                 $output->writeln('');
             }
@@ -133,7 +132,7 @@ class ReleaseNotesTextOutput
                 $output->writeln($this->colorize('<fg=bright-yellow>Deprecated:</>', 'Deprecated:'));
                 foreach ($deprecated as $item) {
                     $formatted = $this->formatTextWithLinks($item);
-                    $output->writeln($this->colorize('  <fg=yellow>•</> ' . $formatted, '  • ' . $item));
+                    $output->writeln($this->colorize('  <fg=yellow>•</> '.$formatted, '  • '.$item));
                 }
                 $output->writeln('');
             }
@@ -144,7 +143,7 @@ class ReleaseNotesTextOutput
                 $output->writeln($this->colorize('<fg=bright-red>Removed:</>', 'Removed:'));
                 foreach ($removed as $item) {
                     $formatted = $this->formatTextWithLinks($item);
-                    $output->writeln($this->colorize('  <fg=red>•</> ' . $formatted, '  • ' . $item));
+                    $output->writeln($this->colorize('  <fg=red>•</> '.$formatted, '  • '.$item));
                 }
                 $output->writeln('');
             }
@@ -155,20 +154,20 @@ class ReleaseNotesTextOutput
                 $output->writeln($this->colorize('<fg=bright-magenta>Security:</>', 'Security:'));
                 foreach ($security as $item) {
                     $formatted = $this->formatTextWithLinks($item);
-                    $output->writeln($this->colorize('  <fg=magenta>•</> ' . $formatted, '  • ' . $item));
+                    $output->writeln($this->colorize('  <fg=magenta>•</> '.$formatted, '  • '.$item));
                 }
                 $output->writeln('');
             }
         }
 
-        $output->writeln($this->colorize('<fg=gray>' . str_repeat('─', 80) . '</>', str_repeat('-', 80)));
+        $output->writeln($this->colorize('<fg=gray>'.str_repeat('─', 80).'</>', str_repeat('-', 80)));
     }
 
     private function formatSummary(ReleaseNotesCollection $collection, OutputInterface $output): void
     {
         $output->writeln('');
         $output->writeln($this->colorize('<fg=bright-cyan>Release Notes Summary</>', 'Release Notes Summary'));
-        $output->writeln($this->colorize('<fg=gray>' . str_repeat('─', 80) . '</>', str_repeat('-', 80)));
+        $output->writeln($this->colorize('<fg=gray>'.str_repeat('─', 80).'</>', str_repeat('-', 80)));
         $output->writeln('');
 
         // Show version range and count
@@ -178,20 +177,21 @@ class ReleaseNotesTextOutput
         $count = $collection->count();
         $releasesInfo = "Changelog of: {$lastTag} → {$firstTag} ({$count} versions)";
 
-        $output->writeln($this->colorize('<fg=gray>' . $releasesInfo . '</>', $releasesInfo));
+        $output->writeln($this->colorize('<fg=gray>'.$releasesInfo.'</>', $releasesInfo));
         $output->writeln('');
 
         // If any release is unstructured, show all bullet points in a flat list
         if ($collection->hasUnstructuredReleases()) {
             $allBulletPoints = $collection->getAllBulletPoints();
-            if (!empty($allBulletPoints)) {
+            if (! empty($allBulletPoints)) {
                 $output->writeln($this->colorize('<fg=bright-green>Changes:</>', 'Changes:'));
                 foreach ($allBulletPoints as $bulletPoint) {
                     $formatted = $this->formatTextWithLinks($bulletPoint);
-                    $output->writeln($this->colorize('  <fg=green>•</> ' . $formatted, '  • ' . $bulletPoint));
+                    $output->writeln($this->colorize('  <fg=green>•</> '.$formatted, '  • '.$bulletPoint));
                 }
                 $output->writeln('');
             }
+
             return;
         }
 
@@ -202,7 +202,7 @@ class ReleaseNotesTextOutput
             $output->writeln($this->colorize('<fg=bright-red>Breaking Changes:</>', 'Breaking Changes:'));
             foreach ($breakingChanges as $change) {
                 $formatted = $this->formatTextWithLinks($change);
-                $output->writeln($this->colorize('  <fg=red>•</> ' . $formatted, '  • ' . $change));
+                $output->writeln($this->colorize('  <fg=red>•</> '.$formatted, '  • '.$change));
             }
             $output->writeln('');
         }
@@ -213,7 +213,7 @@ class ReleaseNotesTextOutput
             $output->writeln($this->colorize('<fg=bright-green>Changes:</>', 'Changes:'));
             foreach ($changes as $change) {
                 $formatted = $this->formatTextWithLinks($change);
-                $output->writeln($this->colorize('  <fg=green>•</> ' . $formatted, '  • ' . $change));
+                $output->writeln($this->colorize('  <fg=green>•</> '.$formatted, '  • '.$change));
             }
             $output->writeln('');
         }
@@ -224,7 +224,7 @@ class ReleaseNotesTextOutput
             $output->writeln($this->colorize('<fg=bright-blue>Fixes:</>', 'Fixes:'));
             foreach ($fixes as $fix) {
                 $formatted = $this->formatTextWithLinks($fix);
-                $output->writeln($this->colorize('  <fg=blue>•</> ' . $formatted, '  • ' . $fix));
+                $output->writeln($this->colorize('  <fg=blue>•</> '.$formatted, '  • '.$fix));
             }
             $output->writeln('');
         }
@@ -235,7 +235,7 @@ class ReleaseNotesTextOutput
             $output->writeln($this->colorize('<fg=bright-yellow>Deprecated:</>', 'Deprecated:'));
             foreach ($deprecated as $item) {
                 $formatted = $this->formatTextWithLinks($item);
-                $output->writeln($this->colorize('  <fg=yellow>•</> ' . $formatted, '  • ' . $item));
+                $output->writeln($this->colorize('  <fg=yellow>•</> '.$formatted, '  • '.$item));
             }
             $output->writeln('');
         }
@@ -246,7 +246,7 @@ class ReleaseNotesTextOutput
             $output->writeln($this->colorize('<fg=bright-red>Removed:</>', 'Removed:'));
             foreach ($removed as $item) {
                 $formatted = $this->formatTextWithLinks($item);
-                $output->writeln($this->colorize('  <fg=red>•</> ' . $formatted, '  • ' . $item));
+                $output->writeln($this->colorize('  <fg=red>•</> '.$formatted, '  • '.$item));
             }
             $output->writeln('');
         }
@@ -257,7 +257,7 @@ class ReleaseNotesTextOutput
             $output->writeln($this->colorize('<fg=bright-magenta>Security:</>', 'Security:'));
             foreach ($security as $item) {
                 $formatted = $this->formatTextWithLinks($item);
-                $output->writeln($this->colorize('  <fg=magenta>•</> ' . $formatted, '  • ' . $item));
+                $output->writeln($this->colorize('  <fg=magenta>•</> '.$formatted, '  • '.$item));
             }
             $output->writeln('');
         }

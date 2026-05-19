@@ -18,8 +18,8 @@ it('includes only composer dependencies with --include=composer', function () {
     $packageLock = generatePackageLock(['lodash' => '4.17.20']);
 
     // Create initial commits
-    file_put_contents($this->tempDir . '/composer.lock', $composerLock);
-    file_put_contents($this->tempDir . '/package-lock.json', $packageLock);
+    file_put_contents($this->tempDir.'/composer.lock', $composerLock);
+    file_put_contents($this->tempDir.'/package-lock.json', $packageLock);
     runCommand('git add .');
     runCommand('git commit -m "Initial dependencies"');
     $firstCommit = trim(runCommand('git rev-parse HEAD'));
@@ -28,14 +28,14 @@ it('includes only composer dependencies with --include=composer', function () {
     $composerLock = generateComposerLock(['symfony/console' => 'v6.0.0']);
     $packageLock = generatePackageLock(['lodash' => '4.17.21']);
 
-    file_put_contents($this->tempDir . '/composer.lock', $composerLock);
-    file_put_contents($this->tempDir . '/package-lock.json', $packageLock);
+    file_put_contents($this->tempDir.'/composer.lock', $composerLock);
+    file_put_contents($this->tempDir.'/package-lock.json', $packageLock);
     runCommand('git add .');
     runCommand('git commit -m "Update dependencies"');
     $secondCommit = trim(runCommand('git rev-parse HEAD'));
 
     // Test with --include=composer
-    $process = runWhatsDiff(['analyse', '--from=' . $firstCommit, '--to=' . $secondCommit, '--include=composer'], $this->tempDir);
+    $process = runWhatsDiff(['analyse', '--from='.$firstCommit, '--to='.$secondCommit, '--include=composer'], $this->tempDir);
     expect($process->getExitCode())->toBe(Command::SUCCESS);
     expect($process->getOutput())->toContain('symfony/console'); // Should include Composer package
     expect($process->getOutput())->not->toContain('lodash'); // Should not include npm package
@@ -47,8 +47,8 @@ it('includes only npm dependencies with --include=npmjs', function () {
     $packageLock = generatePackageLock(['react' => '17.0.0']);
 
     // Create initial commits
-    file_put_contents($this->tempDir . '/composer.lock', $composerLock);
-    file_put_contents($this->tempDir . '/package-lock.json', $packageLock);
+    file_put_contents($this->tempDir.'/composer.lock', $composerLock);
+    file_put_contents($this->tempDir.'/package-lock.json', $packageLock);
     runCommand('git add .');
     runCommand('git commit -m "Initial dependencies"');
     $firstCommit = trim(runCommand('git rev-parse HEAD'));
@@ -57,14 +57,14 @@ it('includes only npm dependencies with --include=npmjs', function () {
     $composerLockUpdated = generateComposerLock(['laravel/framework' => 'v10.0.0']);
     $packageLockUpdated = generatePackageLock(['react' => '18.0.0']);
 
-    file_put_contents($this->tempDir . '/composer.lock', $composerLockUpdated);
-    file_put_contents($this->tempDir . '/package-lock.json', $packageLockUpdated);
+    file_put_contents($this->tempDir.'/composer.lock', $composerLockUpdated);
+    file_put_contents($this->tempDir.'/package-lock.json', $packageLockUpdated);
     runCommand('git add .');
     runCommand('git commit -m "Update dependencies"');
     $secondCommit = trim(runCommand('git rev-parse HEAD'));
 
     // Test with --include=npmjs
-    $process = runWhatsDiff(['analyse', '--from=' . $firstCommit, '--to=' . $secondCommit, '--include=npmjs'], $this->tempDir);
+    $process = runWhatsDiff(['analyse', '--from='.$firstCommit, '--to='.$secondCommit, '--include=npmjs'], $this->tempDir);
 
     expect($process->getExitCode())->toBe(Command::SUCCESS);
     expect($process->getOutput())->toContain('react'); // Should include npm package
@@ -77,8 +77,8 @@ it('excludes composer dependencies with --exclude=composer', function () {
     $packageLock = generatePackageLock(['axios' => '0.27.0']);
 
     // Create initial commits
-    file_put_contents($this->tempDir . '/composer.lock', $composerLock);
-    file_put_contents($this->tempDir . '/package-lock.json', $packageLock);
+    file_put_contents($this->tempDir.'/composer.lock', $composerLock);
+    file_put_contents($this->tempDir.'/package-lock.json', $packageLock);
     runCommand('git add .');
     runCommand('git commit -m "Initial dependencies"');
     $firstCommit = trim(runCommand('git rev-parse HEAD'));
@@ -87,14 +87,14 @@ it('excludes composer dependencies with --exclude=composer', function () {
     $composerLockUpdated = generateComposerLock(['monolog/monolog' => '3.0.0']);
     $packageLockUpdated = generatePackageLock(['axios' => '1.0.0']);
 
-    file_put_contents($this->tempDir . '/composer.lock', $composerLockUpdated);
-    file_put_contents($this->tempDir . '/package-lock.json', $packageLockUpdated);
+    file_put_contents($this->tempDir.'/composer.lock', $composerLockUpdated);
+    file_put_contents($this->tempDir.'/package-lock.json', $packageLockUpdated);
     runCommand('git add .');
     runCommand('git commit -m "Update dependencies"');
     $secondCommit = trim(runCommand('git rev-parse HEAD'));
 
     // Test with --exclude=composer
-    $process = runWhatsDiff(['analyse', '--from=' . $firstCommit, '--to=' . $secondCommit, '--exclude=composer'], $this->tempDir);
+    $process = runWhatsDiff(['analyse', '--from='.$firstCommit, '--to='.$secondCommit, '--exclude=composer'], $this->tempDir);
 
     expect($process->getExitCode())->toBe(Command::SUCCESS);
     expect($process->getOutput())->toContain('axios'); // Should include npm package
@@ -120,7 +120,7 @@ it('supports npm alias with --include=npm', function () {
     ];
 
     // Create initial commit
-    file_put_contents($this->tempDir . '/package-lock.json', json_encode($packageLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/package-lock.json', json_encode($packageLock, JSON_PRETTY_PRINT));
     runCommand('git add .');
     runCommand('git commit -m "Initial npm dependencies"');
     $firstCommit = trim(runCommand('git rev-parse HEAD'));
@@ -128,13 +128,13 @@ it('supports npm alias with --include=npm', function () {
     // Update npm package
     $packageLock['packages']['node_modules/vue']['version'] = '3.3.0';
 
-    file_put_contents($this->tempDir . '/package-lock.json', json_encode($packageLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/package-lock.json', json_encode($packageLock, JSON_PRETTY_PRINT));
     runCommand('git add .');
     runCommand('git commit -m "Update vue"');
     $secondCommit = trim(runCommand('git rev-parse HEAD'));
 
     // Test with --include=npm (alias for npmjs)
-    $process = runWhatsDiff(['analyse', '--from=' . $firstCommit, '--to=' . $secondCommit, '--include=npm'], $this->tempDir);
+    $process = runWhatsDiff(['analyse', '--from='.$firstCommit, '--to='.$secondCommit, '--include=npm'], $this->tempDir);
 
     expect($process->getExitCode())->toBe(Command::SUCCESS);
     expect($process->getOutput())->toContain('vue'); // Should include npm package
@@ -142,7 +142,7 @@ it('supports npm alias with --include=npm', function () {
 
 it('fails when both --include and --exclude are provided', function () {
     // Create minimal git repository
-    file_put_contents($this->tempDir . '/composer.lock', '{}');
+    file_put_contents($this->tempDir.'/composer.lock', '{}');
     runCommand('git add composer.lock');
     runCommand('git commit -m "Initial commit"');
 
@@ -150,12 +150,12 @@ it('fails when both --include and --exclude are provided', function () {
     $process = runWhatsDiff(['analyse', '--include=composer', '--exclude=npmjs'], $this->tempDir);
 
     expect($process->getExitCode())->toBe(Command::FAILURE);
-    expect($process->getOutput() . $process->getErrorOutput())->toContain('Cannot use both --include and --exclude options');
+    expect($process->getOutput().$process->getErrorOutput())->toContain('Cannot use both --include and --exclude options');
 });
 
 it('fails with invalid package manager type', function () {
     // Create minimal git repository
-    file_put_contents($this->tempDir . '/composer.lock', '{}');
+    file_put_contents($this->tempDir.'/composer.lock', '{}');
     runCommand('git add composer.lock');
     runCommand('git commit -m "Initial commit"');
 
@@ -163,6 +163,6 @@ it('fails with invalid package manager type', function () {
     $process = runWhatsDiff(['analyse', '--include=invalid'], $this->tempDir);
 
     expect($process->getExitCode())->toBe(Command::FAILURE);
-    expect($process->getOutput() . $process->getErrorOutput())->toContain('Invalid package manager type');
-    expect($process->getOutput() . $process->getErrorOutput())->toContain('Valid types: composer, npmjs');
+    expect($process->getOutput().$process->getErrorOutput())->toContain('Invalid package manager type');
+    expect($process->getOutput().$process->getErrorOutput())->toContain('Valid types: composer, npmjs');
 });

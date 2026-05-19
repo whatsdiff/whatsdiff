@@ -15,8 +15,7 @@ class GetDependencyConstraintsTool
     public function __construct(
         private PackagistRegistry $packagistRegistry,
         private NpmRegistry $npmRegistry
-    ) {
-    }
+    ) {}
 
     #[McpTool(
         name: 'get_dependency_constraints',
@@ -41,7 +40,7 @@ class GetDependencyConstraintsTool
 
         // Normalize version (remove 'v' prefix for searching)
         $searchVersion = ltrim($version, 'vV');
-        $vVersion = 'v' . $searchVersion;
+        $vVersion = 'v'.$searchVersion;
 
         // Fetch package metadata
         try {

@@ -8,13 +8,13 @@ use Whatsdiff\Data\ReleaseNotesCollection;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesMarkdownOutput;
 
 it('formats empty collection as markdown', function () {
-    $collection = new ReleaseNotesCollection();
-    $output = new BufferedOutput();
-    $formatter = new ReleaseNotesMarkdownOutput();
+    $collection = new ReleaseNotesCollection;
+    $output = new BufferedOutput;
+    $formatter = new ReleaseNotesMarkdownOutput;
 
     $formatter->format($collection, $output);
 
-    expect($output->fetch())->toBe('No release notes available.' . PHP_EOL);
+    expect($output->fetch())->toBe('No release notes available.'.PHP_EOL);
 });
 
 it('formats detailed markdown output', function () {
@@ -27,7 +27,7 @@ it('formats detailed markdown output', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -56,7 +56,7 @@ it('formats summarized markdown output', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesMarkdownOutput(summary: true);
 
     $formatter->format($collection, $output);
@@ -90,7 +90,7 @@ it('formats multiple releases in detailed mode', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -108,12 +108,12 @@ it('converts GitHub PR URLs to compact markdown links in detailed mode', functio
     $release = new ReleaseNote(
         tagName: 'v1.0.0',
         title: 'Release',
-        body: "Fix bug in https://github.com/laravel/framework/pull/57207",
+        body: 'Fix bug in https://github.com/laravel/framework/pull/57207',
         date: new DateTimeImmutable('2024-01-15')
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -128,12 +128,12 @@ it('converts GitHub issue URLs to compact markdown links in detailed mode', func
     $release = new ReleaseNote(
         tagName: 'v1.0.0',
         title: 'Release',
-        body: "Resolves https://github.com/symfony/symfony/issues/12345",
+        body: 'Resolves https://github.com/symfony/symfony/issues/12345',
         date: new DateTimeImmutable('2024-01-15')
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -153,7 +153,7 @@ it('converts GitHub URLs in summary mode', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesMarkdownOutput(summary: true);
 
     $formatter->format($collection, $output);
@@ -168,12 +168,12 @@ it('preserves existing markdown links with GitHub URLs', function () {
     $release = new ReleaseNote(
         tagName: 'v1.0.0',
         title: 'Release',
-        body: "[Add feature](https://github.com/owner/repo/pull/123) by @author",
+        body: '[Add feature](https://github.com/owner/repo/pull/123) by @author',
         date: new DateTimeImmutable('2024-01-15')
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -189,12 +189,12 @@ it('keeps non-GitHub URLs unchanged', function () {
     $release = new ReleaseNote(
         tagName: 'v1.0.0',
         title: 'Release',
-        body: "See https://laravel-news.com/article for details",
+        body: 'See https://laravel-news.com/article for details',
         date: new DateTimeImmutable('2024-01-15')
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);

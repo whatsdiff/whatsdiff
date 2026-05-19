@@ -12,7 +12,7 @@ beforeEach(function () {
     $this->tempDir = initTempDirectory();
 
     // Create a mock HttpService that returns fake package data
-    $this->mockHttpService = new MockHttpService();
+    $this->mockHttpService = new MockHttpService;
 });
 
 afterEach(function () {
@@ -97,7 +97,7 @@ it('handles private composer packages with authentication', function () {
 
     try {
         // Create container with autowiring and test service provider that mocks only HttpService
-        $container = new Container();
+        $container = new Container;
         $container->delegate(new ReflectionContainer(true));
         (new TestServiceProvider($this->mockHttpService))->register($container);
 
@@ -159,7 +159,7 @@ it('handles private packages without authentication gracefully', function () {
     chdir($this->tempDir);
 
     try {
-        $container = new Container();
+        $container = new Container;
         $container->delegate(new ReflectionContainer(true));
         (new TestServiceProvider($this->mockHttpService))->register($container);
 
@@ -202,7 +202,7 @@ it('prioritizes local auth.json over global auth.json', function () {
     ]);
 
     // Configure mock HTTP service to verify auth headers are passed correctly
-    $authAwareHttpService = new MockHttpService();
+    $authAwareHttpService = new MockHttpService;
     $authAwareHttpService->setResponse('https://composer.fluxui.dev/p2/livewire/flux-pro.json', $mockResponse);
 
     // Create local auth.json that should be prioritized
@@ -234,7 +234,7 @@ it('prioritizes local auth.json over global auth.json', function () {
     chdir($this->tempDir);
 
     try {
-        $container = new Container();
+        $container = new Container;
         $container->delegate(new ReflectionContainer(true));
         (new TestServiceProvider($authAwareHttpService))->register($container);
 

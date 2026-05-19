@@ -24,6 +24,7 @@ class ConfigCommand extends Command
     ) {
         parent::__construct();
     }
+
     protected function configure(): void
     {
         $this
@@ -37,8 +38,7 @@ class ConfigCommand extends Command
                 'value',
                 InputArgument::OPTIONAL,
                 'Value to set'
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -50,6 +50,7 @@ class ConfigCommand extends Command
         if ($key === null) {
             $config = $this->configService->getAll();
             $output->writeln(Yaml::dump($config, 4, 2));
+
             return Command::SUCCESS;
         }
 
@@ -59,6 +60,7 @@ class ConfigCommand extends Command
 
             if ($configValue === null) {
                 $output->writeln("<error>Configuration key '{$key}' not found</error>");
+
                 return Command::FAILURE;
             }
 
@@ -95,6 +97,7 @@ class ConfigCommand extends Command
             if (strpos($value, '.') !== false) {
                 return (float) $value;
             }
+
             return (int) $value;
         }
 

@@ -22,12 +22,11 @@ class TestServiceProvider
 {
     public function __construct(
         private readonly HttpService $mockHttpService
-    ) {
-    }
+    ) {}
 
     public function register(ContainerInterface $container): void
     {
-        if (!$container instanceof Container) {
+        if (! $container instanceof Container) {
             throw new \InvalidArgumentException('Container must be an instance of League\Container\Container');
         }
 

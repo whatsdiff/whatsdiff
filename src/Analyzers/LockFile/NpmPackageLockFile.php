@@ -16,12 +16,13 @@ use Illuminate\Support\Collection;
 class NpmPackageLockFile implements LockFileInterface
 {
     private array $lockData;
+
     private Collection $packages;
 
     /**
      * Create a new parser and parse the lock file content.
      *
-     * @param string $lockFileContent Raw package-lock.json content (JSON)
+     * @param  string  $lockFileContent  Raw package-lock.json content (JSON)
      */
     public function __construct(string $lockFileContent)
     {
@@ -42,7 +43,7 @@ class NpmPackageLockFile implements LockFileInterface
     /**
      * Get version for a specific package.
      *
-     * @param string $package Package name
+     * @param  string  $package  Package name
      * @return string|null Version or null if package not found
      */
     public function getVersion(string $package): ?string
@@ -53,7 +54,7 @@ class NpmPackageLockFile implements LockFileInterface
     /**
      * Get repository URL for a specific package.
      *
-     * @param string $package Package name
+     * @param  string  $package  Package name
      * @return string|null Repository URL or null if not found
      */
     public function getRepositoryUrl(string $package): ?string
@@ -79,7 +80,7 @@ class NpmPackageLockFile implements LockFileInterface
     private function parsePackages(): Collection
     {
         $packages = collect($this->lockData['packages'] ?? [])
-            ->filter(fn ($package, $key) => !empty($key) && !empty($package['version']));
+            ->filter(fn ($package, $key) => ! empty($key) && ! empty($package['version']));
 
         return $packages->mapWithKeys(function ($package, $key) {
             $packageName = str_replace('node_modules/', '', $key);
@@ -94,6 +95,6 @@ class NpmPackageLockFile implements LockFileInterface
             }
 
             return [$packageName => $data];
-        })->filter(fn ($data, $name) => !empty($name));
+        })->filter(fn ($data, $name) => ! empty($name));
     }
 }

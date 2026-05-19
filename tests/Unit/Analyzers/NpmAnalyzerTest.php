@@ -168,7 +168,6 @@ it('gets releases count successfully', function () {
     expect($result)->toBe(6);
 });
 
-
 it('handles scoped packages correctly', function () {
     $packageLockContent = [
         'packages' => [

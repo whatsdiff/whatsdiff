@@ -28,11 +28,12 @@ class PackagistRegistry implements RegistryInterface
     /**
      * Get complete package metadata from Packagist.
      *
-     * @param string $package Package name
-     * @param array<string, mixed> $options Options may include:
-     *   - 'url': Custom registry URL (for private repositories)
-     *   - 'auth': Array with 'username' and 'password' for http-basic auth
+     * @param  string  $package  Package name
+     * @param  array<string, mixed>  $options  Options may include:
+     *                                         - 'url': Custom registry URL (for private repositories)
+     *                                         - 'auth': Array with 'username' and 'password' for http-basic auth
      * @return array<string, mixed> Package metadata
+     *
      * @throws PackageInformationsException If package cannot be fetched
      */
     public function getPackageMetadata(string $package, array $options = []): array
@@ -46,7 +47,7 @@ class PackagistRegistry implements RegistryInterface
             $httpOptions = $authOptions['options'];
 
             // Load auth from auth.json if not explicitly provided
-            if (!isset($options['auth']) && empty($httpOptions['auth'])) {
+            if (! isset($options['auth']) && empty($httpOptions['auth'])) {
                 $authJson = $this->loadAuthJson();
                 $domain = parse_url($cleanUrl, PHP_URL_HOST);
 
@@ -63,7 +64,7 @@ class PackagistRegistry implements RegistryInterface
             $response = $this->httpService->get($cleanUrl, $httpOptions);
         } catch (\Exception $e) {
             throw new PackageInformationsException(
-                "Failed to fetch package information for {$package}: " . $e->getMessage()
+                "Failed to fetch package information for {$package}: ".$e->getMessage()
             );
         }
 
@@ -81,18 +82,19 @@ class PackagistRegistry implements RegistryInterface
     /**
      * Get versions of a package between two version constraints.
      *
-     * @param string $package Package name
-     * @param string $from Starting version (exclusive)
-     * @param string $to Ending version (inclusive)
-     * @param array<string, mixed> $options Options (see getPackageMetadata)
+     * @param  string  $package  Package name
+     * @param  string  $from  Starting version (exclusive)
+     * @param  string  $to  Ending version (inclusive)
+     * @param  array<string, mixed>  $options  Options (see getPackageMetadata)
      * @return array<int, string> Array of version strings
+     *
      * @throws PackageInformationsException If package cannot be fetched
      */
     public function getVersions(string $package, string $from, string $to, array $options = []): array
     {
         $packageData = $this->getPackageMetadata($package, $options);
 
-        if (!isset($packageData['packages'][$package])) {
+        if (! isset($packageData['packages'][$package])) {
             return [];
         }
 
@@ -113,8 +115,8 @@ class PackagistRegistry implements RegistryInterface
     /**
      * Get repository URL for a package from Packagist.
      *
-     * @param string $package Package name
-     * @param array<string, mixed> $options Options (see getPackageMetadata)
+     * @param  string  $package  Package name
+     * @param  array<string, mixed>  $options  Options (see getPackageMetadata)
      * @return string|null Repository URL or null if not available
      */
     public function getRepositoryUrl(string $package, array $options = []): ?string
@@ -125,7 +127,7 @@ class PackagistRegistry implements RegistryInterface
             return null;
         }
 
-        if (!isset($packageData['packages'][$package])) {
+        if (! isset($packageData['packages'][$package])) {
             return null;
         }
 
@@ -161,8 +163,8 @@ class PackagistRegistry implements RegistryInterface
      *
      * Uses the Packagist Security Advisories API which supports batch queries.
      *
-     * @param array<string> $packages Package names
-     * @param array<string, mixed> $options Additional options
+     * @param  array<string>  $packages  Package names
+     * @param  array<string, mixed>  $options  Additional options
      * @return array<string, array<SecurityAdvisory>> Advisories indexed by package name
      */
     public function getSecurityAdvisories(array $packages, array $options = []): array
@@ -172,11 +174,11 @@ class PackagistRegistry implements RegistryInterface
         }
 
         $queryParams = implode('&', array_map(
-            fn (string $pkg) => 'packages[]=' . urlencode($pkg),
+            fn (string $pkg) => 'packages[]='.urlencode($pkg),
             $packages
         ));
 
-        $url = 'https://packagist.org/api/security-advisories/?' . $queryParams;
+        $url = 'https://packagist.org/api/security-advisories/?'.$queryParams;
 
         try {
             $response = $this->httpService->get($url);
@@ -186,7 +188,7 @@ class PackagistRegistry implements RegistryInterface
 
         $data = json_decode($response, true);
 
-        if ($data === null || !isset($data['advisories'])) {
+        if ($data === null || ! isset($data['advisories'])) {
             return [];
         }
 
@@ -217,7 +219,7 @@ class PackagistRegistry implements RegistryInterface
      * - https://api.github.com/repos/owner/repo/zipball/ref -> https://github.com/owner/repo
      * - https://api.github.com/repos/owner/repo/tarball/ref -> https://github.com/owner/repo
      *
-     * @param string $url URL to normalize
+     * @param  string  $url  URL to normalize
      * @return string Clean repository URL
      */
     private function normalizeRepositoryUrl(string $url): string
@@ -246,7 +248,7 @@ class PackagistRegistry implements RegistryInterface
     /**
      * Extract repository URL from GitHub issues URL.
      *
-     * @param string|null $issuesUrl Issues URL (e.g., https://github.com/owner/repo/issues)
+     * @param  string|null  $issuesUrl  Issues URL (e.g., https://github.com/owner/repo/issues)
      * @return string|null Repository URL or null
      */
     private function extractRepoFromIssuesUrl(?string $issuesUrl): ?string
@@ -267,7 +269,7 @@ class PackagistRegistry implements RegistryInterface
     /**
      * Extract authentication credentials from URL.
      *
-     * @param string $url URL that may contain credentials
+     * @param  string  $url  URL that may contain credentials
      * @return array{url: string, options: array<string, mixed>} Clean URL and extracted options
      */
     private function extractAuthFromUrl(string $url): array
@@ -282,17 +284,17 @@ class PackagistRegistry implements RegistryInterface
             ];
 
             // Rebuild URL without auth
-            $cleanUrl = $parsedUrl['scheme'] . '://';
+            $cleanUrl = $parsedUrl['scheme'].'://';
             $cleanUrl .= $parsedUrl['host'];
             if (isset($parsedUrl['port'])) {
-                $cleanUrl .= ':' . $parsedUrl['port'];
+                $cleanUrl .= ':'.$parsedUrl['port'];
             }
             $cleanUrl .= $parsedUrl['path'] ?? '';
             if (isset($parsedUrl['query'])) {
-                $cleanUrl .= '?' . $parsedUrl['query'];
+                $cleanUrl .= '?'.$parsedUrl['query'];
             }
             if (isset($parsedUrl['fragment'])) {
-                $cleanUrl .= '#' . $parsedUrl['fragment'];
+                $cleanUrl .= '#'.$parsedUrl['fragment'];
             }
 
             return ['url' => $cleanUrl, 'options' => $options];
@@ -311,10 +313,10 @@ class PackagistRegistry implements RegistryInterface
     private function loadAuthJson(): array
     {
         $currentDir = getcwd() ?: '';
-        $localAuthPath = $currentDir . DIRECTORY_SEPARATOR . 'auth.json';
+        $localAuthPath = $currentDir.DIRECTORY_SEPARATOR.'auth.json';
 
         $HOME = getenv('HOME') ?: getenv('USERPROFILE');
-        $globalAuthPath = $HOME . DIRECTORY_SEPARATOR . '.composer/auth.json';
+        $globalAuthPath = $HOME.DIRECTORY_SEPARATOR.'.composer/auth.json';
 
         $localAuth = [];
         $globalAuth = [];

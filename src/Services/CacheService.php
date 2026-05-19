@@ -11,14 +11,17 @@ use Symfony\Component\Filesystem\Filesystem;
 class CacheService
 {
     private CacheItemPoolInterface $cache;
+
     private ConfigService $config;
+
     private Filesystem $filesystem;
+
     private bool $forceDisabled = false;
 
     public function __construct(ConfigService $config, ?string $cacheDir = null)
     {
         $this->config = $config;
-        $this->filesystem = new Filesystem();
+        $this->filesystem = new Filesystem;
 
         $cacheDirectory = $cacheDir ?? $this->getDefaultCacheDir();
         $this->ensureCacheDirectoryExists($cacheDirectory);
@@ -32,7 +35,7 @@ class CacheService
 
     public function get(string $key, callable $callback): mixed
     {
-        if (!$this->isCacheEnabled()) {
+        if (! $this->isCacheEnabled()) {
             return $callback();
         }
 
@@ -55,7 +58,7 @@ class CacheService
 
     public function set(string $key, mixed $value, ?int $ttl = null): void
     {
-        if (!$this->isCacheEnabled()) {
+        if (! $this->isCacheEnabled()) {
             return;
         }
 
@@ -154,16 +157,16 @@ class CacheService
     private function getDefaultCacheDir(): string
     {
         $home = getenv('HOME') ?: getenv('USERPROFILE');
-        if (!$home) {
+        if (! $home) {
             throw new \RuntimeException('Cannot determine home directory');
         }
 
-        return $home . DIRECTORY_SEPARATOR . '.whatsdiff' . DIRECTORY_SEPARATOR . 'cache';
+        return $home.DIRECTORY_SEPARATOR.'.whatsdiff'.DIRECTORY_SEPARATOR.'cache';
     }
 
     private function ensureCacheDirectoryExists(string $directory): void
     {
-        if (!$this->filesystem->exists($directory)) {
+        if (! $this->filesystem->exists($directory)) {
             $this->filesystem->mkdir($directory, 0755);
         }
     }

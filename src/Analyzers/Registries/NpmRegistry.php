@@ -28,10 +28,11 @@ class NpmRegistry implements RegistryInterface
     /**
      * Get complete package metadata from npm registry.
      *
-     * @param string $package Package name
-     * @param array<string, mixed> $options Options may include:
-     *   - 'url': Custom registry URL (for private registries)
+     * @param  string  $package  Package name
+     * @param  array<string, mixed>  $options  Options may include:
+     *                                         - 'url': Custom registry URL (for private registries)
      * @return array<string, mixed> Package metadata
+     *
      * @throws PackageInformationsException If package cannot be fetched
      */
     public function getPackageMetadata(string $package, array $options = []): array
@@ -42,7 +43,7 @@ class NpmRegistry implements RegistryInterface
             $response = $this->httpService->get($url);
         } catch (\Exception $e) {
             throw new PackageInformationsException(
-                "Failed to fetch package information for {$package}: " . $e->getMessage()
+                "Failed to fetch package information for {$package}: ".$e->getMessage()
             );
         }
 
@@ -60,18 +61,19 @@ class NpmRegistry implements RegistryInterface
     /**
      * Get versions of a package between two version constraints.
      *
-     * @param string $package Package name
-     * @param string $from Starting version (exclusive)
-     * @param string $to Ending version (inclusive)
-     * @param array<string, mixed> $options Options (see getPackageMetadata)
+     * @param  string  $package  Package name
+     * @param  string  $from  Starting version (exclusive)
+     * @param  string  $to  Ending version (inclusive)
+     * @param  array<string, mixed>  $options  Options (see getPackageMetadata)
      * @return array<int, string> Array of version strings
+     *
      * @throws PackageInformationsException If package cannot be fetched
      */
     public function getVersions(string $package, string $from, string $to, array $options = []): array
     {
         $packageData = $this->getPackageMetadata($package, $options);
 
-        if (!isset($packageData['versions'])) {
+        if (! isset($packageData['versions'])) {
             return [];
         }
 
@@ -92,8 +94,8 @@ class NpmRegistry implements RegistryInterface
     /**
      * Get repository URL for a package from npm registry.
      *
-     * @param string $package Package name
-     * @param array<string, mixed> $options Options (see getPackageMetadata)
+     * @param  string  $package  Package name
+     * @param  array<string, mixed>  $options  Options (see getPackageMetadata)
      * @return string|null Repository URL or null if not available
      */
     public function getRepositoryUrl(string $package, array $options = []): ?string
@@ -121,8 +123,8 @@ class NpmRegistry implements RegistryInterface
      *
      * Uses the GitHub Advisory Database API for npm ecosystem advisories.
      *
-     * @param array<string> $packages Package names
-     * @param array<string, mixed> $options Additional options
+     * @param  array<string>  $packages  Package names
+     * @param  array<string, mixed>  $options  Additional options
      * @return array<string, array<SecurityAdvisory>> Advisories indexed by package name
      */
     public function getSecurityAdvisories(array $packages, array $options = []): array
@@ -130,7 +132,7 @@ class NpmRegistry implements RegistryInterface
         $result = [];
 
         foreach ($packages as $package) {
-            $url = 'https://api.github.com/advisories?affects=' . urlencode($package) . '&ecosystem=npm';
+            $url = 'https://api.github.com/advisories?affects='.urlencode($package).'&ecosystem=npm';
 
             try {
                 $response = $this->httpService->get($url);
@@ -140,7 +142,7 @@ class NpmRegistry implements RegistryInterface
 
             $advisories = json_decode($response, true);
 
-            if (!is_array($advisories)) {
+            if (! is_array($advisories)) {
                 continue;
             }
 
@@ -178,7 +180,7 @@ class NpmRegistry implements RegistryInterface
      * - "git://github.com/user/repo.git"
      * - "https://github.com/user/repo"
      *
-     * @param string $url Repository URL from npm
+     * @param  string  $url  Repository URL from npm
      * @return string Normalized HTTPS URL
      */
     private function normalizeRepositoryUrl(string $url): string

@@ -10,8 +10,8 @@ use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesFetcherInterface;
 use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
-use Whatsdiff\Services\HttpService;
 use Whatsdiff\Helpers\VersionNormalizer;
+use Whatsdiff\Services\HttpService;
 
 /**
  * Fetches release notes from GitHub Releases API.
@@ -22,8 +22,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
 
     public function __construct(
         private HttpService $httpService
-    ) {
-    }
+    ) {}
 
     public function fetch(
         string $package,
@@ -70,9 +69,9 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
      * Fetch all releases from GitHub API, handling pagination.
      * Stops fetching when we've gone past the fromVersion (optimization).
      *
-     * @param string $owner Repository owner
-     * @param string $repo Repository name
-     * @param string $fromVersion Starting version (to optimize pagination)
+     * @param  string  $owner  Repository owner
+     * @param  string  $repo  Repository name
+     * @param  string  $fromVersion  Starting version (to optimize pagination)
      * @return array<int, mixed> All releases from the API
      */
     private function fetchAllReleases(string $owner, string $repo, string $fromVersion): array
@@ -83,7 +82,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
         $normalizedFrom = VersionNormalizer::normalize($fromVersion);
 
         while (true) {
-            $apiUrl = self::GITHUB_API_URL . "/repos/{$owner}/{$repo}/releases?per_page={$perPage}&page={$page}";
+            $apiUrl = self::GITHUB_API_URL."/repos/{$owner}/{$repo}/releases?per_page={$perPage}&page={$page}";
             $responseData = $this->httpService->getWithHeaders($apiUrl, [
                 'headers' => [
                     'Accept' => 'application/vnd.github+json',
@@ -92,7 +91,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
 
             $releases = json_decode($responseData['body'], true);
 
-            if (!is_array($releases) || empty($releases)) {
+            if (! is_array($releases) || empty($releases)) {
                 // No more releases
                 break;
             }
@@ -117,7 +116,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
                     $releaseMajor = (int) explode('.', $version)[0];
 
                     // Only use same-major-version releases for the stop decision
-                    if ($releaseMajor === $fromMajor && !Comparator::greaterThan($version, $normalizedFrom)) {
+                    if ($releaseMajor === $fromMajor && ! Comparator::greaterThan($version, $normalizedFrom)) {
                         $foundStopCondition = true;
                         break;
                     }
@@ -134,6 +133,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
             // If we got a full page, there might be more releases on the next page
             if (count($releases) === $perPage) {
                 $page++;
+
                 continue;
             }
 
@@ -163,10 +163,10 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
     /**
      * Build ReleaseNotesCollection from GitHub API response.
      *
-     * @param array<int, mixed> $releases GitHub releases data
-     * @param string $fromVersion Starting version (exclusive)
-     * @param string $toVersion Ending version (inclusive)
-     * @param bool $includePrerelease Whether to include pre-release versions
+     * @param  array<int, mixed>  $releases  GitHub releases data
+     * @param  string  $fromVersion  Starting version (exclusive)
+     * @param  string  $toVersion  Ending version (inclusive)
+     * @param  bool  $includePrerelease  Whether to include pre-release versions
      */
     private function buildReleaseNotesCollection(
         array $releases,
@@ -183,7 +183,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
             }
 
             // Skip pre-releases if not included
-            if (!$includePrerelease && ($release['prerelease'] ?? false)) {
+            if (! $includePrerelease && ($release['prerelease'] ?? false)) {
                 continue;
             }
 
@@ -196,13 +196,13 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
             $version = VersionNormalizer::normalize($tagName);
 
             // Filter by version range: fromVersion < version <= toVersion
-            if (!$this->isVersionInRange($version, $fromVersion, $toVersion)) {
+            if (! $this->isVersionInRange($version, $fromVersion, $toVersion)) {
                 continue;
             }
 
             // Parse the date
             $publishedAt = $release['published_at'] ?? $release['created_at'] ?? null;
-            $date = $publishedAt ? new DateTimeImmutable($publishedAt) : new DateTimeImmutable();
+            $date = $publishedAt ? new DateTimeImmutable($publishedAt) : new DateTimeImmutable;
 
             $releaseNotes[] = new ReleaseNote(
                 tagName: $tagName,

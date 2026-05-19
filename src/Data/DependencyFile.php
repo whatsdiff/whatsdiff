@@ -9,7 +9,7 @@ use Whatsdiff\Analyzers\PackageManagerType;
 final readonly class DependencyFile
 {
     /**
-     * @param array<string> $commitLogs
+     * @param  array<string>  $commitLogs
      */
     public function __construct(
         public string $file,
@@ -17,8 +17,7 @@ final readonly class DependencyFile
         public bool $hasBeenRecentlyUpdated,
         public bool $hasCommitLogs,
         public array $commitLogs,
-    ) {
-    }
+    ) {}
 
     public static function create(PackageManagerType $type, string $file): self
     {

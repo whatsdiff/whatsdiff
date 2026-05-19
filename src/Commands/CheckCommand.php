@@ -27,6 +27,7 @@ class CheckCommand extends Command
     ) {
         parent::__construct();
     }
+
     protected function configure(): void
     {
         $this
@@ -117,10 +118,10 @@ class CheckCommand extends Command
     private function determineCheckType(InputInterface $input): CheckType
     {
         $options = [
-            'is-updated'    => CheckType::Updated,
+            'is-updated' => CheckType::Updated,
             'is-downgraded' => CheckType::Downgraded,
-            'is-removed'    => CheckType::Removed,
-            'is-added'      => CheckType::Added,
+            'is-removed' => CheckType::Removed,
+            'is-added' => CheckType::Added,
         ];
 
         foreach ($options as $option => $type) {

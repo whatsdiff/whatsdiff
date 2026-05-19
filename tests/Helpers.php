@@ -28,7 +28,6 @@ function initTempDirectory(bool $initGit = true): string
     return $tempDir;
 }
 
-
 function cleanupTempDirectory(string $tempDir): void
 {
     if (! is_dir($tempDir)) {
@@ -41,31 +40,30 @@ function cleanupTempDirectory(string $tempDir): void
         // Use PowerShell Remove-Item with Force - most effective for locked files
         $process = new SymfonyProcess([
             'powershell', '-Command',
-            "Remove-Item -Path '$tempDir' -Recurse -Force -ErrorAction SilentlyContinue"
+            "Remove-Item -Path '$tempDir' -Recurse -Force -ErrorAction SilentlyContinue",
         ]);
         $process->setTimeout(30);
         $process->run();
 
         // If PowerShell fails, try standard rmdir as backup
-        if (!$process->isSuccessful() && is_dir($tempDir)) {
+        if (! $process->isSuccessful() && is_dir($tempDir)) {
             $process = new SymfonyProcess(['cmd', '/c', 'rmdir', '/s', '/q', $tempDir]);
             $process->run();
         }
 
         // Final check and warning
         if (is_dir($tempDir)) {
-            echo "Warning: Could not clean up temp directory: ".$tempDir."\n";
+            echo 'Warning: Could not clean up temp directory: '.$tempDir."\n";
         }
     } else {
         $process = new SymfonyProcess(['rm', '-rf', $tempDir]);
         $process->run();
 
         if (! $process->isSuccessful()) {
-            echo "Warning: Could not clean up temp directory: ".$tempDir."\n";
+            echo 'Warning: Could not clean up temp directory: '.$tempDir."\n";
         }
     }
 }
-
 
 function runCommand(string $command, ?string $cwd = null): string
 {
@@ -101,7 +99,7 @@ function runCommand(string $command, ?string $cwd = null): string
         if (PHP_OS_FAMILY === 'Windows' && str_contains($command, 'rmdir') &&
             str_contains($process->getErrorOutput(), 'being used by another process')) {
             // Just warn, don't fail - this is a common Windows issue
-            echo "Warning: Could not clean up temp directory (file in use): ".$command."\n";
+            echo 'Warning: Could not clean up temp directory (file in use): '.$command."\n";
 
             return $process->getOutput();
         }
@@ -111,17 +109,16 @@ function runCommand(string $command, ?string $cwd = null): string
     return $process->getOutput();
 }
 
-
 function runWhatsDiff(array $args = [], ?string $cwd = null): SymfonyProcess
 {
     $workingDir = $cwd ?? test()->tempDir ?? getcwd();
     $binPath = realpath(__DIR__.'/../bin/whatsdiff');
 
     // Find PHP executable
-    $executableFinder = new ExecutableFinder();
+    $executableFinder = new ExecutableFinder;
     $phpBinary = $executableFinder->find('php');
 
-    if (!$phpBinary) {
+    if (! $phpBinary) {
         throw new \RuntimeException('PHP executable not found');
     }
 
@@ -141,7 +138,7 @@ function runWhatsDiff(array $args = [], ?string $cwd = null): SymfonyProcess
 /**
  * Generate a composer.lock file content from a simple package array
  *
- * @param array<string, string> $packages Array of packages with format ['package/name' => 'version']
+ * @param  array<string, string>  $packages  Array of packages with format ['package/name' => 'version']
  * @return string JSON content for composer.lock
  */
 function generateComposerLock(array $packages): string
@@ -190,7 +187,7 @@ function generateComposerLock(array $packages): string
 /**
  * Generate a package-lock.json file content from a simple package array
  *
- * @param array<string, string> $packages Array of packages with format ['package-name' => 'version']
+ * @param  array<string, string>  $packages  Array of packages with format ['package-name' => 'version']
  * @return string JSON content for package-lock.json
  */
 function generatePackageLock(array $packages): string
@@ -210,7 +207,7 @@ function generatePackageLock(array $packages): string
         $lockPackages["node_modules/{$name}"] = [
             'version' => $version,
             'resolved' => "https://registry.npmjs.org/{$name}/-/{$name}-{$version}.tgz",
-            'integrity' => 'sha512-' . base64_encode(random_bytes(32)),
+            'integrity' => 'sha512-'.base64_encode(random_bytes(32)),
             'license' => 'MIT',
         ];
 

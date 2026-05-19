@@ -90,8 +90,9 @@ class TuiCommand extends Command
 
             $result = $this->diffCalculator->run();
 
-            if (!$result->hasAnyChanges()) {
+            if (! $result->hasAnyChanges()) {
                 $output->writeln('<info>No dependency changes detected.</info>');
+
                 return Command::SUCCESS;
             }
 

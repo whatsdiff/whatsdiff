@@ -24,7 +24,7 @@ class VersionNormalizer
     private static function getParser(): VersionParser
     {
         if (self::$versionParser === null) {
-            self::$versionParser = new VersionParser();
+            self::$versionParser = new VersionParser;
         }
 
         return self::$versionParser;
@@ -43,8 +43,9 @@ class VersionNormalizer
      * - "2.0" -> "2.0.0.0"
      * - "1.0.0-beta1" -> "1.0.0.0-beta1"
      *
-     * @param string $version Version string to normalize
+     * @param  string  $version  Version string to normalize
      * @return string Fully normalized semver string
+     *
      * @throws \UnexpectedValueException If version string is invalid
      */
     public static function normalize(string $version): string
@@ -60,7 +61,7 @@ class VersionNormalizer
      * - "V2.0.0" -> "2.0.0"
      * - "1.0.0" -> "1.0.0"
      *
-     * @param string $version Version string
+     * @param  string  $version  Version string
      * @return string Version string without prefix
      */
     public static function stripPrefix(string $version): string

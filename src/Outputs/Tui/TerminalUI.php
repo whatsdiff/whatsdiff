@@ -19,12 +19,14 @@ use Whatsdiff\Services\GitRepository;
 
 class TerminalUI extends Prompt
 {
-    use RegistersThemes;
     use CreatesAnAltScreen;
     use MultipleScrolling;
+    use RegistersThemes;
 
     public array $packages;
+
     public ?int $selected = null;
+
     public bool $summaryMode = false;
 
     private array $changelogCache = [];
@@ -148,7 +150,7 @@ class TerminalUI extends Prompt
         );
 
         // Format the changelog
-        $formatter = new ChangelogFormatter();
+        $formatter = new ChangelogFormatter;
 
         return $formatter->format($changelog, $this->summaryMode, $rightPaneWidth);
     }
@@ -214,7 +216,6 @@ class TerminalUI extends Prompt
             return null;
         }
     }
-
 
     public function rightPaneVisible()
     {

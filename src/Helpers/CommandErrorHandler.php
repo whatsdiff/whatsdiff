@@ -22,10 +22,10 @@ class CommandErrorHandler
      * - JSON format: Returns structured JSON with error message
      * - Text format: Returns styled console error message
      *
-     * @param \Exception $exception The exception that was caught
-     * @param OutputInterface $output Symfony Console output interface
-     * @param string|null $format Output format (json, text, markdown, etc.)
-     * @param int $exitCode The command exit code to return (default: Command::FAILURE)
+     * @param  \Exception  $exception  The exception that was caught
+     * @param  OutputInterface  $output  Symfony Console output interface
+     * @param  string|null  $format  Output format (json, text, markdown, etc.)
+     * @param  int  $exitCode  The command exit code to return (default: Command::FAILURE)
      * @return int The exit code to return from the command
      */
     public static function handle(
@@ -54,10 +54,10 @@ class CommandErrorHandler
      * Useful for commands that support a --quiet flag where errors should
      * only be displayed when quiet mode is not enabled.
      *
-     * @param \Exception $exception The exception that was caught
-     * @param OutputInterface $output Symfony Console output interface
-     * @param bool $quiet Whether quiet mode is enabled
-     * @param int $exitCode The command exit code to return (default: Command::INVALID)
+     * @param  \Exception  $exception  The exception that was caught
+     * @param  OutputInterface  $output  Symfony Console output interface
+     * @param  bool  $quiet  Whether quiet mode is enabled
+     * @param  int  $exitCode  The command exit code to return (default: Command::INVALID)
      * @return int The exit code to return from the command
      */
     public static function handleQuiet(
@@ -66,7 +66,7 @@ class CommandErrorHandler
         bool $quiet,
         int $exitCode = Command::INVALID
     ): int {
-        if (!$quiet) {
+        if (! $quiet) {
             $output->writeln("<error>Error: {$exception->getMessage()}</error>");
         }
 
@@ -78,10 +78,10 @@ class CommandErrorHandler
      *
      * Allows for more control over the error message format and structure.
      *
-     * @param \Exception $exception The exception that was caught
-     * @param OutputInterface $output Symfony Console output interface
-     * @param callable $formatter Custom formatter function (receives exception, returns string)
-     * @param int $exitCode The command exit code to return (default: Command::FAILURE)
+     * @param  \Exception  $exception  The exception that was caught
+     * @param  OutputInterface  $output  Symfony Console output interface
+     * @param  callable  $formatter  Custom formatter function (receives exception, returns string)
+     * @param  int  $exitCode  The command exit code to return (default: Command::FAILURE)
      * @return int The exit code to return from the command
      */
     public static function handleWithFormatter(

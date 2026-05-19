@@ -5,9 +5,9 @@ use Whatsdiff\Analyzers\ReleaseNotes\ChangelogParser;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
 
 beforeEach(function () {
-    $this->tempDir = sys_get_temp_dir() . '/whatsdiff-test-' . uniqid();
+    $this->tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
     mkdir($this->tempDir);
-    $this->parser = new ChangelogParser();
+    $this->parser = new ChangelogParser;
     $this->fetcher = new LocalVendorChangelogFetcher($this->parser);
 });
 
@@ -38,7 +38,7 @@ test('it fetches changelog from CHANGELOG.md', function () {
 - New feature
 MD;
 
-    file_put_contents($this->tempDir . '/CHANGELOG.md', $changelog);
+    file_put_contents($this->tempDir.'/CHANGELOG.md', $changelog);
 
     $result = $this->fetcher->fetch(
         'test/package',
@@ -63,7 +63,7 @@ test('it tries multiple changelog filenames', function () {
 MD;
 
     // Use CHANGELOG instead of CHANGELOG.md
-    file_put_contents($this->tempDir . '/CHANGELOG', $changelog);
+    file_put_contents($this->tempDir.'/CHANGELOG', $changelog);
 
     $result = $this->fetcher->fetch(
         'test/package',
@@ -108,7 +108,7 @@ test('it returns null when local path is null', function () {
 });
 
 test('it returns null for empty changelog file', function () {
-    file_put_contents($this->tempDir . '/CHANGELOG.md', '');
+    file_put_contents($this->tempDir.'/CHANGELOG.md', '');
 
     $result = $this->fetcher->fetch(
         'test/package',
@@ -124,8 +124,8 @@ test('it returns null for empty changelog file', function () {
 });
 
 test('it prefers CHANGELOG.md over other filenames', function () {
-    file_put_contents($this->tempDir . '/CHANGELOG.md', '## 2.0.0 - 2023-06-01' . PHP_EOL . '### Added' . PHP_EOL . '- From CHANGELOG.md');
-    file_put_contents($this->tempDir . '/HISTORY.md', '## 2.0.0 - 2023-06-01' . PHP_EOL . '### Added' . PHP_EOL . '- From HISTORY.md');
+    file_put_contents($this->tempDir.'/CHANGELOG.md', '## 2.0.0 - 2023-06-01'.PHP_EOL.'### Added'.PHP_EOL.'- From CHANGELOG.md');
+    file_put_contents($this->tempDir.'/HISTORY.md', '## 2.0.0 - 2023-06-01'.PHP_EOL.'### Added'.PHP_EOL.'- From HISTORY.md');
 
     $result = $this->fetcher->fetch(
         'test/package',

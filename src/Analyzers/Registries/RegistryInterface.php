@@ -18,9 +18,10 @@ interface RegistryInterface
     /**
      * Get complete package metadata from the registry.
      *
-     * @param string $package Package name
-     * @param array<string, mixed> $options Additional options (e.g., auth credentials, registry URL)
+     * @param  string  $package  Package name
+     * @param  array<string, mixed>  $options  Additional options (e.g., auth credentials, registry URL)
      * @return array<string, mixed> Package metadata
+     *
      * @throws \Whatsdiff\Analyzers\Exceptions\PackageInformationsException If package cannot be fetched
      */
     public function getPackageMetadata(string $package, array $options = []): array;
@@ -28,11 +29,12 @@ interface RegistryInterface
     /**
      * Get versions of a package between two version constraints.
      *
-     * @param string $package Package name
-     * @param string $from Starting version (exclusive)
-     * @param string $to Ending version (inclusive)
-     * @param array<string, mixed> $options Additional options (e.g., auth credentials, registry URL)
+     * @param  string  $package  Package name
+     * @param  string  $from  Starting version (exclusive)
+     * @param  string  $to  Ending version (inclusive)
+     * @param  array<string, mixed>  $options  Additional options (e.g., auth credentials, registry URL)
      * @return array<int, string> Array of version strings
+     *
      * @throws \Whatsdiff\Analyzers\Exceptions\PackageInformationsException If package cannot be fetched
      */
     public function getVersions(string $package, string $from, string $to, array $options = []): array;
@@ -40,8 +42,8 @@ interface RegistryInterface
     /**
      * Get repository URL for a package.
      *
-     * @param string $package Package name
-     * @param array<string, mixed> $options Additional options (e.g., auth credentials)
+     * @param  string  $package  Package name
+     * @param  array<string, mixed>  $options  Additional options (e.g., auth credentials)
      * @return string|null Repository URL or null if not available
      */
     public function getRepositoryUrl(string $package, array $options = []): ?string;
@@ -49,8 +51,8 @@ interface RegistryInterface
     /**
      * Get security advisories for one or more packages.
      *
-     * @param array<string> $packages Package names
-     * @param array<string, mixed> $options Additional options
+     * @param  array<string>  $packages  Package names
+     * @param  array<string, mixed>  $options  Additional options
      * @return array<string, array<\Whatsdiff\Data\SecurityAdvisory>> Advisories indexed by package name
      */
     public function getSecurityAdvisories(array $packages, array $options = []): array;

@@ -54,9 +54,6 @@ trait MultipleScrolling
 
     /**
      * Initialize scrolling for the given key.
-     *
-     * @param  string  $key
-     * @param  int|null  $highlighted
      */
     protected function initializeMultipleScrolling(string $key, ?int $highlighted = null): void
     {
@@ -70,8 +67,6 @@ trait MultipleScrolling
      * Reduce the scroll property to fit the terminal height for the given key.
      *
      * Assumes that $this->scroll[$key] has already been set.
-     *
-     * @param  string  $key
      */
     protected function reduceScrollingToFitTerminal(string $key): void
     {
@@ -82,9 +77,6 @@ trait MultipleScrolling
 
     /**
      * Highlight the given index for the specified scroll bar key.
-     *
-     * @param  string  $key
-     * @param  int|null  $index
      */
     protected function highlight(string $key, ?int $index): void
     {
@@ -103,10 +95,6 @@ trait MultipleScrolling
 
     /**
      * Highlight the previous entry for the given key, or wrap around to the last entry.
-     *
-     * @param  string  $key
-     * @param  int  $total
-     * @param  bool  $allowNull
      */
     protected function highlightPrevious(string $key, int $total, bool $allowNull = false): void
     {
@@ -125,10 +113,6 @@ trait MultipleScrolling
 
     /**
      * Highlight the next entry for the given key, or wrap around to the first entry.
-     *
-     * @param  string  $key
-     * @param  int  $total
-     * @param  bool  $allowNull
      */
     protected function highlightNext(string $key, int $total, bool $allowNull = false): void
     {
@@ -145,9 +129,6 @@ trait MultipleScrolling
 
     /**
      * Center the highlighted option for the given key.
-     *
-     * @param  string  $key
-     * @param  int  $total
      */
     protected function scrollToHighlighted(string $key, int $total): void
     {

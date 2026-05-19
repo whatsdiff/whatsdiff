@@ -22,7 +22,7 @@ class GithubUrlFormatter
     public static function toTerminalLink(string $text): string
     {
         return preg_replace(
-            '/(?<!href=)(' . self::PATTERN . ')/',
+            '/(?<!href=)('.self::PATTERN.')/',
             '<href=$1>#$2</>',
             $text
         );
@@ -35,7 +35,7 @@ class GithubUrlFormatter
     public static function toMarkdownLink(string $text): string
     {
         return preg_replace(
-            '/(?<!\()' . self::PATTERN . '/',
+            '/(?<!\()'.self::PATTERN.'/',
             '[#$1]($0)',
             $text
         );
@@ -48,7 +48,7 @@ class GithubUrlFormatter
     public static function toShortText(string $text): string
     {
         return preg_replace(
-            '/' . self::PATTERN . '/',
+            '/'.self::PATTERN.'/',
             '#$1',
             $text
         );

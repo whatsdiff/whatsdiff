@@ -6,7 +6,7 @@ use Whatsdiff\Services\GitRepository;
 
 beforeEach(function () {
     $this->tempDir = initTempDirectory();
-    $this->gitRepository = new GitRepository();
+    $this->gitRepository = new GitRepository;
 });
 
 afterEach(function () {
@@ -39,7 +39,7 @@ it('handles npm only changes with add, update, downgrade, and remove', function 
         ],
     ];
 
-    file_put_contents($this->tempDir . '/package-lock.json', json_encode($initialPackageLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/package-lock.json', json_encode($initialPackageLock, JSON_PRETTY_PRINT));
     runCommand('git add package-lock.json');
     runCommand('git commit -m "Initial package-lock.json"');
 
@@ -69,28 +69,26 @@ it('handles npm only changes with add, update, downgrade, and remove', function 
         ],
     ];
 
-    file_put_contents($this->tempDir . '/package-lock.json', json_encode($updatedPackageLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/package-lock.json', json_encode($updatedPackageLock, JSON_PRETTY_PRINT));
     runCommand('git add package-lock.json');
     runCommand('git commit -m "Update npm dependencies"');
-
 
     // Run whatsdiff with JSON output
     $process = runWhatsDiff(['--format=json']);
     $output = $process->getOutput();
 
-
     $result = json_decode($output, true);
 
     // Debug output if null
     if ($result === null) {
-        throw new \Exception("JSON decode failed. Raw output: " . $output);
+        throw new \Exception('JSON decode failed. Raw output: '.$output);
     }
 
     // Add Windows debugging for empty diffs
     if (PHP_OS_FAMILY === 'Windows' && isset($result['diffs']) && empty($result['diffs'])) {
         echo "\n--- WINDOWS DEBUG: Empty diffs detected ---\n";
-        echo "Full whatsdiff output: " . $output . "\n";
-        echo "Parsed result: " . print_r($result, true) . "\n";
+        echo 'Full whatsdiff output: '.$output."\n";
+        echo 'Parsed result: '.print_r($result, true)."\n";
         echo "---------------------------------------------\n";
     }
 
@@ -166,7 +164,7 @@ it('handles composer only changes', function () {
         ],
     ];
 
-    file_put_contents($this->tempDir . '/composer.lock', json_encode($initialComposerLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/composer.lock', json_encode($initialComposerLock, JSON_PRETTY_PRINT));
     runCommand('git add composer.lock');
     runCommand('git commit -m "Initial composer.lock"');
 
@@ -208,7 +206,7 @@ it('handles composer only changes', function () {
         ],
     ];
 
-    file_put_contents($this->tempDir . '/composer.lock', json_encode($updatedComposerLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/composer.lock', json_encode($updatedComposerLock, JSON_PRETTY_PRINT));
     runCommand('git add composer.lock');
     runCommand('git commit -m "Update composer dependencies"');
 
@@ -219,7 +217,7 @@ it('handles composer only changes', function () {
 
     // Debug output if null
     if ($result === null) {
-        throw new \Exception("JSON decode failed. Raw output: " . $output);
+        throw new \Exception('JSON decode failed. Raw output: '.$output);
     }
 
     expect($result)->toBeArray();
@@ -259,8 +257,8 @@ it('handles both composer and npm changes across multiple commits', function () 
         ],
     ];
 
-    file_put_contents($this->tempDir . '/composer.lock', json_encode($initialComposerLock, JSON_PRETTY_PRINT));
-    file_put_contents($this->tempDir . '/package-lock.json', json_encode($initialPackageLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/composer.lock', json_encode($initialComposerLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/package-lock.json', json_encode($initialPackageLock, JSON_PRETTY_PRINT));
     runCommand('git add .');
     runCommand('git commit -m "Initial state"');
 
@@ -276,7 +274,7 @@ it('handles both composer and npm changes across multiple commits', function () 
         ],
     ];
 
-    file_put_contents($this->tempDir . '/composer.lock', json_encode($updatedComposerLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/composer.lock', json_encode($updatedComposerLock, JSON_PRETTY_PRINT));
     runCommand('git add composer.lock');
     runCommand('git commit -m "Update composer dependencies"');
 
@@ -294,7 +292,7 @@ it('handles both composer and npm changes across multiple commits', function () 
         ],
     ];
 
-    file_put_contents($this->tempDir . '/package-lock.json', json_encode($updatedPackageLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/package-lock.json', json_encode($updatedPackageLock, JSON_PRETTY_PRINT));
     runCommand('git add package-lock.json');
     runCommand('git commit -m "Update npm dependencies"');
 
@@ -305,7 +303,7 @@ it('handles both composer and npm changes across multiple commits', function () 
 
     // Debug output if null
     if ($result === null) {
-        throw new \Exception("JSON decode failed. Raw output: " . $output);
+        throw new \Exception('JSON decode failed. Raw output: '.$output);
     }
 
     expect($result)->toBeArray();
@@ -329,13 +327,13 @@ it('shows no changes when there are several commits without dependency updates',
         ],
     ];
 
-    file_put_contents($this->tempDir . '/composer.lock', json_encode($initialComposerLock, JSON_PRETTY_PRINT));
+    file_put_contents($this->tempDir.'/composer.lock', json_encode($initialComposerLock, JSON_PRETTY_PRINT));
     runCommand('git add composer.lock');
     runCommand('git commit -m "Initial composer.lock"');
 
     // Add several commits without dependency changes
     for ($i = 1; $i <= 5; $i++) {
-        file_put_contents($this->tempDir . "/file{$i}.txt", "Content {$i}");
+        file_put_contents($this->tempDir."/file{$i}.txt", "Content {$i}");
         runCommand("git add file{$i}.txt");
         runCommand("git commit -m 'Add file {$i}'");
     }
@@ -347,14 +345,14 @@ it('shows no changes when there are several commits without dependency updates',
 
     // Debug output if null
     if ($result === null) {
-        throw new \Exception("JSON decode failed. Raw output: " . $output);
+        throw new \Exception('JSON decode failed. Raw output: '.$output);
     }
 
     expect($result)->toBeArray();
     expect($result)->toHaveKey('diffs');
     // Since we have commits with the composer.lock file, there may be some diff detected
     // The test should verify no recent changes are detected
-    if (!empty($result['diffs'])) {
+    if (! empty($result['diffs'])) {
         expect($result['has_uncommitted_changes'])->toBeFalse();
     }
 });

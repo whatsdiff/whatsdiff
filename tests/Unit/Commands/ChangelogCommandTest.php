@@ -32,7 +32,7 @@ beforeEach(function () {
         $this->errorHandler
     );
 
-    $application = new Application();
+    $application = new Application;
     $application->add($this->command);
 
     $this->commandTester = new CommandTester($this->command);

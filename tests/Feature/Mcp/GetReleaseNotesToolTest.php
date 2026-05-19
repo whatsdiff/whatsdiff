@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Tests\Helpers\McpServerHelper;
 
 beforeEach(function () {
-    $this->mcp = new McpServerHelper();
+    $this->mcp = new McpServerHelper;
     $this->mcp->initialize();
 });
 
@@ -15,9 +15,9 @@ afterEach(function () {
 
 it('can fetch release notes for a composer package', function () {
     $response = $this->mcp->callTool('get_release_notes', [
-        'package'         => 'symfony/console',
-        'from_version'    => '7.0.0',
-        'to_version'      => '7.0.3',
+        'package' => 'symfony/console',
+        'from_version' => '7.0.0',
+        'to_version' => '7.0.3',
         'package_manager' => 'composer',
     ]);
 
@@ -53,9 +53,9 @@ it('can fetch release notes for a composer package', function () {
 
 it('can fetch release notes for an npm package', function () {
     $response = $this->mcp->callTool('get_release_notes', [
-        'package'         => 'react',
-        'from_version'    => '18.2.0',
-        'to_version'      => '18.3.0',
+        'package' => 'react',
+        'from_version' => '18.2.0',
+        'to_version' => '18.3.0',
         'package_manager' => 'npm',
     ]);
 
@@ -77,9 +77,9 @@ it('can fetch release notes for an npm package', function () {
 
 it('returns error for invalid package manager', function () {
     $response = $this->mcp->callTool('get_release_notes', [
-        'package'         => 'some/package',
-        'from_version'    => '1.0.0',
-        'to_version'      => '2.0.0',
+        'package' => 'some/package',
+        'from_version' => '1.0.0',
+        'to_version' => '2.0.0',
         'package_manager' => 'invalid',
     ]);
 
@@ -94,9 +94,9 @@ it('returns error for invalid package manager', function () {
 
 it('returns error when package repository is not found', function () {
     $response = $this->mcp->callTool('get_release_notes', [
-        'package'         => 'nonexistent/package-that-does-not-exist-12345',
-        'from_version'    => '1.0.0',
-        'to_version'      => '2.0.0',
+        'package' => 'nonexistent/package-that-does-not-exist-12345',
+        'from_version' => '1.0.0',
+        'to_version' => '2.0.0',
         'package_manager' => 'composer',
     ]);
 
@@ -111,9 +111,9 @@ it('returns error when package repository is not found', function () {
 
 it('returns empty releases when no releases found in range', function () {
     $response = $this->mcp->callTool('get_release_notes', [
-        'package'         => 'symfony/console',
-        'from_version'    => '99.0.0',
-        'to_version'      => '99.9.9',
+        'package' => 'symfony/console',
+        'from_version' => '99.0.0',
+        'to_version' => '99.9.9',
         'package_manager' => 'composer',
     ]);
 
@@ -130,9 +130,9 @@ it('returns empty releases when no releases found in range', function () {
 
 it('includes release details when releases are found', function () {
     $response = $this->mcp->callTool('get_release_notes', [
-        'package'         => 'laravel/framework',
-        'from_version'    => '12.0.0',
-        'to_version'      => '12.1.0',
+        'package' => 'laravel/framework',
+        'from_version' => '12.0.0',
+        'to_version' => '12.1.0',
         'package_manager' => 'composer',
     ]);
 
@@ -152,9 +152,9 @@ it('includes release details when releases are found', function () {
 
 it('uses default package manager when not specified', function () {
     $response = $this->mcp->callTool('get_release_notes', [
-        'package'      => 'symfony/console',
+        'package' => 'symfony/console',
         'from_version' => '7.0.0',
-        'to_version'   => '7.0.1',
+        'to_version' => '7.0.1',
     ]);
 
     $result = $response['result'];

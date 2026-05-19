@@ -9,13 +9,12 @@ use Illuminate\Support\Collection;
 final readonly class DiffResult
 {
     /**
-     * @param Collection<int, DependencyDiff> $diffs
+     * @param  Collection<int, DependencyDiff>  $diffs
      */
     public function __construct(
         public Collection $diffs,
         public bool $hasUncommittedChanges = false,
-    ) {
-    }
+    ) {}
 
     public function hasDiffs(): bool
     {

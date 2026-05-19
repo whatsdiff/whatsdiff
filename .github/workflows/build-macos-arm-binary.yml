@@ -6,8 +6,9 @@ on:
 
   workflow_dispatch:
 
+permissions: {}
+
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   BINARY_NAME: 'whatsdiff-macos-arm64'
   BINARY_MCP_NAME: 'whatsdiff-mcp-macos-arm64'
   COMPILE_PHP_VERSION: "8.4"
@@ -21,10 +22,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: false
 
       - name: Install macOS missing packages and mark os suffix
         run: |
@@ -32,13 +34,13 @@ jobs:
           echo "SPC_BUILD_OS=macos" >> $GITHUB_ENV
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2.37.1
         with:
           php-version: ${{ env.COMPILE_PHP_VERSION }}
           tools: composer:v2
 
       - name: Cache build dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: build/
           key: build-deps-php${{ env.COMPILE_PHP_VERSION }}-${{ runner.os }}-${{ runner.arch }}
@@ -48,7 +50,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -62,21 +64,21 @@ jobs:
 
       - if: ${{ github.event_name == 'workflow_dispatch' }}
         name: Upload whatsdiff binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ env.BINARY_NAME }}
           path: build/bin/${{ env.BINARY_NAME }}
 
       - if: ${{ github.event_name == 'workflow_dispatch' }}
         name: Upload whatsdiff-mcp binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ env.BINARY_MCP_NAME }}
           path: build/bin/${{ env.BINARY_MCP_NAME }}
 
       - if: ${{ github.event_name != 'workflow_dispatch' }}
         name: Upload binaries to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.4.1
         with:
           files: |
             build/bin/${{ env.BINARY_NAME }}

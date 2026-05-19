@@ -1,6 +1,5 @@
 <?php
 
-
 beforeEach(function () {
     $this->tempDir = initTempDirectory();
 });
@@ -29,7 +28,7 @@ test('list command works', function () {
     $process = runWhatsDiff(['list']);
 
     expect($process->getExitCode())->toBe(0);
-    $outputString = $process->getOutput() . $process->getErrorOutput();
+    $outputString = $process->getOutput().$process->getErrorOutput();
 
     // Should contain some package names or "No recent changes"
     expect($outputString)->toContain('check')
@@ -42,7 +41,7 @@ test('main command executes without errors', function () {
     // Test without --ignore-last to avoid git history dependencies in CI
     $process = runWhatsDiff();
 
-    $outputString = $process->getOutput() . $process->getErrorOutput();
+    $outputString = $process->getOutput().$process->getErrorOutput();
 
     // Should produce some meaningful output
     expect(strlen($outputString))->toBeGreaterThan(0);
@@ -77,7 +76,7 @@ test('error handling works for invalid options', function () {
     $process = runWhatsDiff(['--invalid-option']);
 
     expect($process->getExitCode())->not->toBe(0);
-    $outputString = $process->getOutput() . $process->getErrorOutput();
+    $outputString = $process->getOutput().$process->getErrorOutput();
     expect($outputString)->toContain('The "--invalid-option" option does not exist');
 });
 
@@ -86,7 +85,7 @@ test('ignore-last option is properly recognized', function () {
     $process = runWhatsDiff(['--ignore-last', '--help']);
 
     expect($process->getExitCode())->toBe(0);
-    $outputString = $process->getOutput() . $process->getErrorOutput();
+    $outputString = $process->getOutput().$process->getErrorOutput();
     expect($outputString)->toContain('--ignore-last');
     expect($outputString)->toContain('Ignore last uncommitted changes');
 });
