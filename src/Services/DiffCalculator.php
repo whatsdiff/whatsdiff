@@ -290,8 +290,10 @@ class DiffCalculator
 
     private function initializeDependencyFiles(bool $ignoreLast): void
     {
+        // Initialize dependency files structure if not already done
         $this->initializeDependencyFilesStructure();
 
+        // Check if files have been recently updated or have commit logs
         $this->dependencyFiles = $this->dependencyFiles->map(function (DependencyFile $dependencyFile) use (
             $ignoreLast
         ) {
