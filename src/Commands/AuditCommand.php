@@ -42,7 +42,7 @@ class AuditCommand extends Command
         $this
             ->setHelp(
                 'Inspect installed dependencies for known security advisories. '
-                .'Defaults to a current-state audit of composer.lock and package-lock.json. '
+                .'Defaults to a current-state audit of composer.lock, package-lock.json, and pnpm-lock.yaml. '
                 .'Use --from/--to to report advisories newly introduced between two refs, '
                 .'or --at to audit the lockfile at a specific commit.'
             )
@@ -194,7 +194,7 @@ class AuditCommand extends Command
             foreach ($types as $typeString) {
                 $type = $this->parsePackageManagerType($typeString);
                 if ($type === null) {
-                    $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+                    $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
                     return null;
                 }
@@ -210,7 +210,7 @@ class AuditCommand extends Command
         foreach ($excludeTypeStrings as $typeString) {
             $type = $this->parsePackageManagerType($typeString);
             if ($type === null) {
-                $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+                $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
                 return null;
             }

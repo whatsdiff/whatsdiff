@@ -747,7 +747,7 @@ class ChangelogCommand extends Command
             foreach ($types as $typeString) {
                 $type = $this->parsePackageManagerType($typeString);
                 if ($type === null) {
-                    $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+                    $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
                     return null;
                 }
@@ -763,7 +763,7 @@ class ChangelogCommand extends Command
         foreach ($excludeStrings as $typeString) {
             $type = $this->parsePackageManagerType($typeString);
             if ($type === null) {
-                $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+                $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
                 return null;
             }

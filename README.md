@@ -5,14 +5,14 @@
 ![Packagist License (custom server)](https://img.shields.io/packagist/l/whatsdiff/whatsdiff)
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/whatsdiff/whatsdiff/test.yml)
 
-What's diff is a CLI tool to help you inspect what has changed in your dependencies after a `composer update` or `npm update`.
+What's diff is a CLI tool to help you inspect what has changed in your dependencies after a `composer update`, `npm update`, or `pnpm update`.
 
 ![whatsdiff Terminal UI](assets/cli-tui.png)
 
 Visit [whatsdiff.app](https://whatsdiff.app) for complete documentation and usage examples.
 
 ## ✨ Features
-- **Analyse changes** in `composer.lock` and `package-lock.json` between commits
+- **Analyse changes** in `composer.lock`, `package-lock.json`, and `pnpm-lock.yaml` between commits
 - **Read changelog** and release notes of updated packages
 - **Interactive Terminal UI** 
 - **Multiple output formats** (text, JSON, markdown)
@@ -37,7 +37,7 @@ or by [downloading binaries](https://github.com/whatsdiff/whatsdiff/releases/lat
 For complete documentation, visit [whatsdiff.app/docs](https://whatsdiff.app/docs)
 
 ### [Analyse Command](https://whatsdiff.app/docs/cli-analyse)
-Show what changed after your last `composer update` or `npm update`:
+Show what changed after your last `composer update`, `npm update`, or `pnpm update`:
 ```bash
 whatsdiff
 # or explicitly
@@ -92,8 +92,8 @@ whatsdiff changelog --from=v1.0.0 --to=v2.0.0 --include=composer
 
 ### [Audit Command](https://whatsdiff.app/docs/cli-audit)
 List known security advisories that affect your installed dependencies. Works
-on both `composer.lock` and `package-lock.json`, like `composer audit` /
-`npm audit` but with whatsdiff's output formats:
+on `composer.lock`, `package-lock.json`, and `pnpm-lock.yaml`, like `composer audit` /
+`npm audit` / `pnpm audit` but with whatsdiff's output formats:
 ```bash
 # Audit current working-tree lockfiles, suggest the lowest safe upgrade per CVE
 whatsdiff audit
@@ -111,8 +111,8 @@ whatsdiff audit --from=v2.2.0 --to=v2.3.0
 whatsdiff audit --format=json --no-fix
 ```
 
-> npm audits query the GitHub Advisory Database once per package, so the first
-> run on a large `package-lock.json` may be slow; subsequent runs are cached.
+> npm and pnpm audits query the GitHub Advisory Database once per package, so the first
+> run on a large `package-lock.json` or `pnpm-lock.yaml` may be slow; subsequent runs are cached.
 
 ### [Configuration](https://whatsdiff.app/docs/cli-configuration)
 Manage cache and other settings:

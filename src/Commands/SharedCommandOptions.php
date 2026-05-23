@@ -109,7 +109,7 @@ trait SharedCommandOptions
             'include',
             null,
             InputOption::VALUE_REQUIRED,
-            'Include only specific package manager types (comma-separated: composer,npmjs)'
+            'Include only specific package manager types (comma-separated: composer,npmjs,pnpm)'
         );
     }
 
@@ -124,7 +124,7 @@ trait SharedCommandOptions
             'exclude',
             null,
             InputOption::VALUE_REQUIRED,
-            'Exclude specific package manager types (comma-separated: composer,npmjs)'
+            'Exclude specific package manager types (comma-separated: composer,npmjs,pnpm)'
         );
     }
 
