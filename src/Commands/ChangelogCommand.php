@@ -16,12 +16,19 @@ use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\Registries\NpmRegistry;
 use Whatsdiff\Analyzers\Registries\PackagistRegistry;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
+use Whatsdiff\Data\PackageChange;
+use Whatsdiff\Data\PackageReleaseNotes;
+use Whatsdiff\Enums\ChangeStatus;
 use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Helpers\VersionNormalizer;
+use Whatsdiff\Outputs\ReleaseNotes\MultiPackageReleaseNotesJsonOutput;
+use Whatsdiff\Outputs\ReleaseNotes\MultiPackageReleaseNotesMarkdownOutput;
+use Whatsdiff\Outputs\ReleaseNotes\MultiPackageReleaseNotesTextOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesJsonOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesMarkdownOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesTextOutput;
 use Whatsdiff\Services\CacheService;
+use Whatsdiff\Services\DiffCalculator;
 use Whatsdiff\Services\GitRepository;
 
 #[AsCommand(
@@ -38,6 +45,7 @@ class ChangelogCommand extends Command
         private readonly NpmRegistry $npmRegistry,
         private readonly CacheService $cacheService,
         private readonly ReleaseNotesResolver $releaseNotesResolver,
+        private readonly DiffCalculator $diffCalculator,
     ) {
         parent::__construct();
     }
@@ -45,11 +53,11 @@ class ChangelogCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setHelp('Display changelog/release notes for a package. Versions can be specified directly or extracted from lock files at git commits.')
+            ->setHelp('Display changelog/release notes for a package. Versions can be specified directly or extracted from lock files at git commits. Omit the package argument to show changelogs for all updated packages.')
             ->addArgument(
                 'package',
-                InputArgument::REQUIRED,
-                'Package name (e.g., symfony/console or react)'
+                InputArgument::OPTIONAL,
+                'Package name (e.g., symfony/console or react). When omitted, shows changelogs for all updated packages.'
             )
             ->addArgument(
                 'version',
@@ -73,6 +81,8 @@ class ChangelogCommand extends Command
                 'Show summarized changelog (combines all releases)'
             )
             ->addNoCacheOption()
+            ->addIncludeOption()
+            ->addExcludeOption()
             ->addOption(
                 'include-prerelease',
                 null,
@@ -92,6 +102,8 @@ class ChangelogCommand extends Command
         $format = $input->getOption('format');
         $summary = (bool) $input->getOption('summary');
         $noCache = (bool) $input->getOption('no-cache');
+        $includeTypes = $input->getOption('include');
+        $excludeTypes = $input->getOption('exclude');
         $includePrerelease = (bool) $input->getOption('include-prerelease');
 
         // Validate options
@@ -113,10 +125,37 @@ class ChangelogCommand extends Command
             return Command::FAILURE;
         }
 
+        if ($package === null && $versionArg !== null) {
+            $output->writeln('<error>Version argument requires a package name</error>');
+
+            return Command::FAILURE;
+        }
+
+        if ($includeTypes && $excludeTypes) {
+            $output->writeln('<error>Cannot use both --include and --exclude options</error>');
+
+            return Command::FAILURE;
+        }
+
         try {
             // Disable cache if requested
             if ($noCache) {
                 $this->cacheService->disableCache();
+            }
+
+            // No package: show changelogs for all updated packages
+            if ($package === null) {
+                return $this->executeForAllPackages(
+                    $fromCommit,
+                    $toCommit,
+                    $ignoreLast,
+                    $includeTypes,
+                    $excludeTypes,
+                    $format,
+                    $summary,
+                    $includePrerelease,
+                    $output
+                );
             }
 
             // Auto-detect or validate package manager type
@@ -558,6 +597,186 @@ class ChangelogCommand extends Command
             'json' => new ReleaseNotesJsonOutput($summary),
             'markdown' => new ReleaseNotesMarkdownOutput($summary),
             default => new ReleaseNotesTextOutput($summary, ! $noAnsi),
+        };
+    }
+
+    /**
+     * Execute changelog lookup for all updated packages.
+     */
+    private function executeForAllPackages(
+        ?string $fromCommit,
+        string $toCommit,
+        bool $ignoreLast,
+        ?string $includeTypes,
+        ?string $excludeTypes,
+        string $format,
+        bool $summary,
+        bool $includePrerelease,
+        OutputInterface $output
+    ): int {
+        $dependencyTypes = $this->parseDependencyTypes($includeTypes, $excludeTypes, $output);
+        if ($dependencyTypes === null) {
+            return Command::FAILURE;
+        }
+
+        foreach ($dependencyTypes as $packageManagerType) {
+            $this->diffCalculator->for($packageManagerType);
+        }
+
+        if ($fromCommit !== null) {
+            $this->diffCalculator->fromCommit($fromCommit);
+        }
+
+        if ($toCommit !== 'HEAD') {
+            $this->diffCalculator->toCommit($toCommit);
+        }
+
+        if ($ignoreLast) {
+            $this->diffCalculator->ignoreLastCommit();
+        }
+
+        // Skip release count fetching since we only need version info to look up changelogs.
+        $this->diffCalculator->skipReleaseCount();
+
+        $diffResult = $this->diffCalculator->run();
+
+        $updatedPackages = $diffResult->getAllChanges()
+            ->filter(fn (PackageChange $change) => in_array(
+                $change->status,
+                [ChangeStatus::Updated, ChangeStatus::Downgraded],
+                true
+            ))
+            ->values();
+
+        if ($updatedPackages->isEmpty()) {
+            $noUpdates = $format === 'markdown'
+                ? '_No updated packages found._'
+                : 'No updated packages found.';
+
+            if ($format === 'json') {
+                $output->writeln(json_encode([
+                    'total_packages' => 0,
+                    'packages' => [],
+                ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+                return Command::SUCCESS;
+            }
+
+            $output->writeln($noUpdates);
+
+            return Command::SUCCESS;
+        }
+
+        $packageReleaseNotes = [];
+
+        foreach ($updatedPackages as $change) {
+            $packageReleaseNotes[] = $this->resolveReleaseNotesForChange($change, $includePrerelease);
+        }
+
+        $this->getMultiFormatter($format, $summary, ! $output->isDecorated())
+            ->format($packageReleaseNotes, $output);
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Resolve release notes for a single PackageChange.
+     */
+    private function resolveReleaseNotesForChange(PackageChange $change, bool $includePrerelease): PackageReleaseNotes
+    {
+        $fromVersion = ltrim((string) $change->from, 'vV');
+        $toVersion = ltrim((string) $change->to, 'vV');
+
+        $repositoryUrl = $this->getRepositoryUrl($change->name, $change->type);
+
+        $releaseNotes = null;
+        if ($repositoryUrl !== null) {
+            $localPath = $this->getLocalPath($change->name, $change->type);
+
+            $releaseNotes = $this->releaseNotesResolver->resolve(
+                package: $change->name,
+                fromVersion: $fromVersion,
+                toVersion: $toVersion,
+                repositoryUrl: $repositoryUrl,
+                packageManagerType: $change->type,
+                localPath: $localPath,
+                includePrerelease: $includePrerelease
+            );
+        }
+
+        return new PackageReleaseNotes(
+            package: $change->name,
+            type: $change->type,
+            fromVersion: $fromVersion,
+            toVersion: $toVersion,
+            releaseNotes: $releaseNotes,
+        );
+    }
+
+    /**
+     * Get multi-package output formatter based on format option.
+     */
+    private function getMultiFormatter(string $format, bool $summary, bool $noAnsi): object
+    {
+        return match ($format) {
+            'json' => new MultiPackageReleaseNotesJsonOutput($summary),
+            'markdown' => new MultiPackageReleaseNotesMarkdownOutput($summary),
+            default => new MultiPackageReleaseNotesTextOutput($summary, ! $noAnsi),
+        };
+    }
+
+    /**
+     * Parse dependency types from include/exclude options.
+     *
+     * @return array<PackageManagerType>|null Returns null on error
+     */
+    private function parseDependencyTypes(?string $includeTypes, ?string $excludeTypes, OutputInterface $output): ?array
+    {
+        $allTypes = PackageManagerType::cases();
+
+        if (! $includeTypes && ! $excludeTypes) {
+            return $allTypes;
+        }
+
+        if ($includeTypes) {
+            $types = array_map('trim', explode(',', $includeTypes));
+            $parsed = [];
+
+            foreach ($types as $typeString) {
+                $type = $this->parsePackageManagerType($typeString);
+                if ($type === null) {
+                    $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+
+                    return null;
+                }
+                $parsed[] = $type;
+            }
+
+            return $parsed;
+        }
+
+        $excludeStrings = array_map('trim', explode(',', (string) $excludeTypes));
+        $excluded = [];
+
+        foreach ($excludeStrings as $typeString) {
+            $type = $this->parsePackageManagerType($typeString);
+            if ($type === null) {
+                $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+
+                return null;
+            }
+            $excluded[] = $type;
+        }
+
+        return array_filter($allTypes, fn (PackageManagerType $type) => ! in_array($type, $excluded, true));
+    }
+
+    private function parsePackageManagerType(string $typeString): ?PackageManagerType
+    {
+        return match (strtolower($typeString)) {
+            'composer' => PackageManagerType::COMPOSER,
+            'npmjs', 'npm' => PackageManagerType::NPM,
+            default => null,
         };
     }
 }

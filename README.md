@@ -82,6 +82,12 @@ fi
 View release notes for updated packages:
 ```bash
 whatsdiff changelog guzzlehttp/guzzle 7.7.0...7.8.1 --type=composer --summary
+
+# Or aggregate changelogs for every updated package since the last commit
+whatsdiff changelog
+
+# Aggregate between two refs, restricted to composer
+whatsdiff changelog --from=v1.0.0 --to=v2.0.0 --include=composer
 ```
 
 ### [Audit Command](https://whatsdiff.app/docs/cli-audit)
