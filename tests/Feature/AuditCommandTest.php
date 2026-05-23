@@ -39,6 +39,15 @@ it('rejects combining --include with --exclude', function () {
     expect($process->getErrorOutput().$process->getOutput())->toContain('Cannot use both --include and --exclude');
 });
 
+it('accepts pnpm as a valid package manager type with --include=pnpm', function () {
+    file_put_contents($this->tempDir.'/pnpm-lock.yaml', generatePnpmLock([]));
+
+    $process = runWhatsDiff(['audit', '--include=pnpm'], $this->tempDir);
+
+    expect($process->getExitCode())->toBe(Command::SUCCESS);
+    expect($process->getErrorOutput().$process->getOutput())->not->toContain('Invalid package manager type');
+});
+
 it('rejects unknown package manager type', function () {
     file_put_contents($this->tempDir.'/composer.lock', generateComposerLock([]));
 

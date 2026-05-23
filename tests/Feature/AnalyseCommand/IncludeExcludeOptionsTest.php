@@ -153,6 +153,29 @@ it('fails when both --include and --exclude are provided', function () {
     expect($process->getOutput().$process->getErrorOutput())->toContain('Cannot use both --include and --exclude options');
 });
 
+it('includes only pnpm dependencies with --include=pnpm', function () {
+    $pnpmLock = generatePnpmLock(['lodash' => '4.17.20']);
+    $composerLock = generateComposerLock(['symfony/console' => 'v5.4.0']);
+
+    file_put_contents($this->tempDir.'/pnpm-lock.yaml', $pnpmLock);
+    file_put_contents($this->tempDir.'/composer.lock', $composerLock);
+    runCommand('git add .');
+    runCommand('git commit -m "Initial dependencies"');
+    $firstCommit = trim(runCommand('git rev-parse HEAD'));
+
+    file_put_contents($this->tempDir.'/pnpm-lock.yaml', generatePnpmLock(['lodash' => '4.17.21']));
+    file_put_contents($this->tempDir.'/composer.lock', generateComposerLock(['symfony/console' => 'v6.0.0']));
+    runCommand('git add .');
+    runCommand('git commit -m "Update dependencies"');
+    $secondCommit = trim(runCommand('git rev-parse HEAD'));
+
+    $process = runWhatsDiff(['analyse', '--from='.$firstCommit, '--to='.$secondCommit, '--include=pnpm'], $this->tempDir);
+
+    expect($process->getExitCode())->toBe(Command::SUCCESS);
+    expect($process->getOutput())->toContain('lodash');
+    expect($process->getOutput())->not->toContain('symfony/console');
+});
+
 it('fails with invalid package manager type', function () {
     // Create minimal git repository
     file_put_contents($this->tempDir.'/composer.lock', '{}');
