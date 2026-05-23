@@ -9,6 +9,7 @@ use Whatsdiff\Mcp\Tools\FindCompatibleVersionTool;
 use Whatsdiff\Mcp\Tools\GetAvailableUpgradesTool;
 use Whatsdiff\Mcp\Tools\GetDependencyConstraintsTool;
 use Whatsdiff\Mcp\Tools\GetReleaseNotesTool;
+use Whatsdiff\Services\AgentEnvironment;
 
 // Autoload dependencies
 if (! class_exists('\Composer\InstalledVersions')) {
@@ -18,8 +19,10 @@ if (! class_exists('\Composer\InstalledVersions')) {
 // Set up error handling (simplified for MCP server)
 error_reporting(0);
 
-// Initialize container with shared configuration
-$container = Application::instantiateContainer();
+// Initialize container with shared configuration.
+// MCP responses are already structured; skip agent detection so CLI defaults
+// (e.g. forcing JSON format) don't bleed into MCP tool output.
+$container = Application::instantiateContainer(AgentEnvironment::noAgent());
 
 // Build MCP server using the same container
 $server = Server::make()
@@ -48,5 +51,5 @@ $server = Server::make()
     ->build();
 
 // Create and start stdio transport
-$transport = new StdioServerTransport;
+$transport = new StdioServerTransport();
 $server->listen($transport);

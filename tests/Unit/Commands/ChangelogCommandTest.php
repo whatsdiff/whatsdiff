@@ -8,6 +8,7 @@ use Whatsdiff\Analyzers\Registries\NpmRegistry;
 use Whatsdiff\Analyzers\Registries\PackagistRegistry;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
 use Whatsdiff\Commands\ChangelogCommand;
+use Whatsdiff\Services\AgentEnvironment;
 use Whatsdiff\Services\CacheService;
 use Whatsdiff\Services\CommandErrorHandler;
 use Whatsdiff\Services\GitRepository;
@@ -28,11 +29,10 @@ beforeEach(function () {
         $this->npmRegistry,
         $this->cacheService,
         $this->releaseNotesResolver,
-        $this->versionNormalizer,
-        $this->errorHandler
+        AgentEnvironment::noAgent(),
     );
 
-    $application = new Application;
+    $application = new Application();
     $application->add($this->command);
 
     $this->commandTester = new CommandTester($this->command);

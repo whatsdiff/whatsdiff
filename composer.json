@@ -32,7 +32,8 @@
     "psr/container": "^2.0",
     "league/container": "^5.1",
     "php-mcp/server": "^2.0",
-    "react/promise": "^3.3"
+    "react/promise": "^3.3",
+    "laravel/agent-detector": "^2.0"
   },
   "require-dev": {
     "pestphp/pest": "^2.0|^3.0|^4.0",

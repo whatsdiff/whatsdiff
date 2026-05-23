@@ -21,6 +21,7 @@ use Whatsdiff\Helpers\VersionNormalizer;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesJsonOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesMarkdownOutput;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesTextOutput;
+use Whatsdiff\Services\AgentEnvironment;
 use Whatsdiff\Services\CacheService;
 use Whatsdiff\Services\GitRepository;
 
@@ -38,6 +39,7 @@ class ChangelogCommand extends Command
         private readonly NpmRegistry $npmRegistry,
         private readonly CacheService $cacheService,
         private readonly ReleaseNotesResolver $releaseNotesResolver,
+        private readonly AgentEnvironment $agentEnvironment,
     ) {
         parent::__construct();
     }
@@ -65,7 +67,7 @@ class ChangelogCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 'Package manager type (composer or npm)'
             )
-            ->addFormatOption()
+            ->addFormatOption($this->agentEnvironment->defaultFormat())
             ->addOption(
                 'summary',
                 's',

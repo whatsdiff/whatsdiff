@@ -110,6 +110,14 @@ whatsdiff --format=markdown
 whatsdiff --no-cache
 ```
 
+### AI Agent Auto-Detection
+When `whatsdiff` is invoked from inside an AI coding agent (Claude Code, Cursor, Gemini CLI, Codex,
+Copilot CLI, OpenCode, Replit, Devin, Augment, Amp, Antigravity, Pi, Kiro, etc.), it detects the
+environment via well-known variables (powered by
+[`laravel/agent-detector`](https://github.com/laravel/agent-detector)) and defaults `--format` to
+`json` so the agent receives structured output without parsing colored text. Passing `--format=text`
+(or any other explicit value) always overrides the auto-detected default.
+
 ## 🔧 Contributing
 This project follows PSR coding style. You can use `composer pint` to apply.
 
