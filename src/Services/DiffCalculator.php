@@ -50,9 +50,17 @@ class DiffCalculator
             return;
         }
 
+        $relativeCurrentDir = $this->git->getRelativeCurrentDir();
+
         foreach ($this->getActiveDependencyTypes() as $type) {
+            $filename = $type->getLockFileName();
+
+            if (! empty($relativeCurrentDir) && file_exists($filename)) {
+                $filename = $relativeCurrentDir . DIRECTORY_SEPARATOR . $filename;
+            }
+
             $this->dependencyFiles->push(
-                DependencyFile::create($type, $type->getLockFileName())
+                DependencyFile::create($type, $filename)
             );
         }
     }
@@ -282,23 +290,8 @@ class DiffCalculator
 
     private function initializeDependencyFiles(bool $ignoreLast): void
     {
-        // Initialize dependency files structure if not already done
         $this->initializeDependencyFilesStructure();
 
-        $relativeCurrentDir = $this->git->getRelativeCurrentDir();
-
-        // Adjust file paths relative to current directory and git root
-        $this->dependencyFiles = $this->dependencyFiles->map(function (DependencyFile $dependencyFile) use (
-            $relativeCurrentDir
-        ) {
-            if (! empty($relativeCurrentDir) && file_exists($dependencyFile->file)) {
-                return $dependencyFile->withFile($relativeCurrentDir.DIRECTORY_SEPARATOR.$dependencyFile->file);
-            }
-
-            return $dependencyFile;
-        });
-
-        // Check if files have been recently updated or have commit logs
         $this->dependencyFiles = $this->dependencyFiles->map(function (DependencyFile $dependencyFile) use (
             $ignoreLast
         ) {
@@ -547,16 +540,17 @@ class DiffCalculator
      */
     private function countPackageChangesForCustomCommits(): int
     {
+        $this->initializeDependencyFilesStructure();
+
         $totalCount = 0;
         [$fromHash, $toHash] = $this->resolveCommitHashes();
 
-        foreach ($this->getActiveDependencyTypes() as $type) {
-            $filename = $type->getLockFileName();
-            $toContent = $this->getFileContents($filename, $toHash);
-            $fromContent = $this->getFileContents($filename, $fromHash);
+        foreach ($this->dependencyFiles as $dependencyFile) {
+            $toContent = $this->getFileContents($dependencyFile->file, $toHash);
+            $fromContent = $this->getFileContents($dependencyFile->file, $fromHash);
 
             if (! empty($toContent)) {
-                $packageDiffs = $this->calculatePackageDiff($type, $toContent, $fromContent);
+                $packageDiffs = $this->calculatePackageDiff($dependencyFile->type, $toContent, $fromContent);
                 $totalCount += count($packageDiffs);
             }
         }
@@ -613,13 +607,14 @@ class DiffCalculator
      */
     private function processCustomCommitsWithProgress(Collection $diffs): \Generator
     {
+        $this->initializeDependencyFilesStructure();
+
         [$fromHash, $toHash] = $this->resolveCommitHashes();
 
-        foreach ($this->getActiveDependencyTypes() as $type) {
-            $filename = $type->getLockFileName();
+        foreach ($this->dependencyFiles as $dependencyFile) {
             $generator = $this->calculateDiffBetweenCommitsWithProgress(
-                $type,
-                $filename,
+                $dependencyFile->type,
+                $dependencyFile->file,
                 $fromHash,
                 $toHash,
                 $this->skipReleaseCount
