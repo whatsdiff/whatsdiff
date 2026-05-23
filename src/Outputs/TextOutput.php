@@ -11,6 +11,7 @@ use Whatsdiff\Data\DiffResult;
 use Whatsdiff\Data\PackageChange;
 use Whatsdiff\Enums\ChangeStatus;
 use Whatsdiff\Enums\Semver;
+use Whatsdiff\Enums\Severity;
 
 class TextOutput implements OutputFormatterInterface
 {
@@ -148,10 +149,33 @@ class TextOutput implements OutputFormatterInterface
                     $coloredId = $this->useAnsi ? "\033[33m{$id}\033[0m" : $id;
                     $arrow = $this->useAnsi ? "\033[33m↳\033[0m" : '↳';
                     $title = $this->useAnsi ? "\033[2m{$advisory->title}\033[0m" : $advisory->title;
-                    $output->writeln("     {$arrow} {$coloredId} {$title}");
+                    $severityTag = $this->formatSeverityTag($advisory->severity);
+                    $output->writeln("     {$arrow} {$coloredId} {$severityTag}{$title}");
                 }
             }
         }
+    }
+
+    private function formatSeverityTag(Severity $severity): string
+    {
+        if ($severity === Severity::Unknown) {
+            return '';
+        }
+
+        $label = '['.strtoupper($severity->value).']';
+
+        if (! $this->useAnsi) {
+            return $label.' ';
+        }
+
+        $color = match ($severity) {
+            Severity::Critical => "\033[1;31m", // bold red
+            Severity::High => "\033[31m",       // red
+            Severity::Medium => "\033[33m",     // yellow
+            default => "\033[36m",              // cyan (Low)
+        };
+
+        return $color.$label."\033[0m ";
     }
 
     private function getSymbol(ChangeStatus $status, ?Semver $semver): string

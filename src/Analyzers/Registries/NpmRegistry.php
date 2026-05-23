@@ -8,6 +8,7 @@ use Composer\Semver\Comparator;
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Data\SecurityAdvisory;
+use Whatsdiff\Enums\Severity;
 use Whatsdiff\Services\HttpService;
 
 /**
@@ -165,6 +166,7 @@ class NpmRegistry implements RegistryInterface
                     title: $advisory['summary'] ?? '',
                     link: $advisory['html_url'] ?? '',
                     affectedVersions: $affectedVersions,
+                    severity: Severity::fromString($advisory['severity'] ?? null),
                 );
             }
         }
