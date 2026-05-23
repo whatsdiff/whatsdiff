@@ -29,7 +29,8 @@ class AnalyzerRegistry
 
     public function __construct(
         private readonly ContainerInterface $container
-    ) {}
+    ) {
+    }
 
     /**
      * Register an analyzer for a specific package manager type.

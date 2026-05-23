@@ -150,7 +150,7 @@ class TerminalUI extends Prompt
         );
 
         // Format the changelog
-        $formatter = new ChangelogFormatter;
+        $formatter = new ChangelogFormatter();
 
         return $formatter->format($changelog, $this->summaryMode, $rightPaneWidth);
     }

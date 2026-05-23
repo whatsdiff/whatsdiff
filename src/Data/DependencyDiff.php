@@ -20,7 +20,8 @@ final readonly class DependencyDiff
         public ?string $toCommit,
         public Collection $changes,
         public bool $isNew = false,
-    ) {}
+    ) {
+    }
 
     public function hasChanges(): bool
     {

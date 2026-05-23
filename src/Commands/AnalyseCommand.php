@@ -134,8 +134,8 @@ class AnalyseCommand extends Command
     private function getFormatter(string $format, bool $noAnsi): OutputFormatterInterface
     {
         return match ($format) {
-            'json' => new JsonOutput,
-            'markdown' => new MarkdownOutput,
+            'json' => new JsonOutput(),
+            'markdown' => new MarkdownOutput(),
             default => new TextOutput(! $noAnsi),
         };
     }

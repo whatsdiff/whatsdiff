@@ -21,7 +21,9 @@ use Whatsdiff\Helpers\VersionNormalizer;
  */
 class ChangelogParser
 {
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     /**
      * Parse changelog content and extract releases within version range.
@@ -147,8 +149,8 @@ class ChangelogParser
 
         // Parse date
         $date = $dateString !== null
-            ? DateTimeImmutable::createFromFormat('Y-m-d', $dateString) ?: new DateTimeImmutable
-            : new DateTimeImmutable;
+            ? DateTimeImmutable::createFromFormat('Y-m-d', $dateString) ?: new DateTimeImmutable()
+            : new DateTimeImmutable();
 
         return new ReleaseNote(
             tagName: $version,

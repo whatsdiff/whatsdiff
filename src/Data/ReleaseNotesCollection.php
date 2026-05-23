@@ -21,7 +21,8 @@ final readonly class ReleaseNotesCollection implements Countable, IteratorAggreg
      */
     public function __construct(
         private array $releases = []
-    ) {}
+    ) {
+    }
 
     /**
      * Get all release notes.

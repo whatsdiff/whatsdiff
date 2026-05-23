@@ -9,7 +9,7 @@ use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
 
 beforeEach(function () {
-    $this->resolver = new ReleaseNotesResolver;
+    $this->resolver = new ReleaseNotesResolver();
 });
 
 it('adds fetchers to the chain', function () {
@@ -31,7 +31,7 @@ it('tries fetchers in order until one succeeds', function () {
             tagName: 'v1.1.0',
             title: 'Release',
             body: 'Body',
-            date: new DateTimeImmutable
+            date: new DateTimeImmutable()
         ),
     ]);
 
@@ -89,7 +89,7 @@ it('skips fetchers that do not support the source', function () {
             tagName: 'v1.1.0',
             title: 'Release',
             body: 'Body',
-            date: new DateTimeImmutable
+            date: new DateTimeImmutable()
         ),
     ]);
 
@@ -174,13 +174,13 @@ it('skips empty results and continues to next fetcher', function () {
     $fetcher1 = Mockery::mock(ReleaseNotesFetcherInterface::class);
     $fetcher2 = Mockery::mock(ReleaseNotesFetcherInterface::class);
 
-    $emptyCollection = new ReleaseNotesCollection;
+    $emptyCollection = new ReleaseNotesCollection();
     $validCollection = new ReleaseNotesCollection([
         new ReleaseNote(
             tagName: 'v1.1.0',
             title: 'Release',
             body: 'Body',
-            date: new DateTimeImmutable
+            date: new DateTimeImmutable()
         ),
     ]);
 
@@ -216,7 +216,7 @@ it('passes all parameters to fetchers correctly', function () {
             tagName: 'v2.1.0',
             title: 'Release',
             body: 'Body',
-            date: new DateTimeImmutable
+            date: new DateTimeImmutable()
         ),
     ]);
 

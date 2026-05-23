@@ -11,7 +11,8 @@ class ReleaseNotesMarkdownOutput
 {
     public function __construct(
         private bool $summary = false,
-    ) {}
+    ) {
+    }
 
     public function format(ReleaseNotesCollection $collection, OutputInterface $output): void
     {

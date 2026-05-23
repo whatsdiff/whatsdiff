@@ -14,7 +14,9 @@ class ReleaseNotesTextOutput
     public function __construct(
         private bool $summary = false,
         private bool $useAnsi = true,
-    ) {}
+        private bool $includeHeader = true,
+    ) {
+    }
 
     public function format(ReleaseNotesCollection $collection, OutputInterface $output): void
     {
@@ -33,9 +35,11 @@ class ReleaseNotesTextOutput
 
     private function formatDetailed(ReleaseNotesCollection $collection, OutputInterface $output): void
     {
-        $output->writeln('');
-        $output->writeln($this->colorize('<fg=bright-cyan>Release Notes</>', 'Release Notes'));
-        $output->writeln($this->colorize('<fg=gray>'.str_repeat('─', 80).'</>', str_repeat('-', 80)));
+        if ($this->includeHeader) {
+            $output->writeln('');
+            $output->writeln($this->colorize('<fg=bright-cyan>Release Notes</>', 'Release Notes'));
+            $output->writeln($this->colorize('<fg=gray>'.str_repeat('─', 80).'</>', str_repeat('-', 80)));
+        }
         $output->writeln('');
 
         foreach ($collection as $release) {
@@ -165,9 +169,11 @@ class ReleaseNotesTextOutput
 
     private function formatSummary(ReleaseNotesCollection $collection, OutputInterface $output): void
     {
-        $output->writeln('');
-        $output->writeln($this->colorize('<fg=bright-cyan>Release Notes Summary</>', 'Release Notes Summary'));
-        $output->writeln($this->colorize('<fg=gray>'.str_repeat('─', 80).'</>', str_repeat('-', 80)));
+        if ($this->includeHeader) {
+            $output->writeln('');
+            $output->writeln($this->colorize('<fg=bright-cyan>Release Notes Summary</>', 'Release Notes Summary'));
+            $output->writeln($this->colorize('<fg=gray>'.str_repeat('─', 80).'</>', str_repeat('-', 80)));
+        }
         $output->writeln('');
 
         // Show version range and count

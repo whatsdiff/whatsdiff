@@ -29,7 +29,7 @@ class ConfigService
 
     public function __construct(?string $configPath = null)
     {
-        $this->filesystem = new Filesystem;
+        $this->filesystem = new Filesystem();
         $this->configPath = $configPath ?? $this->getDefaultConfigPath();
         $this->loadConfig();
     }

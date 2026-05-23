@@ -16,7 +16,8 @@ class GetReleaseNotesTool
         private ReleaseNotesResolver $releaseNotesResolver,
         private PackagistRegistry $packagistRegistry,
         private NpmRegistry $npmRegistry
-    ) {}
+    ) {
+    }
 
     #[McpTool(
         name: 'get_release_notes',

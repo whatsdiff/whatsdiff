@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Tests\Helpers\McpServerHelper;
 
 beforeEach(function () {
-    $this->mcp = new McpServerHelper;
+    $this->mcp = new McpServerHelper();
 });
 
 afterEach(function () {

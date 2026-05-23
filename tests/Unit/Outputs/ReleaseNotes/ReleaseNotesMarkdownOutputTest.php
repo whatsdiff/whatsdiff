@@ -8,9 +8,9 @@ use Whatsdiff\Data\ReleaseNotesCollection;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesMarkdownOutput;
 
 it('formats empty collection as markdown', function () {
-    $collection = new ReleaseNotesCollection;
-    $output = new BufferedOutput;
-    $formatter = new ReleaseNotesMarkdownOutput;
+    $collection = new ReleaseNotesCollection();
+    $output = new BufferedOutput();
+    $formatter = new ReleaseNotesMarkdownOutput();
 
     $formatter->format($collection, $output);
 
@@ -27,7 +27,7 @@ it('formats detailed markdown output', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -56,7 +56,7 @@ it('formats summarized markdown output', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesMarkdownOutput(summary: true);
 
     $formatter->format($collection, $output);
@@ -90,7 +90,7 @@ it('formats multiple releases in detailed mode', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -113,7 +113,7 @@ it('converts GitHub PR URLs to compact markdown links in detailed mode', functio
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -133,7 +133,7 @@ it('converts GitHub issue URLs to compact markdown links in detailed mode', func
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -153,7 +153,7 @@ it('converts GitHub URLs in summary mode', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesMarkdownOutput(summary: true);
 
     $formatter->format($collection, $output);
@@ -173,7 +173,7 @@ it('preserves existing markdown links with GitHub URLs', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);
@@ -194,7 +194,7 @@ it('keeps non-GitHub URLs unchanged', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesMarkdownOutput(summary: false);
 
     $formatter->format($collection, $output);

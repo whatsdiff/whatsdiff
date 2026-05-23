@@ -22,7 +22,8 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
 
     public function __construct(
         private HttpService $httpService
-    ) {}
+    ) {
+    }
 
     public function fetch(
         string $package,
@@ -202,7 +203,7 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
 
             // Parse the date
             $publishedAt = $release['published_at'] ?? $release['created_at'] ?? null;
-            $date = $publishedAt ? new DateTimeImmutable($publishedAt) : new DateTimeImmutable;
+            $date = $publishedAt ? new DateTimeImmutable($publishedAt) : new DateTimeImmutable();
 
             $releaseNotes[] = new ReleaseNote(
                 tagName: $tagName,

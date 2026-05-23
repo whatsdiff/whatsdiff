@@ -12,5 +12,6 @@ final readonly class SecurityAdvisory
         public string $title,
         public string $link,
         public string $affectedVersions,
-    ) {}
+    ) {
+    }
 }

@@ -8,9 +8,9 @@ use Whatsdiff\Data\ReleaseNotesCollection;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesJsonOutput;
 
 it('formats empty collection as json', function () {
-    $collection = new ReleaseNotesCollection;
-    $output = new BufferedOutput;
-    $formatter = new ReleaseNotesJsonOutput;
+    $collection = new ReleaseNotesCollection();
+    $output = new BufferedOutput();
+    $formatter = new ReleaseNotesJsonOutput();
 
     $formatter->format($collection, $output);
 
@@ -32,8 +32,8 @@ it('formats releases as json', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
-    $formatter = new ReleaseNotesJsonOutput;
+    $output = new BufferedOutput();
+    $formatter = new ReleaseNotesJsonOutput();
 
     $formatter->format($collection, $output);
 
@@ -65,8 +65,8 @@ it('formats multiple releases as json', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
-    $output = new BufferedOutput;
-    $formatter = new ReleaseNotesJsonOutput;
+    $output = new BufferedOutput();
+    $formatter = new ReleaseNotesJsonOutput();
 
     $formatter->format($collection, $output);
 
@@ -87,8 +87,8 @@ it('includes breaking changes in json', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
-    $formatter = new ReleaseNotesJsonOutput;
+    $output = new BufferedOutput();
+    $formatter = new ReleaseNotesJsonOutput();
 
     $formatter->format($collection, $output);
 
