@@ -15,8 +15,7 @@ class GetDependencyConstraintsTool
     public function __construct(
         private PackagistRegistry $packagistRegistry,
         private NpmRegistry $npmRegistry
-    ) {
-    }
+    ) {}
 
     #[McpTool(
         name: 'get_dependency_constraints',

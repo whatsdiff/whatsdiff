@@ -6,7 +6,7 @@ use Whatsdiff\Data\ReleaseNote;
 use Whatsdiff\Data\ReleaseNotesCollection;
 
 it('creates an empty collection', function () {
-    $collection = new ReleaseNotesCollection();
+    $collection = new ReleaseNotesCollection;
 
     expect($collection->count())->toBe(0)
         ->and($collection->isEmpty())->toBe(true)
@@ -40,14 +40,14 @@ it('collects all changes from multiple releases', function () {
         tagName: 'v1.0.0',
         title: 'Release 1',
         body: "## Changes\n- Feature A\n- Feature B",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $release2 = new ReleaseNote(
         tagName: 'v1.1.0',
         title: 'Release 2',
         body: "## Changes\n- Feature C\n- Feature D",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
@@ -67,14 +67,14 @@ it('collects all fixes from multiple releases', function () {
         tagName: 'v1.0.1',
         title: 'Patch 1',
         body: "## Fixes\n- Bug A\n- Bug B",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $release2 = new ReleaseNote(
         tagName: 'v1.0.2',
         title: 'Patch 2',
         body: "## Fixes\n- Bug C",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
@@ -89,14 +89,14 @@ it('collects all breaking changes from multiple releases', function () {
         tagName: 'v2.0.0',
         title: 'Major Release',
         body: "## Breaking Changes\n- Breaking A\n- Breaking B",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $release2 = new ReleaseNote(
         tagName: 'v3.0.0',
         title: 'Another Major',
         body: "## Breaking Changes\n- Breaking C",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
@@ -152,7 +152,7 @@ it('generates markdown with multiple releases', function () {
 });
 
 it('returns empty string when no releases in collection', function () {
-    $collection = new ReleaseNotesCollection();
+    $collection = new ReleaseNotesCollection;
 
     expect($collection->toMarkdown())->toBe('')
         ->and($collection->toSummarizedMarkdown())->toBe('');
@@ -163,14 +163,14 @@ it('generates summarized markdown with combined sections', function () {
         tagName: 'v1.0.0',
         title: 'Release 1',
         body: "## Changes\n- Feature A\n## Fixes\n- Bug A",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $release2 = new ReleaseNote(
         tagName: 'v1.1.0',
         title: 'Release 2',
         body: "## Changes\n- Feature B\n## Breaking Changes\n- Breaking A",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
@@ -193,14 +193,14 @@ it('is iterable', function () {
         tagName: 'v1.0.0',
         title: 'Release 1',
         body: 'Body 1',
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $release2 = new ReleaseNote(
         tagName: 'v1.1.0',
         title: 'Release 2',
         body: 'Body 2',
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
@@ -218,7 +218,7 @@ it('handles empty sections in summarized markdown', function () {
         tagName: 'v1.0.0',
         title: 'Release',
         body: 'Just some text without structured sections',
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release]);
@@ -237,7 +237,7 @@ it('does not duplicate title when tag name equals title in markdown', function (
         tagName: 'v1.0.0',
         title: 'v1.0.0',
         body: 'Release body',
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release]);
@@ -253,14 +253,14 @@ it('collects all deprecated items from multiple releases', function () {
         tagName: 'v1.5.0',
         title: 'Release 1',
         body: "## Deprecated\n- Old API method A\n- Legacy feature B",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $release2 = new ReleaseNote(
         tagName: 'v1.6.0',
         title: 'Release 2',
         body: "## Deprecated\n- Component C will be removed",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
@@ -279,14 +279,14 @@ it('collects all removed items from multiple releases', function () {
         tagName: 'v2.0.0',
         title: 'Major Release',
         body: "## Removed\n- Deleted deprecated API\n- Removed legacy support",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $release2 = new ReleaseNote(
         tagName: 'v2.1.0',
         title: 'Release 2',
         body: "## Removed\n- Removed old configuration format",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
@@ -305,14 +305,14 @@ it('collects all security items from multiple releases', function () {
         tagName: 'v1.0.1',
         title: 'Security Patch 1',
         body: "## Security\n- Fixed XSS vulnerability\n- Patched SQL injection",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $release2 = new ReleaseNote(
         tagName: 'v1.0.2',
         title: 'Security Patch 2',
         body: "## Security\n- Updated dependencies with security fixes",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
@@ -331,14 +331,14 @@ it('generates summarized markdown with all Keep a Changelog sections', function 
         tagName: 'v2.0.0',
         title: 'Major Release',
         body: "## Breaking Changes\n- Breaking A\n## Changes\n- Feature A\n## Fixes\n- Bug A\n## Deprecated\n- Old method A\n## Removed\n- Legacy feature A\n## Security\n- Security fix A",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $release2 = new ReleaseNote(
         tagName: 'v2.1.0',
         title: 'Minor Release',
         body: "## Changes\n- Feature B\n## Deprecated\n- Old method B\n## Security\n- Security fix B",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
@@ -369,7 +369,7 @@ it('returns empty arrays for new sections when no releases have them', function 
         tagName: 'v1.0.0',
         title: 'Release',
         body: "## Changes\n- Feature A",
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $collection = new ReleaseNotesCollection([$release]);

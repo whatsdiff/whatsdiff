@@ -17,8 +17,7 @@ final readonly class AuditResult
         public bool $isDiffMode = false,
         public ?string $fromCommit = null,
         public ?string $toCommit = null,
-    ) {
-    }
+    ) {}
 
     public function hasVulnerabilities(): bool
     {

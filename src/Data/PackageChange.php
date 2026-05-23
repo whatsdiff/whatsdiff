@@ -22,8 +22,7 @@ final readonly class PackageChange
         public ?int $releaseCount = null,
         public ?Semver $semver = null,
         public array $fixedAdvisories = [],
-    ) {
-    }
+    ) {}
 
     public static function added(string $name, PackageManagerType $type, string $version): self
     {

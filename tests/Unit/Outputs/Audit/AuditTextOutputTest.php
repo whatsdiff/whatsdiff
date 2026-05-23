@@ -40,7 +40,7 @@ it('renders a clean bullet-list with no [UNKNOWN] tags or bucket headers', funct
     );
 
     $result = new AuditResult(audits: new Collection([$audit]));
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
 
     (new AuditTextOutput(useAnsi: false))->format($result, $output);
     $text = $output->fetch();
@@ -77,7 +77,7 @@ it('uses a filled colored bullet for rated severities', function () {
     );
 
     $result = new AuditResult(audits: new Collection([$audit]));
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
 
     (new AuditTextOutput(useAnsi: false))->format($result, $output);
     $text = $output->fetch();
@@ -105,7 +105,7 @@ it('wraps the CVE id in an OSC 8 hyperlink when ANSI is enabled', function () {
     );
 
     $result = new AuditResult(audits: new Collection([$audit]));
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
 
     (new AuditTextOutput(useAnsi: true))->format($result, $output);
     $text = $output->fetch();
@@ -121,8 +121,8 @@ it('wraps the CVE id in an OSC 8 hyperlink when ANSI is enabled', function () {
 });
 
 it('reports a happy message when there are no vulnerabilities', function () {
-    $result = new AuditResult(audits: new Collection());
-    $output = new BufferedOutput();
+    $result = new AuditResult(audits: new Collection);
+    $output = new BufferedOutput;
 
     (new AuditTextOutput(useAnsi: false))->format($result, $output);
 

@@ -6,7 +6,7 @@ use Whatsdiff\Services\GitRepository;
 
 beforeEach(function () {
     $this->tempDir = initTempDirectory();
-    $this->gitRepository = new GitRepository();
+    $this->gitRepository = new GitRepository;
 });
 
 afterEach(function () {

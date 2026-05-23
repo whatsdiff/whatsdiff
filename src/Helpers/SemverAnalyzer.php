@@ -20,7 +20,7 @@ final class SemverAnalyzer
     private static function getParser(): VersionParser
     {
         if (self::$versionParser === null) {
-            self::$versionParser = new VersionParser();
+            self::$versionParser = new VersionParser;
         }
 
         return self::$versionParser;

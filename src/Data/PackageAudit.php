@@ -18,8 +18,7 @@ final readonly class PackageAudit
         public string $installedVersion,
         public array $advisories,
         public ?string $suggestedFixVersion = null,
-    ) {
-    }
+    ) {}
 
     public function maxSeverity(): Severity
     {

@@ -19,8 +19,7 @@ class FixSuggestionResolver
 {
     public function __construct(
         private readonly AnalyzerRegistry $analyzerRegistry,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<SecurityAdvisory>  $advisories

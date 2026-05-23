@@ -19,9 +19,7 @@ use Whatsdiff\Services\HttpService;
  */
 class OsvSeverityFetcher implements SeverityFetcherInterface
 {
-    public function __construct(private readonly HttpService $httpService)
-    {
-    }
+    public function __construct(private readonly HttpService $httpService) {}
 
     public function fetch(string $cveId): ?Severity
     {

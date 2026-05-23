@@ -50,8 +50,7 @@ class AuditCalculator
         private readonly GitRepository $git,
         private readonly FixSuggestionResolver $fixSuggestionResolver,
         private readonly SeverityResolver $severityResolver,
-    ) {
-    }
+    ) {}
 
     public function for(PackageManagerType $type): self
     {

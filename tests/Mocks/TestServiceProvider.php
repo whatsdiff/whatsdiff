@@ -22,8 +22,7 @@ class TestServiceProvider
 {
     public function __construct(
         private readonly HttpService $mockHttpService
-    ) {
-    }
+    ) {}
 
     public function register(ContainerInterface $container): void
     {

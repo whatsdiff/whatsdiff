@@ -144,8 +144,8 @@ class AuditCommand extends Command
     private function renderResult(AuditResult $result, string $format, bool $noAnsi, OutputInterface $output): void
     {
         match ($format) {
-            'json' => (new AuditJsonOutput())->format($result, $output),
-            'markdown' => (new AuditMarkdownOutput())->format($result, $output),
+            'json' => (new AuditJsonOutput)->format($result, $output),
+            'markdown' => (new AuditMarkdownOutput)->format($result, $output),
             default => (new AuditTextOutput(! $noAnsi))->format($result, $output),
         };
     }

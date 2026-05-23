@@ -13,7 +13,7 @@ class ProcessService
 
     public function __construct()
     {
-        $this->executableFinder = new ExecutableFinder();
+        $this->executableFinder = new ExecutableFinder;
     }
 
     public function run(array $command, ?string $cwd = null, ?int $timeout = 60): Process

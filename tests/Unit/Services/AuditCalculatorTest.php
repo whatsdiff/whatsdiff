@@ -54,7 +54,7 @@ function buildAuditCalculator(
     $git = Mockery::mock(GitRepository::class);
 
     // Default resolver has no fetchers — leaves advisories untouched
-    $severityResolver = $severityResolver ?? new SeverityResolver();
+    $severityResolver = $severityResolver ?? new SeverityResolver;
 
     return new AuditCalculator($analyzerRegistry, $git, $fixResolver, $severityResolver);
 }
@@ -257,7 +257,7 @@ it('backfills Unknown severity from the SeverityResolver chain', function () {
         ->with('CVE-2026-99999')
         ->andReturn(Severity::High);
 
-    $resolver = new SeverityResolver();
+    $resolver = new SeverityResolver;
     $resolver->addFetcher($fetcher);
 
     $calculator = buildAuditCalculator(
@@ -291,7 +291,7 @@ it('caches resolved severities per CVE within a single run', function () {
         ->with('CVE-2026-1')
         ->andReturn(Severity::Medium);
 
-    $resolver = new SeverityResolver();
+    $resolver = new SeverityResolver;
     $resolver->addFetcher($fetcher);
 
     $calculator = buildAuditCalculator(

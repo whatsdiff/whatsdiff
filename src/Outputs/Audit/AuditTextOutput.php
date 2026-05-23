@@ -12,9 +12,7 @@ use Whatsdiff\Enums\Severity;
 
 class AuditTextOutput
 {
-    public function __construct(private readonly bool $useAnsi = true)
-    {
-    }
+    public function __construct(private readonly bool $useAnsi = true) {}
 
     public function format(AuditResult $result, OutputInterface $output): void
     {
