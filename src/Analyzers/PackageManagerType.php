@@ -8,12 +8,14 @@ enum PackageManagerType: string
 {
     case COMPOSER = 'composer';
     case NPM = 'npmjs';
+    case PNPM = 'pnpm';
 
     public function getLabel(): string
     {
         return match ($this) {
             self::COMPOSER => 'Composer',
             self::NPM => 'npm',
+            self::PNPM => 'pnpm',
         };
     }
 
@@ -22,6 +24,7 @@ enum PackageManagerType: string
         return match ($this) {
             self::COMPOSER => 'composer.lock',
             self::NPM => 'package-lock.json',
+            self::PNPM => 'pnpm-lock.yaml',
         };
     }
 
@@ -29,7 +32,7 @@ enum PackageManagerType: string
     {
         return match ($this) {
             self::COMPOSER => $package ? "https://repo.packagist.org/p2/{$package}.json" : 'https://repo.packagist.org',
-            self::NPM => $package ? 'https://registry.npmjs.org/'.urlencode($package) : 'https://registry.npmjs.org',
+            self::NPM, self::PNPM => $package ? 'https://registry.npmjs.org/'.urlencode($package) : 'https://registry.npmjs.org',
         };
     }
 

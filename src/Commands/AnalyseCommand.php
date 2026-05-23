@@ -244,6 +244,7 @@ class AnalyseCommand extends Command
         return match (strtolower($typeString)) {
             'composer' => PackageManagerType::COMPOSER,
             'npmjs', 'npm' => PackageManagerType::NPM,
+            'pnpm' => PackageManagerType::PNPM,
             default => null,
         };
     }

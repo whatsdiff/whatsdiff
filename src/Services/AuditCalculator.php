@@ -10,6 +10,7 @@ use Whatsdiff\Analyzers\BaseAnalyzer;
 use Whatsdiff\Analyzers\LockFile\ComposerLockFile;
 use Whatsdiff\Analyzers\LockFile\LockFileInterface;
 use Whatsdiff\Analyzers\LockFile\NpmPackageLockFile;
+use Whatsdiff\Analyzers\LockFile\PnpmLockFile;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\SecurityAdvisories\SeverityResolver;
 use Whatsdiff\Data\AuditResult;
@@ -261,6 +262,7 @@ class AuditCalculator
         return match ($type) {
             PackageManagerType::COMPOSER => new ComposerLockFile($content),
             PackageManagerType::NPM => new NpmPackageLockFile($content),
+            PackageManagerType::PNPM => new PnpmLockFile($content),
         };
     }
 
