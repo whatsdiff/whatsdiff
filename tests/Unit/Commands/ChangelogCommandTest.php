@@ -13,6 +13,7 @@ use Whatsdiff\Commands\ChangelogCommand;
 use Whatsdiff\Data\DependencyDiff;
 use Whatsdiff\Data\DiffResult;
 use Whatsdiff\Data\PackageChange;
+use Whatsdiff\Services\AgentEnvironment;
 use Whatsdiff\Services\CacheService;
 use Whatsdiff\Services\DiffCalculator;
 use Whatsdiff\Services\GitRepository;
@@ -32,6 +33,7 @@ beforeEach(function () {
         $this->cacheService,
         $this->releaseNotesResolver,
         $this->diffCalculator,
+        AgentEnvironment::noAgent(),
     );
 
     $application = new Application;

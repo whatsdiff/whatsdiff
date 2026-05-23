@@ -14,6 +14,7 @@ use Whatsdiff\Outputs\JsonOutput;
 use Whatsdiff\Outputs\MarkdownOutput;
 use Whatsdiff\Outputs\OutputFormatterInterface;
 use Whatsdiff\Outputs\TextOutput;
+use Whatsdiff\Services\AgentEnvironment;
 use Whatsdiff\Services\CacheService;
 use Whatsdiff\Services\DiffCalculator;
 
@@ -32,6 +33,7 @@ class AnalyseCommand extends Command
     public function __construct(
         private readonly CacheService $cacheService,
         private readonly DiffCalculator $diffCalculator,
+        private readonly AgentEnvironment $agentEnvironment,
     ) {
         parent::__construct();
     }
@@ -43,7 +45,7 @@ class AnalyseCommand extends Command
             ->addIgnoreLastOption()
             ->addFromOption('Commit hash, branch, or tag to compare from (older version)')
             ->addToOption('Commit hash, branch, or tag to compare to (newer version, defaults to HEAD)')
-            ->addFormatOption()
+            ->addFormatOption($this->agentEnvironment->defaultFormat())
             ->addNoCacheOption()
             ->addIncludeOption()
             ->addExcludeOption()

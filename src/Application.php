@@ -25,6 +25,7 @@ use Whatsdiff\Commands\ChangelogCommand;
 use Whatsdiff\Commands\CheckCommand;
 use Whatsdiff\Commands\ConfigCommand;
 use Whatsdiff\Commands\TuiCommand;
+use Whatsdiff\Services\AgentEnvironment;
 use Whatsdiff\Services\AnalyzerRegistry;
 
 class Application extends BaseApplication
@@ -59,7 +60,7 @@ class Application extends BaseApplication
      * Create and configure the dependency injection container.
      * This method is shared between the CLI application and MCP server.
      */
-    public static function instantiateContainer(): ContainerInterface
+    public static function instantiateContainer(?AgentEnvironment $agentEnvironment = null): ContainerInterface
     {
         $container = new Container;
 
@@ -68,6 +69,9 @@ class Application extends BaseApplication
 
         // Register the container itself for services that need it
         $container->add(ContainerInterface::class, $container);
+
+        // Register the detected agent environment so commands can adapt their defaults.
+        $container->add(AgentEnvironment::class, $agentEnvironment ?? AgentEnvironment::detect());
 
         // Configure AnalyzerRegistry with package manager analyzers
         // Analyzers are lazy-loaded only when needed

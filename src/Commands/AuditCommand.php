@@ -16,6 +16,7 @@ use Whatsdiff\Helpers\CommandErrorHandler;
 use Whatsdiff\Outputs\Audit\AuditJsonOutput;
 use Whatsdiff\Outputs\Audit\AuditMarkdownOutput;
 use Whatsdiff\Outputs\Audit\AuditTextOutput;
+use Whatsdiff\Services\AgentEnvironment;
 use Whatsdiff\Services\AuditCalculator;
 use Whatsdiff\Services\CacheService;
 
@@ -31,6 +32,7 @@ class AuditCommand extends Command
     public function __construct(
         private readonly AuditCalculator $auditCalculator,
         private readonly CacheService $cacheService,
+        private readonly AgentEnvironment $agentEnvironment,
     ) {
         parent::__construct();
     }
@@ -44,7 +46,7 @@ class AuditCommand extends Command
                 .'Use --from/--to to report advisories newly introduced between two refs, '
                 .'or --at to audit the lockfile at a specific commit.'
             )
-            ->addFormatOption()
+            ->addFormatOption($this->agentEnvironment->defaultFormat())
             ->addNoCacheOption()
             ->addIncludeOption()
             ->addExcludeOption()

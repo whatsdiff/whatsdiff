@@ -10,11 +10,18 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Whatsdiff\Services\AgentEnvironment;
 
 #[AsCommand(name: 'between')]
 class BetweenCommand extends Command
 {
     use SharedCommandOptions;
+
+    public function __construct(
+        private readonly AgentEnvironment $agentEnvironment,
+    ) {
+        parent::__construct();
+    }
 
     protected function configure(): void
     {
@@ -32,7 +39,7 @@ class BetweenCommand extends Command
                 'The ending commit, branch, or tag to compare to (newer version, defaults to HEAD)',
                 'HEAD'
             )
-            ->addFormatOption()
+            ->addFormatOption($this->agentEnvironment->defaultFormat())
             ->addNoCacheOption()
             ->addIncludeOption()
             ->addExcludeOption()

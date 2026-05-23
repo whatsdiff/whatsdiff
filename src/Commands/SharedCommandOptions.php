@@ -48,17 +48,19 @@ trait SharedCommandOptions
      * Add the --format option to the command.
      *
      * This option allows users to specify the output format (text, json, markdown).
+     * When invoked from an AI coding agent, callers can pass 'json' as the default
+     * so structured output is produced without an explicit --format flag.
      *
-     * @param  string  $default  Default format (typically 'text')
+     * @param  string|null  $default  Default format (defaults to 'text')
      */
-    protected function addFormatOption(string $default = 'text'): self
+    protected function addFormatOption(?string $default = null): self
     {
         return $this->addOption(
             'format',
             'f',
             InputOption::VALUE_REQUIRED,
-            'Output format (text, json, markdown)',
-            $default
+            'Output format (text, json, markdown). Defaults to json when running inside an AI agent.',
+            $default ?? 'text'
         );
     }
 
