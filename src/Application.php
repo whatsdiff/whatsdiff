@@ -15,7 +15,11 @@ use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubChangelogFetcher;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubReleaseFetcher;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
+use Whatsdiff\Analyzers\SecurityAdvisories\Fetchers\GithubAdvisorySeverityFetcher;
+use Whatsdiff\Analyzers\SecurityAdvisories\Fetchers\OsvSeverityFetcher;
+use Whatsdiff\Analyzers\SecurityAdvisories\SeverityResolver;
 use Whatsdiff\Commands\AnalyseCommand;
+use Whatsdiff\Commands\AuditCommand;
 use Whatsdiff\Commands\BetweenCommand;
 use Whatsdiff\Commands\ChangelogCommand;
 use Whatsdiff\Commands\CheckCommand;
@@ -37,6 +41,7 @@ class Application extends BaseApplication
         $this->container = self::instantiateContainer();
 
         $this->addCommand($this->container->get(AnalyseCommand::class));
+        $this->addCommand($this->container->get(AuditCommand::class));
         $this->addCommand($this->container->get(BetweenCommand::class));
         $this->addCommand($this->container->get(TuiCommand::class));
         $this->addCommand($this->container->get(CheckCommand::class));
@@ -56,7 +61,7 @@ class Application extends BaseApplication
      */
     public static function instantiateContainer(): ContainerInterface
     {
-        $container = new Container;
+        $container = new Container();
 
         // Enable autowiring via ReflectionContainer delegate (with caching for performance)
         $container->delegate(new ReflectionContainer(true));
@@ -80,6 +85,12 @@ class Application extends BaseApplication
             ->addMethodCall('addFetcher', [LocalVendorChangelogFetcher::class])
             ->addMethodCall('addFetcher', [GithubReleaseFetcher::class])
             ->addMethodCall('addFetcher', [GithubChangelogFetcher::class]);
+
+        // Configure SeverityResolver with fetchers for cross-source severity backfill.
+        // GHSA first (best coverage for composer/npm CVEs), OSV as fallback.
+        $container->add(SeverityResolver::class)
+            ->addMethodCall('addFetcher', [GithubAdvisorySeverityFetcher::class])
+            ->addMethodCall('addFetcher', [OsvSeverityFetcher::class]);
 
         return $container;
     }

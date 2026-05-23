@@ -115,7 +115,7 @@ function runWhatsDiff(array $args = [], ?string $cwd = null): SymfonyProcess
     $binPath = realpath(__DIR__.'/../bin/whatsdiff');
 
     // Find PHP executable
-    $executableFinder = new ExecutableFinder;
+    $executableFinder = new ExecutableFinder();
     $phpBinary = $executableFinder->find('php');
 
     if (! $phpBinary) {

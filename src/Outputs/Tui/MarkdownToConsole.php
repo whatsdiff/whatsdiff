@@ -11,7 +11,8 @@ class MarkdownToConsole
     use Colors;
 
     public function __construct(
-    ) {}
+    ) {
+    }
 
     public function parseMarkdown($markdown): array
     {

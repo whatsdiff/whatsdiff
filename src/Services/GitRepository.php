@@ -18,7 +18,7 @@ class GitRepository
 
     public function __construct(?ProcessService $processService = null)
     {
-        $this->processService = $processService ?? new ProcessService;
+        $this->processService = $processService ?? new ProcessService();
     }
 
     /**

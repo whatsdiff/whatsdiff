@@ -20,7 +20,7 @@ class FindCompatibleVersionTool
         private PackagistRegistry $packagistRegistry,
         private NpmRegistry $npmRegistry
     ) {
-        $this->versionParser = new VersionParser;
+        $this->versionParser = new VersionParser();
     }
 
     #[McpTool(

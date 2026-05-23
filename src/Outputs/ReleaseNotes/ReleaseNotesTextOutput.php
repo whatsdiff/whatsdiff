@@ -14,7 +14,8 @@ class ReleaseNotesTextOutput
     public function __construct(
         private bool $summary = false,
         private bool $useAnsi = true,
-    ) {}
+    ) {
+    }
 
     public function format(ReleaseNotesCollection $collection, OutputInterface $output): void
     {

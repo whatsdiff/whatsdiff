@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Whatsdiff\Outputs\Tui\ChangelogFormatter;
 
 it('formats clickable URL without truncation when URL is short', function () {
-    $formatter = new ChangelogFormatter;
+    $formatter = new ChangelogFormatter();
     $reflection = new ReflectionClass($formatter);
     $method = $reflection->getMethod('formatClickableUrl');
     if (PHP_VERSION_ID < 80500) {
@@ -25,7 +25,7 @@ it('formats clickable URL without truncation when URL is short', function () {
 })->skip('URLs are broken in TUI for now');
 
 it('formats clickable URL with truncation when URL is long', function () {
-    $formatter = new ChangelogFormatter;
+    $formatter = new ChangelogFormatter();
     $reflection = new ReflectionClass($formatter);
     $method = $reflection->getMethod('formatClickableUrl');
     if (PHP_VERSION_ID < 80500) {
@@ -45,7 +45,7 @@ it('formats clickable URL with truncation when URL is long', function () {
 })->skip('URLs are broken in TUI for now');
 
 it('strips OSC 8 hyperlink codes when calculating visible length', function () {
-    $formatter = new ChangelogFormatter;
+    $formatter = new ChangelogFormatter();
     $reflection = new ReflectionClass($formatter);
     $stripMethod = $reflection->getMethod('stripAnsiCodes');
     if (PHP_VERSION_ID < 80500) {

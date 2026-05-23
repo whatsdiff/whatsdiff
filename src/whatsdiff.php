@@ -11,10 +11,10 @@ if (! class_exists('\Composer\InstalledVersions')) {
 
 // Set up error handling
 if (class_exists('\NunoMaduro\Collision\Provider')) {
-    (new \NunoMaduro\Collision\Provider)->register();
+    (new \NunoMaduro\Collision\Provider())->register();
 } else {
     error_reporting(0);
 }
 
-$application = new Application;
+$application = new Application();
 $application->run();

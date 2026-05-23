@@ -8,9 +8,9 @@ use Whatsdiff\Data\ReleaseNotesCollection;
 use Whatsdiff\Outputs\ReleaseNotes\ReleaseNotesTextOutput;
 
 it('formats empty collection', function () {
-    $collection = new ReleaseNotesCollection;
-    $output = new BufferedOutput;
-    $formatter = new ReleaseNotesTextOutput;
+    $collection = new ReleaseNotesCollection();
+    $output = new BufferedOutput();
+    $formatter = new ReleaseNotesTextOutput();
 
     $formatter->format($collection, $output);
 
@@ -26,7 +26,7 @@ it('formats detailed output with releases', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesTextOutput(summary: false, useAnsi: false);
 
     $formatter->format($collection, $output);
@@ -58,7 +58,7 @@ it('formats summary output', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release1, $release2]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesTextOutput(summary: true, useAnsi: false);
 
     $formatter->format($collection, $output);
@@ -85,7 +85,7 @@ it('handles releases with breaking changes', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesTextOutput(summary: false, useAnsi: false);
 
     $formatter->format($collection, $output);
@@ -102,12 +102,12 @@ it('includes release URL when available', function () {
         tagName: 'v1.0.0',
         title: 'Release',
         body: 'Body',
-        date: new DateTimeImmutable,
+        date: new DateTimeImmutable(),
         url: 'https://github.com/owner/repo/releases/tag/v1.0.0'
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput;
+    $output = new BufferedOutput();
     $formatter = new ReleaseNotesTextOutput(summary: false, useAnsi: false);
 
     $formatter->format($collection, $output);
