@@ -14,8 +14,7 @@ final readonly class DiffResult
     public function __construct(
         public Collection $diffs,
         public bool $hasUncommittedChanges = false,
-    ) {
-    }
+    ) {}
 
     public function hasDiffs(): bool
     {

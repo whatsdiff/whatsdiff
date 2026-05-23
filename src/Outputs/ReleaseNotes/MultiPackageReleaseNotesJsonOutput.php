@@ -11,8 +11,7 @@ class MultiPackageReleaseNotesJsonOutput
 {
     public function __construct(
         private bool $summary = false,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<PackageReleaseNotes>  $packages

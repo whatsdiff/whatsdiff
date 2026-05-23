@@ -12,8 +12,7 @@ class MultiPackageReleaseNotesTextOutput
     public function __construct(
         private bool $summary = false,
         private bool $useAnsi = true,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<PackageReleaseNotes>  $packages

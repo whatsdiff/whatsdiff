@@ -38,7 +38,7 @@ it('does not add hyperlinks when ANSI is disabled', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesTextOutput(summary: false, useAnsi: false);
 
     $formatter->format($collection, $output);
@@ -241,7 +241,7 @@ it('does not convert GitHub URLs when ANSI is disabled', function () {
     );
 
     $collection = new ReleaseNotesCollection([$release]);
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $formatter = new ReleaseNotesTextOutput(summary: false, useAnsi: false);
 
     $formatter->format($collection, $output);

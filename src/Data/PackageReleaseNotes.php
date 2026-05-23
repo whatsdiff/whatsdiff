@@ -14,8 +14,7 @@ final readonly class PackageReleaseNotes
         public string $fromVersion,
         public string $toVersion,
         public ?ReleaseNotesCollection $releaseNotes,
-    ) {
-    }
+    ) {}
 
     public function hasReleaseNotes(): bool
     {

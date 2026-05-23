@@ -15,8 +15,7 @@ class ReleaseNotesTextOutput
         private bool $summary = false,
         private bool $useAnsi = true,
         private bool $includeHeader = true,
-    ) {
-    }
+    ) {}
 
     public function format(ReleaseNotesCollection $collection, OutputInterface $output): void
     {

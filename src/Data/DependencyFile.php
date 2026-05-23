@@ -17,8 +17,7 @@ final readonly class DependencyFile
         public bool $hasBeenRecentlyUpdated,
         public bool $hasCommitLogs,
         public array $commitLogs,
-    ) {
-    }
+    ) {}
 
     public static function create(PackageManagerType $type, string $file): self
     {

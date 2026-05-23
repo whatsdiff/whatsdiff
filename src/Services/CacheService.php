@@ -21,7 +21,7 @@ class CacheService
     public function __construct(ConfigService $config, ?string $cacheDir = null)
     {
         $this->config = $config;
-        $this->filesystem = new Filesystem();
+        $this->filesystem = new Filesystem;
 
         $cacheDirectory = $cacheDir ?? $this->getDefaultCacheDir();
         $this->ensureCacheDirectoryExists($cacheDirectory);

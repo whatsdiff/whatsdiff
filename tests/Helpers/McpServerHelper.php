@@ -66,7 +66,7 @@ class McpServerHelper
         $response = $this->sendRequest('initialize', [
             'protocolVersion' => '2024-11-05',
             'capabilities' => [
-                'tools' => new \stdClass(),
+                'tools' => new \stdClass,
             ],
             'clientInfo' => [
                 'name' => 'whatsdiff-test-client',

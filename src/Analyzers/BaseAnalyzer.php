@@ -20,8 +20,7 @@ abstract class BaseAnalyzer implements AnalyzerInterface
 {
     public function __construct(
         protected readonly RegistryInterface $registry
-    ) {
-    }
+    ) {}
 
     /**
      * Extract package versions from lock file content array.

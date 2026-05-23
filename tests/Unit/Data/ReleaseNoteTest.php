@@ -40,7 +40,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $changes = $releaseNote->getChanges();
@@ -69,7 +69,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $fixes = $releaseNote->getFixes();
@@ -98,7 +98,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $breakingChanges = $releaseNote->getBreakingChanges();
@@ -122,7 +122,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $changes = $releaseNote->getChanges();
@@ -146,7 +146,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $fixes = $releaseNote->getFixes();
@@ -166,7 +166,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     // When unstructured, section methods return empty arrays
@@ -190,7 +190,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $changes = $releaseNote->getChanges();
@@ -215,7 +215,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $changes = $releaseNote->getChanges();
@@ -229,7 +229,7 @@ it('provides getter methods', function () {
         tagName: 'v1.0.0',
         title: 'My Release',
         body: 'Body content',
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getTitle())->toBe('My Release')
@@ -247,7 +247,7 @@ MD;
         tagName: 'v2.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getBreakingChanges())->toBe(['Major change A']);
@@ -265,7 +265,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getChanges())->toBe(['New feature X', 'Enhancement Y']);
@@ -283,7 +283,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getChanges())->toBe(['Feature A', 'Feature B']);
@@ -301,7 +301,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getChanges())->toBe(['Feature A', 'Feature B']);
@@ -319,7 +319,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getChanges())->toBe(['Enhancement A', 'Enhancement B']);
@@ -337,7 +337,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getFixes())->toBe(['Fixed issue A', 'Fixed issue B']);
@@ -355,7 +355,7 @@ MD;
         tagName: 'v2.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getBreakingChanges())->toBe(['Removed API X', 'Changed behavior Y']);
@@ -372,7 +372,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getChanges())->toBe([]);
@@ -399,7 +399,7 @@ MD;
         tagName: 'v2.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getChanges())->toBe(['New feature A', 'New feature B'])
@@ -424,7 +424,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $deprecated = $releaseNote->getDeprecated();
@@ -453,7 +453,7 @@ MD;
         tagName: 'v2.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $removed = $releaseNote->getRemoved();
@@ -482,7 +482,7 @@ MD;
         tagName: 'v1.0.1',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     $security = $releaseNote->getSecurity();
@@ -525,7 +525,7 @@ MD;
         tagName: 'v2.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->getChanges())->toBe(['New feature X', 'Updated feature Y'])
@@ -547,7 +547,7 @@ MD;
         tagName: 'v1.0.0',
         title: 'Release',
         body: $body,
-        date: new DateTimeImmutable()
+        date: new DateTimeImmutable
     );
 
     expect($releaseNote->isStructured())->toBeFalse()
