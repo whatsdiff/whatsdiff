@@ -36,6 +36,7 @@ class JsonOutput implements OutputFormatterInterface
                         'title' => $a->title,
                         'link' => $a->link,
                         'affected_versions' => $a->affectedVersions,
+                        'severity' => $a->severity->value,
                     ], $change->fixedAdvisories),
                 ])->toArray(),
             ])->toArray(),

@@ -121,7 +121,8 @@ class MarkdownOutput implements OutputFormatterInterface
                 $output->writeln('');
                 foreach ($change->fixedAdvisories as $advisory) {
                     $id = $advisory->cve ?? $advisory->advisoryId;
-                    $output->writeln("- [{$id}]({$advisory->link}): {$advisory->title}");
+                    $severityLabel = $advisory->severity->label();
+                    $output->writeln("- [{$id}]({$advisory->link}): {$advisory->title} *(severity: {$severityLabel})*");
                 }
                 $output->writeln('');
             }
