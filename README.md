@@ -84,7 +84,7 @@ View release notes for updated packages:
 whatsdiff changelog guzzlehttp/guzzle 7.7.0...7.8.1 --type=composer --summary
 ```
 
-### Audit Command
+### [Audit Command](https://whatsdiff.app/docs/cli-audit)
 List known security advisories that affect your installed dependencies. Works
 on both `composer.lock` and `package-lock.json`, like `composer audit` /
 `npm audit` but with whatsdiff's output formats:
