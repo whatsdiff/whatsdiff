@@ -11,8 +11,7 @@ final class AgentEnvironment
     public function __construct(
         public readonly bool $isAgent,
         public readonly ?string $agentName,
-    ) {
-    }
+    ) {}
 
     public static function detect(): self
     {

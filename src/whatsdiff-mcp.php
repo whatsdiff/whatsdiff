@@ -51,5 +51,5 @@ $server = Server::make()
     ->build();
 
 // Create and start stdio transport
-$transport = new StdioServerTransport();
+$transport = new StdioServerTransport;
 $server->listen($transport);

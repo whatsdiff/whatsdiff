@@ -27,7 +27,7 @@ afterEach(function () {
 function runWhatsDiffWithEnv(array $args, string $cwd, array $env): SymfonyProcess
 {
     $binPath = realpath(__DIR__.'/../../bin/whatsdiff');
-    $phpBinary = (new ExecutableFinder())->find('php');
+    $phpBinary = (new ExecutableFinder)->find('php');
 
     if (! $phpBinary) {
         throw new RuntimeException('PHP executable not found');
