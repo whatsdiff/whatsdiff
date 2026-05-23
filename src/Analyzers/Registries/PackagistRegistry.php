@@ -8,6 +8,7 @@ use Composer\Semver\Comparator;
 use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Data\SecurityAdvisory;
+use Whatsdiff\Enums\Severity;
 use Whatsdiff\Services\HttpService;
 
 /**
@@ -204,6 +205,7 @@ class PackagistRegistry implements RegistryInterface
                     title: $advisory['title'] ?? '',
                     link: $advisory['link'] ?? '',
                     affectedVersions: $advisory['affectedVersions'] ?? '',
+                    severity: Severity::fromString($advisory['severity'] ?? null),
                 );
             }
         }

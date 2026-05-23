@@ -82,7 +82,37 @@ fi
 View release notes for updated packages:
 ```bash
 whatsdiff changelog guzzlehttp/guzzle 7.7.0...7.8.1 --type=composer --summary
+
+# Or aggregate changelogs for every updated package since the last commit
+whatsdiff changelog
+
+# Aggregate between two refs, restricted to composer
+whatsdiff changelog --from=v1.0.0 --to=v2.0.0 --include=composer
 ```
+
+### [Audit Command](https://whatsdiff.app/docs/cli-audit)
+List known security advisories that affect your installed dependencies. Works
+on both `composer.lock` and `package-lock.json`, like `composer audit` /
+`npm audit` but with whatsdiff's output formats:
+```bash
+# Audit current working-tree lockfiles, suggest the lowest safe upgrade per CVE
+whatsdiff audit
+
+# CI-friendly: exit non-zero only when a high or critical advisory is found
+whatsdiff audit --fail-on=high
+
+# Audit the lockfile at a specific commit/tag instead of the working tree
+whatsdiff audit --at=v2.3.0
+
+# Diff mode: only report advisories newly introduced between two refs
+whatsdiff audit --from=v2.2.0 --to=v2.3.0
+
+# JSON output, skip suggested-fix lookups for speed
+whatsdiff audit --format=json --no-fix
+```
+
+> npm audits query the GitHub Advisory Database once per package, so the first
+> run on a large `package-lock.json` may be slow; subsequent runs are cached.
 
 ### [Configuration](https://whatsdiff.app/docs/cli-configuration)
 Manage cache and other settings:
