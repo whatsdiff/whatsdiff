@@ -5,7 +5,7 @@ use Whatsdiff\Analyzers\ReleaseNotes\ChangelogParser;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
 
 beforeEach(function () {
-    $this->tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
+    $this->tempDir = sys_get_temp_dir().'/whatsdiff-test-'.bin2hex(random_bytes(5));
     mkdir($this->tempDir);
     $this->parser = new ChangelogParser;
     $this->fetcher = new LocalVendorChangelogFetcher($this->parser);
