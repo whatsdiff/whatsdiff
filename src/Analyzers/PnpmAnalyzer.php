@@ -40,6 +40,7 @@ class PnpmAnalyzer extends BaseAnalyzer
             $detected = number_format($version, 1);
             $minimum = number_format(PnpmLockFile::MINIMUM_SUPPORTED_VERSION, 1);
             fwrite(STDERR, "Warning: pnpm-lock.yaml lockfileVersion {$detected} is not supported (minimum: {$minimum}). This lock file will be ignored.\n");
+
             return [];
         }
 
