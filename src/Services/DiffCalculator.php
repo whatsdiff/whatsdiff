@@ -56,7 +56,7 @@ class DiffCalculator
             $filename = $type->getLockFileName();
 
             if (! empty($relativeCurrentDir) && file_exists($filename)) {
-                $filename = $relativeCurrentDir . DIRECTORY_SEPARATOR . $filename;
+                $filename = $relativeCurrentDir.DIRECTORY_SEPARATOR.$filename;
             }
 
             $this->dependencyFiles->push(
