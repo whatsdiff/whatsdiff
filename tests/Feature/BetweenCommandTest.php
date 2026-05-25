@@ -172,3 +172,47 @@ it('handles invalid commit references', function () {
     expect($process->getExitCode())->toBe(Command::FAILURE);
     expect($process->getOutput().$process->getErrorOutput())->toContain('Error:');
 });
+
+it('compares composer dependencies between two commits from a subdirectory', function () {
+    $subDir = $this->tempDir.'/backend';
+    mkdir($subDir, 0755, true);
+
+    file_put_contents($subDir.'/composer.lock', generateComposerLock(['symfony/http-kernel' => 'v6.0.0']));
+    runCommand('git add backend/composer.lock', $this->tempDir);
+    runCommand('git commit -m "Initial backend/composer.lock"', $this->tempDir);
+    $firstCommit = trim(runCommand('git rev-parse HEAD', $this->tempDir));
+
+    file_put_contents($subDir.'/composer.lock', generateComposerLock(['symfony/http-kernel' => 'v6.4.0']));
+    runCommand('git add backend/composer.lock', $this->tempDir);
+    runCommand('git commit -m "Update symfony/http-kernel"', $this->tempDir);
+    $secondCommit = trim(runCommand('git rev-parse HEAD', $this->tempDir));
+
+    $process = runWhatsDiff(['between', $firstCommit, $secondCommit], $subDir);
+
+    expect($process->getExitCode())->toBe(Command::SUCCESS);
+    expect($process->getOutput())->toContain('symfony/http-kernel');
+    expect($process->getOutput())->toContain('v6.0.0');
+    expect($process->getOutput())->toContain('v6.4.0');
+});
+
+it('compares npm dependencies between two commits from a subdirectory', function () {
+    $subDir = $this->tempDir.'/frontend';
+    mkdir($subDir, 0755, true);
+
+    file_put_contents($subDir.'/package-lock.json', generatePackageLock(['react' => '18.0.0']));
+    runCommand('git add frontend/package-lock.json', $this->tempDir);
+    runCommand('git commit -m "Initial frontend/package-lock.json"', $this->tempDir);
+    $firstCommit = trim(runCommand('git rev-parse HEAD', $this->tempDir));
+
+    file_put_contents($subDir.'/package-lock.json', generatePackageLock(['react' => '18.3.0']));
+    runCommand('git add frontend/package-lock.json', $this->tempDir);
+    runCommand('git commit -m "Update react"', $this->tempDir);
+    $secondCommit = trim(runCommand('git rev-parse HEAD', $this->tempDir));
+
+    $process = runWhatsDiff(['between', $firstCommit, $secondCommit], $subDir);
+
+    expect($process->getExitCode())->toBe(Command::SUCCESS);
+    expect($process->getOutput())->toContain('react');
+    expect($process->getOutput())->toContain('18.0.0');
+    expect($process->getOutput())->toContain('18.3.0');
+});

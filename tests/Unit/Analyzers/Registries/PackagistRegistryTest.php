@@ -346,7 +346,7 @@ it('uses support.source as last resort when other sources not available', functi
 
 it('loads auth from local auth.json and applies automatically', function () {
     // Create temporary directory with auth.json
-    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.bin2hex(random_bytes(5));
     mkdir($tempDir);
 
     $authContent = [
@@ -398,8 +398,8 @@ it('loads auth from local auth.json and applies automatically', function () {
 
 it('loads auth from both local and global with local taking precedence', function () {
     // Create temporary directories
-    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
-    $homeDir = sys_get_temp_dir().'/whatsdiff-home-'.uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.bin2hex(random_bytes(5));
+    $homeDir = sys_get_temp_dir().'/whatsdiff-home-'.bin2hex(random_bytes(5));
     mkdir($tempDir);
     mkdir($homeDir);
     mkdir($homeDir.'/.composer');
@@ -469,8 +469,8 @@ it('loads auth from both local and global with local taking precedence', functio
 
 it('uses global auth when local auth.json does not exist', function () {
     // Create temporary directories
-    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
-    $homeDir = sys_get_temp_dir().'/whatsdiff-home-'.uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.bin2hex(random_bytes(5));
+    $homeDir = sys_get_temp_dir().'/whatsdiff-home-'.bin2hex(random_bytes(5));
     mkdir($tempDir);
     mkdir($homeDir);
     mkdir($homeDir.'/.composer');
@@ -525,7 +525,7 @@ it('uses global auth when local auth.json does not exist', function () {
 
 it('explicit auth options override auth.json', function () {
     // Create temporary directory with auth.json
-    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.bin2hex(random_bytes(5));
     mkdir($tempDir);
 
     $authContent = [
@@ -575,7 +575,7 @@ it('explicit auth options override auth.json', function () {
 
 it('does not apply auth when domain does not match auth.json', function () {
     // Create temporary directory with auth.json
-    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.bin2hex(random_bytes(5));
     mkdir($tempDir);
 
     $authContent = [

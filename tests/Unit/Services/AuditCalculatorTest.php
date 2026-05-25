@@ -15,7 +15,7 @@ use Whatsdiff\Services\FixSuggestionResolver;
 use Whatsdiff\Services\GitRepository;
 
 beforeEach(function () {
-    $this->workingDir = sys_get_temp_dir().'/whatsdiff-audit-test-'.uniqid();
+    $this->workingDir = sys_get_temp_dir().'/whatsdiff-audit-test-'.bin2hex(random_bytes(5));
     mkdir($this->workingDir);
     $this->originalDir = getcwd();
     chdir($this->workingDir);

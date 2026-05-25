@@ -87,7 +87,7 @@ test('json format always returns valid JSON ', function () {
 
 test('json format returns valid JSON error on failure', function () {
     // Test in a non-git directory
-    $this->tempDir = sys_get_temp_dir().'/whatsdiff-non-git-'.uniqid();
+    $this->tempDir = sys_get_temp_dir().'/whatsdiff-non-git-'.bin2hex(random_bytes(5));
     mkdir($this->tempDir, 0755, true);
 
     $process = runWhatsDiff(['--format=json'], $this->tempDir);

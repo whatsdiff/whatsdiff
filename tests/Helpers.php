@@ -7,7 +7,7 @@ use Symfony\Component\Process\Process as SymfonyProcess;
 
 function initTempDirectory(bool $initGit = true): string
 {
-    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.uniqid();
+    $tempDir = sys_get_temp_dir().'/whatsdiff-test-'.bin2hex(random_bytes(5));
     mkdir($tempDir, 0755, true);
 
     if ($initGit) {
