@@ -67,4 +67,3 @@ it('accepts pnpm as a valid --type value when a package and version range are gi
     expect($combined)->not->toContain("Invalid package manager type: 'pnpm'");
     expect($combined)->not->toContain('Try specifying --type=(composer|npm)');
 });
-
