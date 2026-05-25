@@ -10,6 +10,25 @@ enum PackageManagerType: string
     case NPM = 'npmjs';
     case PNPM = 'pnpm';
 
+    public static function fromString(string $typeString): ?self
+    {
+        return match (strtolower($typeString)) {
+            'composer' => self::COMPOSER,
+            'npm', 'npmjs' => self::NPM,
+            'pnpm' => self::PNPM,
+            default => null,
+        };
+    }
+
+    public function createLockFileParser(string $content): LockFile\LockFileInterface
+    {
+        return match ($this) {
+            self::COMPOSER => new LockFile\ComposerLockFile($content),
+            self::NPM => new LockFile\NpmPackageLockFile($content),
+            self::PNPM => new LockFile\PnpmLockFile($content),
+        };
+    }
+
     public function getLabel(): string
     {
         return match ($this) {

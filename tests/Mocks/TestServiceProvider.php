@@ -9,6 +9,7 @@ use Psr\Container\ContainerInterface;
 use Whatsdiff\Analyzers\ComposerAnalyzer;
 use Whatsdiff\Analyzers\NpmAnalyzer;
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Analyzers\PnpmAnalyzer;
 use Whatsdiff\Services\AnalyzerRegistry;
 use Whatsdiff\Services\HttpService;
 
@@ -38,6 +39,7 @@ class TestServiceProvider
             $registry = new AnalyzerRegistry($container);
             $registry->register(PackageManagerType::COMPOSER, ComposerAnalyzer::class);
             $registry->register(PackageManagerType::NPM, NpmAnalyzer::class);
+            $registry->register(PackageManagerType::PNPM, PnpmAnalyzer::class);
 
             return $registry;
         });

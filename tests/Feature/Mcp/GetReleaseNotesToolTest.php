@@ -51,6 +51,30 @@ it('can fetch release notes for a composer package', function () {
     expect($data['count'])->toBeGreaterThan(0);
 })->group('mcp')->skipOnWindows();
 
+it('can fetch release notes for a pnpm package', function () {
+    $response = $this->mcp->callTool('get_release_notes', [
+        'package' => 'react',
+        'from_version' => '18.2.0',
+        'to_version' => '18.3.0',
+        'package_manager' => 'pnpm',
+    ]);
+
+    expect($response)
+        ->toHaveKey('jsonrpc', '2.0')
+        ->toHaveKey('result');
+
+    $result = $response['result'];
+    $content = $result['content'][0];
+    $data = json_decode($content['text'], true);
+
+    expect($data)
+        ->toHaveKey('package', 'react')
+        ->toHaveKey('repository')
+        ->toHaveKey('from_version', '18.2.0')
+        ->toHaveKey('to_version', '18.3.0')
+        ->toHaveKey('releases');
+})->group('mcp')->skipOnWindows();
+
 it('can fetch release notes for an npm package', function () {
     $response = $this->mcp->callTool('get_release_notes', [
         'package' => 'react',

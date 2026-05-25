@@ -192,7 +192,7 @@ class AuditCommand extends Command
             $parsedTypes = [];
 
             foreach ($types as $typeString) {
-                $type = $this->parsePackageManagerType($typeString);
+                $type = PackageManagerType::fromString($typeString);
                 if ($type === null) {
                     $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
@@ -208,7 +208,7 @@ class AuditCommand extends Command
         $excludeTypesArray = [];
 
         foreach ($excludeTypeStrings as $typeString) {
-            $type = $this->parsePackageManagerType($typeString);
+            $type = PackageManagerType::fromString($typeString);
             if ($type === null) {
                 $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
@@ -225,15 +225,5 @@ class AuditCommand extends Command
         }
 
         return $kept;
-    }
-
-    private function parsePackageManagerType(string $typeString): ?PackageManagerType
-    {
-        return match (strtolower($typeString)) {
-            'composer' => PackageManagerType::COMPOSER,
-            'npmjs', 'npm' => PackageManagerType::NPM,
-            'pnpm' => PackageManagerType::PNPM,
-            default => null,
-        };
     }
 }

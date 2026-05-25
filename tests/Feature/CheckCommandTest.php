@@ -196,6 +196,27 @@ it('works with npm packages', function () {
     expect($process->getOutput())->toBe('true'.PHP_EOL);
 });
 
+it('works with pnpm packages', function () {
+    // Initial pnpm-lock.yaml
+    $initialPnpmLock = generatePnpmLock(['lodash' => '4.17.15']);
+
+    file_put_contents($this->tempDir.'/pnpm-lock.yaml', $initialPnpmLock);
+    runCommand('git add pnpm-lock.yaml');
+    runCommand('git commit -m "Initial pnpm-lock.yaml"');
+
+    // Update lodash
+    $updatedPnpmLock = generatePnpmLock(['lodash' => '4.17.21']);
+
+    file_put_contents($this->tempDir.'/pnpm-lock.yaml', $updatedPnpmLock);
+    runCommand('git add pnpm-lock.yaml');
+    runCommand('git commit -m "Update lodash"');
+
+    // Test checking pnpm package update
+    $process = runWhatsDiff(['check', 'lodash', '--is-updated'], $this->tempDir);
+    expect($process->getExitCode())->toBe(Command::SUCCESS);
+    expect($process->getOutput())->toBe('true'.PHP_EOL);
+});
+
 it('returns error code 2 when git repository is not found', function () {
 
     // Remove the .git directory to simulate a non-git repository

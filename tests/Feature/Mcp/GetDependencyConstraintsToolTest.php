@@ -42,6 +42,33 @@ it('can get dependency constraints for a composer package version', function () 
     expect($data['dependencies']['require'])->toBeArray();
 })->group('mcp')->skipOnWindows();
 
+it('can get dependency constraints for a pnpm package version', function () {
+    $response = $this->mcp->callTool('get_dependency_constraints', [
+        'package' => 'react',
+        'version' => '18.2.0',
+        'package_manager' => 'pnpm',
+    ]);
+
+    expect($response)
+        ->toHaveKey('jsonrpc', '2.0')
+        ->toHaveKey('result');
+
+    $result = $response['result'];
+    $content = $result['content'][0];
+    $data = json_decode($content['text'], true);
+
+    expect($data)
+        ->toHaveKey('package', 'react')
+        ->toHaveKey('version', '18.2.0')
+        ->toHaveKey('package_manager', 'pnpm')
+        ->toHaveKey('dependencies');
+
+    expect($data['dependencies'])
+        ->toHaveKey('dependencies')
+        ->toHaveKey('devDependencies')
+        ->toHaveKey('peerDependencies');
+})->group('mcp')->skipOnWindows();
+
 it('can get dependency constraints for an npm package version', function () {
     $response = $this->mcp->callTool('get_dependency_constraints', [
         'package' => 'react',

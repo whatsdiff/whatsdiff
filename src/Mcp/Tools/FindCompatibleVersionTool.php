@@ -30,15 +30,11 @@ class FindCompatibleVersionTool
     public function findCompatibleVersions(string $package, string $dependency_package, string $dependency_constraint, string $package_manager = 'composer'): array
     {
         // Validate package manager
-        $type = match (strtolower($package_manager)) {
-            'composer' => PackageManagerType::COMPOSER,
-            'npm' => PackageManagerType::NPM,
-            default => null,
-        };
+        $type = PackageManagerType::fromString($package_manager);
 
         if ($type === null) {
             return [
-                'error' => 'Invalid package manager. Must be "composer" or "npm"',
+                'error' => 'Invalid package manager. Must be "composer", "npm", or "pnpm".',
                 'package' => $package,
                 'dependency_package' => $dependency_package,
                 'dependency_constraint' => $dependency_constraint,
@@ -62,6 +58,7 @@ class FindCompatibleVersionTool
             $packageData = match ($type) {
                 PackageManagerType::COMPOSER => $this->packagistRegistry->getPackageMetadata($package),
                 PackageManagerType::NPM => $this->npmRegistry->getPackageMetadata($package),
+                PackageManagerType::PNPM => $this->npmRegistry->getPackageMetadata($package),
             };
         } catch (PackageInformationsException $e) {
             return [
@@ -76,6 +73,7 @@ class FindCompatibleVersionTool
         $versions = match ($type) {
             PackageManagerType::COMPOSER => $packageData['packages'][$package] ?? [],
             PackageManagerType::NPM => $packageData['versions'] ?? [],
+            PackageManagerType::PNPM => $packageData['versions'] ?? [],
         };
 
         $majorVersions = [];
@@ -93,6 +91,7 @@ class FindCompatibleVersionTool
             $requires = match ($type) {
                 PackageManagerType::COMPOSER => $versionData['require'] ?? [],
                 PackageManagerType::NPM => $versionData['dependencies'] ?? [],
+                PackageManagerType::PNPM => $versionData['dependencies'] ?? [],
             };
 
             if (! isset($requires[$dependency_package])) {

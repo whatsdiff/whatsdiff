@@ -216,3 +216,25 @@ it('compares npm dependencies between two commits from a subdirectory', function
     expect($process->getOutput())->toContain('18.0.0');
     expect($process->getOutput())->toContain('18.3.0');
 });
+
+it('compares pnpm dependencies between two commits from a subdirectory', function () {
+    $subDir = $this->tempDir.'/frontend';
+    mkdir($subDir, 0755, true);
+
+    file_put_contents($subDir.'/pnpm-lock.yaml', generatePnpmLock(['react' => '18.0.0']));
+    runCommand('git add frontend/pnpm-lock.yaml', $this->tempDir);
+    runCommand('git commit -m "Initial frontend/pnpm-lock.yaml"', $this->tempDir);
+    $firstCommit = trim(runCommand('git rev-parse HEAD', $this->tempDir));
+
+    file_put_contents($subDir.'/pnpm-lock.yaml', generatePnpmLock(['react' => '18.3.0']));
+    runCommand('git add frontend/pnpm-lock.yaml', $this->tempDir);
+    runCommand('git commit -m "Update react"', $this->tempDir);
+    $secondCommit = trim(runCommand('git rev-parse HEAD', $this->tempDir));
+
+    $process = runWhatsDiff(['between', $firstCommit, $secondCommit], $subDir);
+
+    expect($process->getExitCode())->toBe(Command::SUCCESS);
+    expect($process->getOutput())->toContain('react');
+    expect($process->getOutput())->toContain('18.0.0');
+    expect($process->getOutput())->toContain('18.3.0');
+});
