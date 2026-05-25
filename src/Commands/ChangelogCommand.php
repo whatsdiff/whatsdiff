@@ -237,7 +237,7 @@ class ChangelogCommand extends Command
     {
         // Strategy 1: If type is specified, validate and return
         if ($typeOption !== null) {
-            return $this->parsePackageManagerType($typeOption);
+            return PackageManagerType::fromString($typeOption);
         }
 
         // Strategy 2: Pattern matching on package name format
