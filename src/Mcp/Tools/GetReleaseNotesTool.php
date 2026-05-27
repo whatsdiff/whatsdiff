@@ -25,15 +25,11 @@ class GetReleaseNotesTool
     public function getReleaseNotes(string $package, string $from_version, string $to_version, string $package_manager = 'composer'): array
     {
         // Validate package manager
-        $type = match (strtolower($package_manager)) {
-            'composer' => PackageManagerType::COMPOSER,
-            'npm' => PackageManagerType::NPM,
-            default => null,
-        };
+        $type = PackageManagerType::fromString($package_manager);
 
         if ($type === null) {
             return [
-                'error' => 'Invalid package manager. Must be "composer" or "npm"',
+                'error' => 'Invalid package manager. Must be "composer", "npm", or "pnpm".',
             ];
         }
 
@@ -41,7 +37,7 @@ class GetReleaseNotesTool
         try {
             $repositoryUrl = match ($type) {
                 PackageManagerType::COMPOSER => $this->packagistRegistry->getRepositoryUrl($package),
-                PackageManagerType::NPM => $this->npmRegistry->getRepositoryUrl($package),
+                PackageManagerType::NPM, PackageManagerType::PNPM => $this->npmRegistry->getRepositoryUrl($package),
             };
 
             if ($repositoryUrl === null) {

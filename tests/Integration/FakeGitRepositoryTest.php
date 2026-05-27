@@ -317,6 +317,74 @@ it('handles both composer and npm changes across multiple commits', function () 
     expect($npmDep)->not->toBeNull();
 });
 
+it('handles pnpm only changes with add, update, downgrade, and remove', function () {
+    // Initial pnpm-lock.yaml
+    $initialPnpmLock = generatePnpmLock([
+        'lodash' => '4.17.15',
+        'axios' => '0.21.1',
+        'moment' => '2.29.1',
+    ]);
+
+    file_put_contents($this->tempDir.'/pnpm-lock.yaml', $initialPnpmLock);
+    runCommand('git add pnpm-lock.yaml');
+    runCommand('git commit -m "Initial pnpm-lock.yaml"');
+
+    // Update pnpm-lock.yaml: add new package, update existing, downgrade one, remove one
+    $updatedPnpmLock = generatePnpmLock([
+        'lodash' => '4.17.21', // Updated
+        'axios' => '0.20.0',   // Downgraded
+        'react' => '18.2.0',   // Added
+        // moment removed
+    ]);
+
+    file_put_contents($this->tempDir.'/pnpm-lock.yaml', $updatedPnpmLock);
+    runCommand('git add pnpm-lock.yaml');
+    runCommand('git commit -m "Update pnpm dependencies"');
+
+    // Run whatsdiff with JSON output
+    $process = runWhatsDiff(['--format=json']);
+    $output = $process->getOutput();
+
+    $result = json_decode($output, true);
+
+    if ($result === null) {
+        throw new \Exception('JSON decode failed. Raw output: '.$output);
+    }
+
+    expect($result)->toBeArray();
+    expect($result)->toHaveKey('diffs');
+    expect($result['diffs'])->toHaveCount(1);
+    expect($result['diffs'][0]['type'])->toBe('pnpm');
+
+    $changes = collect($result['diffs'][0]['changes']);
+
+    // Check for added package
+    $addedPackage = $changes->firstWhere('status', 'added');
+    expect($addedPackage)->not->toBeNull();
+    expect($addedPackage['name'])->toBe('react');
+    expect($addedPackage['to'])->toBe('18.2.0');
+
+    // Check for updated package
+    $updatedPackage = $changes->firstWhere('name', 'lodash');
+    expect($updatedPackage)->not->toBeNull();
+    expect($updatedPackage['status'])->toBe('updated');
+    expect($updatedPackage['from'])->toBe('4.17.15');
+    expect($updatedPackage['to'])->toBe('4.17.21');
+
+    // Check for downgraded package
+    $downgradedPackage = $changes->firstWhere('name', 'axios');
+    expect($downgradedPackage)->not->toBeNull();
+    expect($downgradedPackage['status'])->toBe('downgraded');
+    expect($downgradedPackage['from'])->toBe('0.21.1');
+    expect($downgradedPackage['to'])->toBe('0.20.0');
+
+    // Check for removed package
+    $removedPackage = $changes->firstWhere('status', 'removed');
+    expect($removedPackage)->not->toBeNull();
+    expect($removedPackage['name'])->toBe('moment');
+    expect($removedPackage['from'])->toBe('2.29.1');
+});
+
 it('shows no changes when there are several commits without dependency updates', function () {
     // Initial state
     $initialComposerLock = [

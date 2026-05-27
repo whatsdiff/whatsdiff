@@ -310,6 +310,32 @@ it('caches resolved severities per CVE within a single run', function () {
     }
 });
 
+it('reports installed pnpm packages affected by an advisory', function () {
+    $pnpmLock = generatePnpmLock(['lodash' => '4.17.20']);
+    file_put_contents($this->workingDir.'/pnpm-lock.yaml', $pnpmLock);
+
+    $advisory = new SecurityAdvisory(
+        advisoryId: 'GHSA-pnpm-1',
+        cve: 'CVE-2022-0001',
+        title: 'Prototype pollution in lodash',
+        link: 'https://example.com',
+        affectedVersions: '>=4.0.0,<4.17.21',
+        severity: Severity::High,
+    );
+
+    $calculator = buildAuditCalculator(['lodash' => [$advisory]]);
+    $result = $calculator
+        ->for(PackageManagerType::PNPM)
+        ->withFixSuggestions(false)
+        ->run();
+
+    expect($result->hasVulnerabilities())->toBeTrue();
+    expect($result->audits)->toHaveCount(1);
+    $audit = $result->audits->first();
+    expect($audit->name)->toBe('lodash');
+    expect($audit->maxSeverity())->toBe(Severity::High);
+});
+
 it('sorts audits by severity descending', function () {
     $composerLock = generateComposerLock([
         'pkg/low' => '1.0.0',

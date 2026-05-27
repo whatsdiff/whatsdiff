@@ -7,9 +7,6 @@ namespace Whatsdiff\Services;
 use Composer\Semver\Semver;
 use Illuminate\Support\Collection;
 use Whatsdiff\Analyzers\BaseAnalyzer;
-use Whatsdiff\Analyzers\LockFile\ComposerLockFile;
-use Whatsdiff\Analyzers\LockFile\LockFileInterface;
-use Whatsdiff\Analyzers\LockFile\NpmPackageLockFile;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\SecurityAdvisories\SeverityResolver;
 use Whatsdiff\Data\AuditResult;
@@ -107,7 +104,7 @@ class AuditCalculator
                 continue;
             }
 
-            $parser = $this->createParser($type, $content);
+            $parser = $type->createLockFileParser($content);
             $installedPackages = $parser->getAllVersions();
 
             if (empty($installedPackages)) {
@@ -158,12 +155,12 @@ class AuditCalculator
                 continue;
             }
 
-            $toParser = $this->createParser($type, $toContent);
+            $toParser = $type->createLockFileParser($toContent);
             $toVersions = $toParser->getAllVersions();
 
             $fromVersions = [];
             if ($fromContent !== null) {
-                $fromParser = $this->createParser($type, $fromContent);
+                $fromParser = $type->createLockFileParser($fromContent);
                 $fromVersions = $fromParser->getAllVersions();
             }
 
@@ -254,14 +251,6 @@ class AuditCalculator
         $content = file_get_contents($filename);
 
         return $content === false ? null : $content;
-    }
-
-    private function createParser(PackageManagerType $type, string $content): LockFileInterface
-    {
-        return match ($type) {
-            PackageManagerType::COMPOSER => new ComposerLockFile($content),
-            PackageManagerType::NPM => new NpmPackageLockFile($content),
-        };
     }
 
     /**

@@ -163,6 +163,34 @@ test('text format handles npm packages correctly', function () {
         ->and($output)->toContain('package-lock.json');
 });
 
+test('text format handles pnpm packages correctly', function () {
+    // Setup git repository with pnpm package changes
+    $initialPnpmLock = generatePnpmLock(['lodash' => '4.17.20']);
+
+    file_put_contents($this->tempDir.'/pnpm-lock.yaml', $initialPnpmLock);
+    runCommand('git add pnpm-lock.yaml', $this->tempDir);
+    runCommand('git commit -m "Initial pnpm-lock.yaml"', $this->tempDir);
+
+    // Update package
+    $updatedPnpmLock = generatePnpmLock(['lodash' => '4.17.21']);
+
+    file_put_contents($this->tempDir.'/pnpm-lock.yaml', $updatedPnpmLock);
+    runCommand('git add pnpm-lock.yaml', $this->tempDir);
+    runCommand('git commit -m "Update lodash"', $this->tempDir);
+
+    // Test text format with pnpm
+    $process = runWhatsDiff([], $this->tempDir);
+
+    expect($process->getExitCode())->toBe(Command::SUCCESS);
+    $output = $process->getOutput();
+
+    // Should contain pnpm package information
+    expect($output)->toContain('lodash')
+        ->and($output)->toContain('4.17.20')
+        ->and($output)->toContain('4.17.21')
+        ->and($output)->toContain('pnpm-lock.yaml');
+});
+
 test('all formats handle empty diff correctly', function () {
     // Setup git repository without any dependency file changes
     file_put_contents($this->tempDir.'/README.md', '# Test Project');

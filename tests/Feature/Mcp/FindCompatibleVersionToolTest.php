@@ -41,6 +41,29 @@ it('can find compatible versions for a composer package', function () {
     expect($data['count'])->toBeGreaterThan(0);
 })->group('mcp')->skipOnWindows();
 
+it('can find compatible versions for a pnpm package', function () {
+    $response = $this->mcp->callTool('find_compatible_versions', [
+        'package' => '@types/node',
+        'dependency_package' => 'typescript',
+        'dependency_constraint' => '^5.0.0',
+        'package_manager' => 'pnpm',
+    ]);
+
+    expect($response)
+        ->toHaveKey('jsonrpc', '2.0')
+        ->toHaveKey('result');
+
+    $result = $response['result'];
+    $content = $result['content'][0];
+    $data = json_decode($content['text'], true);
+
+    expect($data)
+        ->toHaveKey('package', '@types/node')
+        ->toHaveKey('dependency_package', 'typescript')
+        ->toHaveKey('package_manager', 'pnpm')
+        ->toHaveKey('compatible_versions');
+})->group('mcp')->skipOnWindows();
+
 it('can find compatible versions for an npm package', function () {
     $response = $this->mcp->callTool('find_compatible_versions', [
         'package' => '@types/node',

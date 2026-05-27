@@ -41,7 +41,7 @@ class AnalyseCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setHelp('This command analyzes changes in your project dependencies (composer.lock and package-lock.json). You can compare dependency changes between any two commits using --from and --to options.')
+            ->setHelp('This command analyzes changes in your project dependencies (composer.lock, package-lock.json, and pnpm-lock.yaml). You can compare dependency changes between any two commits using --from and --to options.')
             ->addIgnoreLastOption()
             ->addFromOption('Commit hash, branch, or tag to compare from (older version)')
             ->addToOption('Commit hash, branch, or tag to compare to (newer version, defaults to HEAD)')
@@ -209,9 +209,9 @@ class AnalyseCommand extends Command
             $parsedTypes = [];
 
             foreach ($types as $typeString) {
-                $type = $this->parsePackageManagerType($typeString);
+                $type = PackageManagerType::fromString($typeString);
                 if ($type === null) {
-                    $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+                    $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
                     return null;
                 }
@@ -226,9 +226,9 @@ class AnalyseCommand extends Command
         $excludeTypesArray = [];
 
         foreach ($excludeTypeStrings as $typeString) {
-            $type = $this->parsePackageManagerType($typeString);
+            $type = PackageManagerType::fromString($typeString);
             if ($type === null) {
-                $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+                $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
                 return null;
             }
@@ -237,14 +237,5 @@ class AnalyseCommand extends Command
 
         // Return all types except the excluded ones
         return array_filter($allTypes, fn (PackageManagerType $type) => ! in_array($type, $excludeTypesArray));
-    }
-
-    private function parsePackageManagerType(string $typeString): ?PackageManagerType
-    {
-        return match (strtolower($typeString)) {
-            'composer' => PackageManagerType::COMPOSER,
-            'npmjs', 'npm' => PackageManagerType::NPM,
-            default => null,
-        };
     }
 }

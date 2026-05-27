@@ -30,15 +30,11 @@ class GetAvailableUpgradesTool
     public function getAvailableUpgrades(string $package, string $current_version, string $package_manager = 'composer', bool $include_prerelease = false): array
     {
         // Validate package manager
-        $type = match (strtolower($package_manager)) {
-            'composer' => PackageManagerType::COMPOSER,
-            'npm' => PackageManagerType::NPM,
-            default => null,
-        };
+        $type = PackageManagerType::fromString($package_manager);
 
         if ($type === null) {
             return [
-                'error' => 'Invalid package manager. Must be "composer" or "npm"',
+                'error' => 'Invalid package manager. Must be "composer", "npm", or "pnpm".',
                 'package' => $package,
                 'current_version' => $current_version,
                 'available_upgrades' => null,
@@ -77,7 +73,7 @@ class GetAvailableUpgradesTool
         try {
             $packageData = match ($type) {
                 PackageManagerType::COMPOSER => $this->packagistRegistry->getPackageMetadata($package),
-                PackageManagerType::NPM => $this->npmRegistry->getPackageMetadata($package),
+                PackageManagerType::NPM, PackageManagerType::PNPM => $this->npmRegistry->getPackageMetadata($package),
             };
         } catch (PackageInformationsException $e) {
             return [
@@ -91,7 +87,7 @@ class GetAvailableUpgradesTool
         // Extract versions based on package manager type
         $versionsData = match ($type) {
             PackageManagerType::COMPOSER => $packageData['packages'][$package] ?? [],
-            PackageManagerType::NPM => $packageData['versions'] ?? [],
+            PackageManagerType::NPM, PackageManagerType::PNPM => $packageData['versions'] ?? [],
         };
 
         // Extract version strings

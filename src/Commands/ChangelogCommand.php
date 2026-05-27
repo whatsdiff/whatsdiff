@@ -10,8 +10,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Whatsdiff\Analyzers\LockFile\ComposerLockFile;
-use Whatsdiff\Analyzers\LockFile\NpmPackageLockFile;
 use Whatsdiff\Analyzers\PackageManagerType;
 use Whatsdiff\Analyzers\Registries\NpmRegistry;
 use Whatsdiff\Analyzers\Registries\PackagistRegistry;
@@ -73,7 +71,7 @@ class ChangelogCommand extends Command
                 'type',
                 't',
                 InputOption::VALUE_REQUIRED,
-                'Package manager type (composer or npm)'
+                'Package manager type (composer, npm, or pnpm)'
             )
             ->addFormatOption($this->agentEnvironment->defaultFormat())
             ->addOption(
@@ -163,7 +161,7 @@ class ChangelogCommand extends Command
             // Auto-detect or validate package manager type
             $packageManagerType = $this->detectPackageManager($package, $type);
             if ($packageManagerType === null) {
-                $output->writeln("<error>Package '{$package}' not found in lock files. Try specifying --type=(composer|npm)</error>");
+                $output->writeln("<error>Package '{$package}' not found in lock files. Try specifying --type=(composer|npm|pnpm)</error>");
 
                 return Command::FAILURE;
             }
@@ -231,22 +229,30 @@ class ChangelogCommand extends Command
      *
      * Strategy order:
      * 1. Use explicit --type option if provided
-     * 2. Pattern matching on package name format
-     * 3. Probe registries to see which has the package
-     * 4. Check lock files for the package
+     * 2. Check lock files for the package
+     * 3. Pattern matching on package name format
+     * 4. Probe registries to see which has the package
      */
     private function detectPackageManager(string $package, ?string $typeOption): ?PackageManagerType
     {
         // Strategy 1: If type is specified, validate and return
         if ($typeOption !== null) {
-            return match (strtolower($typeOption)) {
-                'composer' => PackageManagerType::COMPOSER,
-                'npm', 'npmjs' => PackageManagerType::NPM,
-                default => null,
-            };
+            return PackageManagerType::fromString($typeOption);
         }
 
-        // Strategy 2: Pattern matching on package name format
+        // Strategy 2: Check all known lock files
+        foreach (PackageManagerType::cases() as $type) {
+            try {
+                $content = $this->gitRepository->getFileContentAtCommit($type->getLockFileName(), 'HEAD');
+                if (! empty($content) && isset($type->createLockFileParser($content)->getAllVersions()[$package])) {
+                    return $type;
+                }
+            } catch (\Exception $e) {
+                // lock file not found or invalid — try next
+            }
+        }
+
+        // Strategy 3: Pattern matching on package name format
         // Composer packages typically use vendor/package format (contains /)
         // NPM packages are usually single words or @scope/package
         $detectedType = $this->detectByPackageNamePattern($package);
@@ -257,39 +263,10 @@ class ChangelogCommand extends Command
             }
         }
 
-        // Strategy 3: Probe both registries to see which has the package
+        // Strategy 4: Probe both registries to see which has the package
         $detectedType = $this->detectByRegistryProbe($package);
         if ($detectedType !== null) {
             return $detectedType;
-        }
-
-        // Strategy 4: Check lock files
-        // Check composer.lock
-        try {
-            $composerLockContent = $this->gitRepository->getFileContentAtCommit('composer.lock', 'HEAD');
-            if (! empty($composerLockContent)) {
-                $lockFile = new ComposerLockFile($composerLockContent);
-                $versions = $lockFile->getAllVersions();
-                if (isset($versions[$package])) {
-                    return PackageManagerType::COMPOSER;
-                }
-            }
-        } catch (\Exception $e) {
-            // composer.lock not found or invalid
-        }
-
-        // Check package-lock.json
-        try {
-            $npmLockContent = $this->gitRepository->getFileContentAtCommit('package-lock.json', 'HEAD');
-            if (! empty($npmLockContent)) {
-                $lockFile = new NpmPackageLockFile($npmLockContent);
-                $versions = $lockFile->getAllVersions();
-                if (isset($versions[$package])) {
-                    return PackageManagerType::NPM;
-                }
-            }
-        } catch (\Exception $e) {
-            // package-lock.json not found or invalid
         }
 
         return null;
@@ -520,9 +497,7 @@ class ChangelogCommand extends Command
             return null;
         }
 
-        $lockFile = $packageManagerType === PackageManagerType::COMPOSER
-            ? new ComposerLockFile($lockContent)
-            : new NpmPackageLockFile($lockContent);
+        $lockFile = $packageManagerType->createLockFileParser($lockContent);
 
         $versions = $lockFile->getAllVersions();
 
@@ -745,9 +720,9 @@ class ChangelogCommand extends Command
             $parsed = [];
 
             foreach ($types as $typeString) {
-                $type = $this->parsePackageManagerType($typeString);
+                $type = PackageManagerType::fromString($typeString);
                 if ($type === null) {
-                    $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+                    $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
                     return null;
                 }
@@ -761,9 +736,9 @@ class ChangelogCommand extends Command
         $excluded = [];
 
         foreach ($excludeStrings as $typeString) {
-            $type = $this->parsePackageManagerType($typeString);
+            $type = PackageManagerType::fromString($typeString);
             if ($type === null) {
-                $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs</error>");
+                $output->writeln("<error>Invalid package manager type: '{$typeString}'. Valid types: composer, npmjs, pnpm</error>");
 
                 return null;
             }
@@ -771,14 +746,5 @@ class ChangelogCommand extends Command
         }
 
         return array_filter($allTypes, fn (PackageManagerType $type) => ! in_array($type, $excluded, true));
-    }
-
-    private function parsePackageManagerType(string $typeString): ?PackageManagerType
-    {
-        return match (strtolower($typeString)) {
-            'composer' => PackageManagerType::COMPOSER,
-            'npmjs', 'npm' => PackageManagerType::NPM,
-            default => null,
-        };
     }
 }

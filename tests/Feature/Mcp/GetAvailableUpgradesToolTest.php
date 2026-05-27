@@ -57,6 +57,28 @@ it('can get available upgrades for a composer package', function () {
     }
 })->group('mcp')->skipOnWindows();
 
+it('can get available upgrades for a pnpm package', function () {
+    $response = $this->mcp->callTool('get_available_upgrades', [
+        'package' => 'react',
+        'current_version' => '18.2.0',
+        'package_manager' => 'pnpm',
+    ]);
+
+    expect($response)
+        ->toHaveKey('jsonrpc', '2.0')
+        ->toHaveKey('result');
+
+    $result = $response['result'];
+    $content = $result['content'][0];
+    $data = json_decode($content['text'], true);
+
+    expect($data)
+        ->toHaveKey('package', 'react')
+        ->toHaveKey('package_manager', 'pnpm')
+        ->toHaveKey('current_version', '18.2.0')
+        ->toHaveKey('available_upgrades');
+})->group('mcp')->skipOnWindows();
+
 it('can get available upgrades for an npm package', function () {
     $response = $this->mcp->callTool('get_available_upgrades', [
         'package' => 'react',

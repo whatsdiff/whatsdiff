@@ -125,6 +125,19 @@ describe('PackageChange', function () {
             ->and($patchChange->semver)->toBe(Semver::Patch);
     });
 
+    test('supports pnpm package manager type', function () {
+        $change = PackageChange::updated(
+            name: 'lodash',
+            type: PackageManagerType::PNPM,
+            fromVersion: '4.0.0',
+            toVersion: '4.1.0',
+            semver: Semver::Minor
+        );
+
+        expect($change->type)->toBe(PackageManagerType::PNPM)
+            ->and($change->semver)->toBe(Semver::Minor);
+    });
+
     test('supports NPM package manager type', function () {
         $change = PackageChange::updated(
             name: 'lodash',

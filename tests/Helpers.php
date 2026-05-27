@@ -226,3 +226,23 @@ function generatePackageLock(array $packages): string
 
     return json_encode($packageLock, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
+
+/**
+ * Generate a pnpm-lock.yaml file content from a simple package array (pnpm v9 format)
+ *
+ * @param  array<string, string>  $packages  Array of packages with format ['package-name' => 'version']
+ * @return string YAML content for pnpm-lock.yaml
+ */
+function generatePnpmLock(array $packages): string
+{
+    $yaml = "lockfileVersion: '9.0'\n\npackages:\n\n";
+
+    foreach ($packages as $name => $version) {
+        // Scoped packages (e.g. @angular/core) need quoting in YAML
+        $key = str_starts_with($name, '@') ? "'{$name}@{$version}'" : "{$name}@{$version}";
+        $yaml .= "  {$key}:\n";
+        $yaml .= "    resolution: {integrity: sha512-placeholder}\n";
+    }
+
+    return $yaml;
+}

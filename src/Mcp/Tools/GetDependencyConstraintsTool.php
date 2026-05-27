@@ -24,11 +24,7 @@ class GetDependencyConstraintsTool
     public function getDependencyConstraints(string $package, string $version, string $package_manager = 'composer'): array
     {
         // Validate package manager
-        $type = match (strtolower($package_manager)) {
-            'composer' => PackageManagerType::COMPOSER,
-            'npm' => PackageManagerType::NPM,
-            default => null,
-        };
+        $type = PackageManagerType::fromString($package_manager);
 
         if ($type === null) {
             return [
@@ -46,7 +42,7 @@ class GetDependencyConstraintsTool
         try {
             $packageData = match ($type) {
                 PackageManagerType::COMPOSER => $this->packagistRegistry->getPackageMetadata($package),
-                PackageManagerType::NPM => $this->npmRegistry->getPackageMetadata($package),
+                PackageManagerType::NPM, PackageManagerType::PNPM => $this->npmRegistry->getPackageMetadata($package),
             };
         } catch (PackageInformationsException $e) {
             return [
@@ -59,7 +55,7 @@ class GetDependencyConstraintsTool
         // Extract versions based on package manager type
         $versionsData = match ($type) {
             PackageManagerType::COMPOSER => $packageData['packages'][$package] ?? [],
-            PackageManagerType::NPM => $packageData['versions'] ?? [],
+            PackageManagerType::NPM, PackageManagerType::PNPM => $packageData['versions'] ?? [],
         };
 
         // Find the specific version (try both with and without 'v' prefix)

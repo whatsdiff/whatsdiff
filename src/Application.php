@@ -11,6 +11,7 @@ use Symfony\Component\Console\Application as BaseApplication;
 use Whatsdiff\Analyzers\ComposerAnalyzer;
 use Whatsdiff\Analyzers\NpmAnalyzer;
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Analyzers\PnpmAnalyzer;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubChangelogFetcher;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\GithubReleaseFetcher;
 use Whatsdiff\Analyzers\ReleaseNotes\Fetchers\LocalVendorChangelogFetcher;
@@ -79,6 +80,7 @@ class Application extends BaseApplication
             $registry = new AnalyzerRegistry($container);
             $registry->register(PackageManagerType::COMPOSER, ComposerAnalyzer::class);
             $registry->register(PackageManagerType::NPM, NpmAnalyzer::class);
+            $registry->register(PackageManagerType::PNPM, PnpmAnalyzer::class);
 
             return $registry;
         });

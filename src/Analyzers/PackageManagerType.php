@@ -8,12 +8,33 @@ enum PackageManagerType: string
 {
     case COMPOSER = 'composer';
     case NPM = 'npmjs';
+    case PNPM = 'pnpm';
+
+    public static function fromString(string $typeString): ?self
+    {
+        return match (strtolower($typeString)) {
+            'composer' => self::COMPOSER,
+            'npm', 'npmjs' => self::NPM,
+            'pnpm' => self::PNPM,
+            default => null,
+        };
+    }
+
+    public function createLockFileParser(string $content): LockFile\LockFileInterface
+    {
+        return match ($this) {
+            self::COMPOSER => new LockFile\ComposerLockFile($content),
+            self::NPM => new LockFile\NpmPackageLockFile($content),
+            self::PNPM => new LockFile\PnpmLockFile($content),
+        };
+    }
 
     public function getLabel(): string
     {
         return match ($this) {
             self::COMPOSER => 'Composer',
             self::NPM => 'npm',
+            self::PNPM => 'pnpm',
         };
     }
 
@@ -22,6 +43,7 @@ enum PackageManagerType: string
         return match ($this) {
             self::COMPOSER => 'composer.lock',
             self::NPM => 'package-lock.json',
+            self::PNPM => 'pnpm-lock.yaml',
         };
     }
 
@@ -29,7 +51,7 @@ enum PackageManagerType: string
     {
         return match ($this) {
             self::COMPOSER => $package ? "https://repo.packagist.org/p2/{$package}.json" : 'https://repo.packagist.org',
-            self::NPM => $package ? 'https://registry.npmjs.org/'.urlencode($package) : 'https://registry.npmjs.org',
+            self::NPM, self::PNPM => $package ? 'https://registry.npmjs.org/'.urlencode($package) : 'https://registry.npmjs.org',
         };
     }
 
