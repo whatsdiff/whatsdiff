@@ -35,6 +35,16 @@ it('strips peer-dep suffixes from package keys', function () {
     expect($result->get('react-dom'))->toBe(['version' => '18.2.0']);
 });
 
+it('strips multiple consecutive peer-dep groups from package keys', function () {
+    $lockContent = "lockfileVersion: '9.0'\n\npackages:\n\n  'vite@5.4.19(@types/node@22.15.29)(terser@5.40.0)':\n    resolution: {integrity: sha512-abc}\n";
+
+    $parser = new PnpmLockFile($lockContent);
+    $result = $parser->getPackages();
+
+    expect($result)->toHaveCount(1);
+    expect($result->get('vite'))->toBe(['version' => '5.4.19']);
+});
+
 it('deduplicates packages with different peer-dep variants', function () {
     $lockContent = "lockfileVersion: '9.0'\n\npackages:\n\n  'react-dom@18.2.0(react@18.2.0)':\n    resolution: {integrity: sha512-abc}\n  'react-dom@18.2.0(react@17.0.0)':\n    resolution: {integrity: sha512-def}\n";
 

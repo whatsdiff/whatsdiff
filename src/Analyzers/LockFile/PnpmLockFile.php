@@ -146,8 +146,8 @@ class PnpmLockFile implements LockFileInterface
      */
     private function parsePackageKey(string $key): ?array
     {
-        // Strip peer-dep suffix e.g. (react@18.2.0)
-        $key = (string) preg_replace('/\([^)]*\)$/', '', $key);
+        // Strip all trailing peer-dep groups e.g. (@types/node@22.15.29)(terser@5.40.0)
+        $key = (string) preg_replace('/(\([^)]*\))+$/', '', $key);
         $key = trim($key);
 
         if (empty($key)) {
