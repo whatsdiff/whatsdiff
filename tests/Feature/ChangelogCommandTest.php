@@ -21,10 +21,8 @@ it('accepts pnpm as a valid --include type', function () {
     expect($process->getErrorOutput().$process->getOutput())->not->toContain('Invalid package manager type');
 });
 
-it('auto-detects pnpm from the lock file when no --type is given (strategy 4)', function () {
-    // Use a package name with no vendor slash and no @ prefix so Strategy 2 returns null,
-    // and a name that does not exist in any real registry so Strategy 3 also returns null.
-    // Strategy 4 then scans lock files at HEAD and should identify pnpm.
+it('auto-detects pnpm from the lock file when no --type is given (strategy 2)', function () {
+    // Strategy 2 scans lock files at HEAD and should identify pnpm.
     $package = 'whatsdiff-strategy4-lockfile-test-only';
 
     $lockContent = generatePnpmLock([$package => '1.0.0']);

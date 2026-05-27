@@ -229,9 +229,9 @@ class ChangelogCommand extends Command
      *
      * Strategy order:
      * 1. Use explicit --type option if provided
-     * 2. Pattern matching on package name format
-     * 3. Probe registries to see which has the package
-     * 4. Check lock files for the package
+     * 2. Check lock files for the package
+     * 3. Pattern matching on package name format
+     * 4. Probe registries to see which has the package
      */
     private function detectPackageManager(string $package, ?string $typeOption): ?PackageManagerType
     {
@@ -240,7 +240,19 @@ class ChangelogCommand extends Command
             return PackageManagerType::fromString($typeOption);
         }
 
-        // Strategy 2: Pattern matching on package name format
+        // Strategy 2: Check all known lock files
+        foreach (PackageManagerType::cases() as $type) {
+            try {
+                $content = $this->gitRepository->getFileContentAtCommit($type->getLockFileName(), 'HEAD');
+                if (! empty($content) && isset($type->createLockFileParser($content)->getAllVersions()[$package])) {
+                    return $type;
+                }
+            } catch (\Exception $e) {
+                // lock file not found or invalid — try next
+            }
+        }
+
+        // Strategy 3: Pattern matching on package name format
         // Composer packages typically use vendor/package format (contains /)
         // NPM packages are usually single words or @scope/package
         $detectedType = $this->detectByPackageNamePattern($package);
@@ -251,22 +263,10 @@ class ChangelogCommand extends Command
             }
         }
 
-        // Strategy 3: Probe both registries to see which has the package
+        // Strategy 4: Probe both registries to see which has the package
         $detectedType = $this->detectByRegistryProbe($package);
         if ($detectedType !== null) {
             return $detectedType;
-        }
-
-        // Strategy 4: Check all known lock files
-        foreach (PackageManagerType::cases() as $type) {
-            try {
-                $content = $this->gitRepository->getFileContentAtCommit($type->getLockFileName(), 'HEAD');
-                if (! empty($content) && isset($type->createLockFileParser($content)->getAllVersions()[$package])) {
-                    return $type;
-                }
-            } catch (\Exception $e) {
-                // lock file not found or invalid — try next
-            }
         }
 
         return null;
