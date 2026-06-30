@@ -25,6 +25,11 @@ Via [Composer](https://getcomposer.org/) global require command
 composer global require whatsdiff/whatsdiff
 ```
 
+Or run it without installing globally via [cpx](https://github.com/laravel/cpx):
+```bash
+cpx whatsdiff/whatsdiff
+```
+
 or by [downloading binaries](https://github.com/whatsdiff/whatsdiff/releases/latest) on the latest release, currently only these binaries are compiled on the CI:
 - macOS x86_64
 - macOS arm64

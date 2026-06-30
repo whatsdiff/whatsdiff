@@ -55,3 +55,10 @@ jobs:
       - name: Run tests (Unix)
         if: matrix.os != 'windows-latest'
         run: ./vendor/bin/pest --ci --parallel --fail-on-deprecation
+
+      - name: Test cpx execution
+        if: matrix.os == 'ubuntu-latest' && matrix.php == '8.4'
+        run: |
+          composer global require cpx/cpx --no-interaction --prefer-dist
+          export PATH="$COMPOSER_HOME/vendor/bin:$PATH"
+          cpx whatsdiff/whatsdiff:dev-${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}} --version
