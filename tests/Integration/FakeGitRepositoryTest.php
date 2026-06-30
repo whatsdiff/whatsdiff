@@ -81,7 +81,7 @@ it('handles npm only changes with add, update, downgrade, and remove', function 
 
     // Debug output if null
     if ($result === null) {
-        throw new \Exception('JSON decode failed. Raw output: '.$output);
+        throw new Exception('JSON decode failed. Raw output: '.$output);
     }
 
     // Add Windows debugging for empty diffs
@@ -217,7 +217,7 @@ it('handles composer only changes', function () {
 
     // Debug output if null
     if ($result === null) {
-        throw new \Exception('JSON decode failed. Raw output: '.$output);
+        throw new Exception('JSON decode failed. Raw output: '.$output);
     }
 
     expect($result)->toBeArray();
@@ -303,7 +303,7 @@ it('handles both composer and npm changes across multiple commits', function () 
 
     // Debug output if null
     if ($result === null) {
-        throw new \Exception('JSON decode failed. Raw output: '.$output);
+        throw new Exception('JSON decode failed. Raw output: '.$output);
     }
 
     expect($result)->toBeArray();
@@ -348,7 +348,7 @@ it('handles pnpm only changes with add, update, downgrade, and remove', function
     $result = json_decode($output, true);
 
     if ($result === null) {
-        throw new \Exception('JSON decode failed. Raw output: '.$output);
+        throw new Exception('JSON decode failed. Raw output: '.$output);
     }
 
     expect($result)->toBeArray();
@@ -413,7 +413,7 @@ it('shows no changes when there are several commits without dependency updates',
 
     // Debug output if null
     if ($result === null) {
-        throw new \Exception('JSON decode failed. Raw output: '.$output);
+        throw new Exception('JSON decode failed. Raw output: '.$output);
     }
 
     expect($result)->toBeArray();

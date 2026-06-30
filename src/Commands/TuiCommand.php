@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Whatsdiff\Analyzers\Registries\NpmRegistry;
 use Whatsdiff\Analyzers\Registries\PackagistRegistry;
 use Whatsdiff\Analyzers\ReleaseNotes\ReleaseNotesResolver;
+use Whatsdiff\Data\DiffResult;
 use Whatsdiff\Outputs\Tui\TerminalUI;
 use Whatsdiff\Services\CacheService;
 use Whatsdiff\Services\ConfigService;
@@ -153,7 +154,7 @@ class TuiCommand extends Command
         return Command::FAILURE;
     }
 
-    private function convertToTuiFormat(\Whatsdiff\Data\DiffResult $result): array
+    private function convertToTuiFormat(DiffResult $result): array
     {
         $packages = [];
 

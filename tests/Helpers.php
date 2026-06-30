@@ -15,7 +15,7 @@ function initTempDirectory(bool $initGit = true): string
         $process->run();
 
         if (! $process->isSuccessful()) {
-            throw new \RuntimeException("Failed to initialize git repository: {$process->getErrorOutput()}");
+            throw new RuntimeException("Failed to initialize git repository: {$process->getErrorOutput()}");
         }
 
         $process = new SymfonyProcess(['git', 'config', 'user.email', 'test@example.com'], $tempDir);
@@ -103,7 +103,7 @@ function runCommand(string $command, ?string $cwd = null): string
 
             return $process->getOutput();
         }
-        throw new \RuntimeException("Command failed: {$command}\nOutput: {$process->getOutput()}\nError: {$process->getErrorOutput()}");
+        throw new RuntimeException("Command failed: {$command}\nOutput: {$process->getOutput()}\nError: {$process->getErrorOutput()}");
     }
 
     return $process->getOutput();
@@ -119,7 +119,7 @@ function runWhatsDiff(array $args = [], ?string $cwd = null): SymfonyProcess
     $phpBinary = $executableFinder->find('php');
 
     if (! $phpBinary) {
-        throw new \RuntimeException('PHP executable not found');
+        throw new RuntimeException('PHP executable not found');
     }
 
     // Build command array

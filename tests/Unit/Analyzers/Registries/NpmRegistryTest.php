@@ -65,7 +65,7 @@ it('throws exception on http error', function () {
     $this->httpService
         ->shouldReceive('get')
         ->once()
-        ->andThrow(new \Exception('Network error'));
+        ->andThrow(new Exception('Network error'));
 
     $this->registry->getPackageMetadata('lodash');
 })->throws(PackageInformationsException::class, 'Failed to fetch package information for lodash');
@@ -212,7 +212,7 @@ it('returns null when package metadata fetch fails', function () {
     $this->httpService
         ->shouldReceive('get')
         ->once()
-        ->andThrow(new \Exception('Network error'));
+        ->andThrow(new Exception('Network error'));
 
     $result = $this->registry->getRepositoryUrl('lodash');
 
