@@ -1,7 +1,9 @@
 <?php
 
+use Composer\InstalledVersions;
+
 // if Pest 3.0 is installed, use the new `arch` function
-if (version_compare(Composer\InstalledVersions::getVersion('pestphp/pest'), '3.0.0', '>=')) {
+if (version_compare(InstalledVersions::getVersion('pestphp/pest'), '3.0.0', '>=')) {
     // deactivated the preset because what'sdiff logo use a "suspicious character"
     // arch('php')->preset()->php();
 

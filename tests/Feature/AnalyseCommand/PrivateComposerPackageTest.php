@@ -6,6 +6,7 @@ use League\Container\Container;
 use League\Container\ReflectionContainer;
 use Tests\Mocks\MockHttpService;
 use Tests\Mocks\TestServiceProvider;
+use Whatsdiff\Data\DiffResult;
 use Whatsdiff\Services\DiffCalculator;
 
 beforeEach(function () {
@@ -109,7 +110,7 @@ it('handles private composer packages with authentication', function () {
         chdir($originalDir);
     }
 
-    expect($result)->toBeInstanceOf(\Whatsdiff\Data\DiffResult::class);
+    expect($result)->toBeInstanceOf(DiffResult::class);
     expect($result->diffs)->toHaveCount(1);
     expect($result->diffs->first()->type->value)->toBe('composer');
 
@@ -169,7 +170,7 @@ it('handles private packages without authentication gracefully', function () {
         chdir($originalDir);
     }
 
-    expect($result)->toBeInstanceOf(\Whatsdiff\Data\DiffResult::class);
+    expect($result)->toBeInstanceOf(DiffResult::class);
     expect($result->diffs)->toHaveCount(1);
 
     $changes = $result->diffs->first()->changes;
@@ -244,7 +245,7 @@ it('prioritizes local auth.json over global auth.json', function () {
         chdir($originalDir);
     }
 
-    expect($result)->toBeInstanceOf(\Whatsdiff\Data\DiffResult::class);
+    expect($result)->toBeInstanceOf(DiffResult::class);
     expect($result->diffs)->toHaveCount(1);
 
     $changes = $result->diffs->first()->changes;

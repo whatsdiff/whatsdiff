@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Whatsdiff\Analyzers\Registries;
 
+use Whatsdiff\Analyzers\Exceptions\PackageInformationsException;
+use Whatsdiff\Data\SecurityAdvisory;
+
 /**
  * Interface for package registry clients.
  *
@@ -22,7 +25,7 @@ interface RegistryInterface
      * @param  array<string, mixed>  $options  Additional options (e.g., auth credentials, registry URL)
      * @return array<string, mixed> Package metadata
      *
-     * @throws \Whatsdiff\Analyzers\Exceptions\PackageInformationsException If package cannot be fetched
+     * @throws PackageInformationsException If package cannot be fetched
      */
     public function getPackageMetadata(string $package, array $options = []): array;
 
@@ -35,7 +38,7 @@ interface RegistryInterface
      * @param  array<string, mixed>  $options  Additional options (e.g., auth credentials, registry URL)
      * @return array<int, string> Array of version strings
      *
-     * @throws \Whatsdiff\Analyzers\Exceptions\PackageInformationsException If package cannot be fetched
+     * @throws PackageInformationsException If package cannot be fetched
      */
     public function getVersions(string $package, string $from, string $to, array $options = []): array;
 
@@ -53,7 +56,7 @@ interface RegistryInterface
      *
      * @param  array<string>  $packages  Package names
      * @param  array<string, mixed>  $options  Additional options
-     * @return array<string, array<\Whatsdiff\Data\SecurityAdvisory>> Advisories indexed by package name
+     * @return array<string, array<SecurityAdvisory>> Advisories indexed by package name
      */
     public function getSecurityAdvisories(array $packages, array $options = []): array;
 }
