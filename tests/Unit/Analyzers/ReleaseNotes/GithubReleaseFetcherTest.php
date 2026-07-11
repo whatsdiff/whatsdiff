@@ -490,3 +490,23 @@ it('handles pagination when fetching releases', function () {
         ->and($result->getReleases()[0]->tagName)->toBe('v1.11.0')
         ->and($result->getReleases()[1]->tagName)->toBe('v1.10.0');
 });
+
+it('returns null for lookalike hosts and unsafe owner/repo segments without any HTTP call', function (string $url) {
+    // No expectation is primed on the HttpService mock: any request would
+    // fail the test. Hostile repository URLs must never produce a fetch.
+    $result = $this->fetcher->fetch(
+        package: 'evil/package',
+        fromVersion: '1.0.0',
+        toVersion: '1.1.0',
+        repositoryUrl: $url,
+        packageManagerType: PackageManagerType::COMPOSER,
+        localPath: null,
+        includePrerelease: false,
+    );
+
+    expect($result)->toBeNull();
+})->with([
+    'lookalike host' => ['https://github.com.evil.tld/owner/repo'],
+    'query smuggling in repo' => ['https://github.com/owner/repo?ref=x'],
+    'fragment in repo' => ['https://github.com/owner/repo#frag'],
+]);

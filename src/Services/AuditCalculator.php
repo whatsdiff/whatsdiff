@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Whatsdiff\Services;
 
-use Composer\Semver\Semver;
 use Illuminate\Support\Collection;
 use Whatsdiff\Analyzers\BaseAnalyzer;
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Analyzers\SecurityAdvisories\AdvisoryMatcher;
 use Whatsdiff\Analyzers\SecurityAdvisories\SeverityResolver;
 use Whatsdiff\Data\AuditResult;
 use Whatsdiff\Data\PackageAudit;
@@ -177,32 +177,10 @@ class AuditCalculator
                     continue;
                 }
 
-                $affecting = $this->filterAffecting($advisories, $toVersion);
-                if (empty($affecting)) {
-                    continue;
-                }
-
                 $fromVersion = $fromVersions[$package] ?? null;
 
                 // New advisories = those affecting the to-version that didn't affect the from-version
-                $newlyAffecting = [];
-                foreach ($affecting as $advisory) {
-                    if ($fromVersion === null) {
-                        $newlyAffecting[] = $advisory;
-
-                        continue;
-                    }
-
-                    try {
-                        $fromAffected = Semver::satisfies($fromVersion, $advisory->affectedVersions);
-                    } catch (\Exception $e) {
-                        $fromAffected = false;
-                    }
-
-                    if (! $fromAffected) {
-                        $newlyAffecting[] = $advisory;
-                    }
-                }
+                $newlyAffecting = AdvisoryMatcher::introducedBetween($advisories, $fromVersion, $toVersion);
 
                 if (empty($newlyAffecting)) {
                     continue;
@@ -314,23 +292,7 @@ class AuditCalculator
      */
     private function filterAffecting(array $advisories, string $version): array
     {
-        $affecting = [];
-
-        foreach ($advisories as $advisory) {
-            if ($advisory->affectedVersions === '') {
-                continue;
-            }
-
-            try {
-                if (Semver::satisfies($version, $advisory->affectedVersions)) {
-                    $affecting[] = $advisory;
-                }
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
-
-        return $affecting;
+        return AdvisoryMatcher::affecting($advisories, $version);
     }
 
     /**

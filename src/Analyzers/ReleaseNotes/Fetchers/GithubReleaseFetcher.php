@@ -153,7 +153,10 @@ class GithubReleaseFetcher implements ReleaseNotesFetcherInterface
         // git@github.com:owner/repo
         // https://github.com/owner/repo
         // https://github.com/owner/repo.git
-        if (preg_match('#github\.com[:/]([^/]+)/([^/]+?)(?:\.git)?$#', $url, $matches)) {
+        // Owner/repo are restricted to GitHub's identifier charset so a
+        // hostile repository URL can never smuggle path traversal or query
+        // segments into the api.github.com request built from them.
+        if (preg_match('#github\.com[:/]([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?$#', $url, $matches)) {
             return [$matches[1], $matches[2]];
         }
 
