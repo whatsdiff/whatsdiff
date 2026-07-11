@@ -611,3 +611,14 @@ it('does not apply auth when domain does not match auth.json', function () {
         rmdir($tempDir);
     }
 });
+
+it('rethrows advisory fetch failures when throwOnError is set', function () {
+    $httpService = Mockery::mock(HttpService::class);
+    $httpService->shouldReceive('get')->andThrow(new RuntimeException('HTTP request failed with status code: 500'));
+
+    $registry = new PackagistRegistry($httpService);
+
+    expect($registry->getSecurityAdvisories(['guzzlehttp/psr7']))->toBe([]);
+    expect(fn () => $registry->getSecurityAdvisories(['guzzlehttp/psr7'], ['throwOnError' => true]))
+        ->toThrow(RuntimeException::class);
+});

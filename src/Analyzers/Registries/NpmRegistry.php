@@ -125,7 +125,12 @@ class NpmRegistry implements RegistryInterface
      * Uses the GitHub Advisory Database API for npm ecosystem advisories.
      *
      * @param  array<string>  $packages  Package names
-     * @param  array<string, mixed>  $options  Additional options
+     * @param  array<string, mixed>  $options  Additional options. Pass
+     *                                         `throwOnError => true` to rethrow fetch failures
+     *                                         instead of skipping the package — callers that
+     *                                         must distinguish "no advisories" from "the
+     *                                         advisory source is down" (e.g. persisted audits)
+     *                                         rely on it.
      * @return array<string, array<SecurityAdvisory>> Advisories indexed by package name
      */
     public function getSecurityAdvisories(array $packages, array $options = []): array
@@ -138,6 +143,10 @@ class NpmRegistry implements RegistryInterface
             try {
                 $response = $this->httpService->get($url);
             } catch (\Exception $e) {
+                if ($options['throwOnError'] ?? false) {
+                    throw $e;
+                }
+
                 continue;
             }
 
