@@ -241,3 +241,14 @@ it('handles scoped packages correctly', function () {
 
     expect($result)->toBe($packageData);
 });
+
+it('rethrows advisory fetch failures when throwOnError is set', function () {
+    $httpService = Mockery::mock(HttpService::class);
+    $httpService->shouldReceive('get')->andThrow(new RuntimeException('HTTP request failed with status code: 500'));
+
+    $registry = new NpmRegistry($httpService);
+
+    expect($registry->getSecurityAdvisories(['lodash']))->toBe([]);
+    expect(fn () => $registry->getSecurityAdvisories(['lodash'], ['throwOnError' => true]))
+        ->toThrow(RuntimeException::class);
+});
