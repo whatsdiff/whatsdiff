@@ -8,9 +8,10 @@ namespace Whatsdiff\Services;
  * Service for loading GitHub authentication tokens.
  *
  * Loads GitHub OAuth tokens from:
- * 1. Composer's auth.json files (local and global)
+ * 1. An explicit token provided at construction (embedding applications)
  * 2. GITHUB_TOKEN environment variable
- * 3. COMPOSER_AUTH environment variable
+ * 3. Composer's auth.json files (local and global)
+ * 4. COMPOSER_AUTH environment variable
  */
 class GithubAuthService
 {
@@ -19,18 +20,41 @@ class GithubAuthService
     private bool $tokenLoaded = false;
 
     /**
+     * @param  string|null  $token  Explicit token taking priority over every
+     *                              environment-derived source. Applications
+     *                              embedding whatsdiff pass their own token
+     *                              here instead of mutating the environment.
+     */
+    public function __construct(private readonly ?string $token = null) {}
+
+    /**
+     * Named constructor for container definitions: an empty string is
+     * normalized to null so `withToken(config(...))` degrades gracefully
+     * when the config value is unset.
+     */
+    public static function withToken(?string $token): self
+    {
+        return new self($token === '' ? null : $token);
+    }
+
+    /**
      * Get GitHub OAuth token from available sources.
      *
      * Priority order:
-     * 1. GITHUB_TOKEN environment variable
-     * 2. Local auth.json (current directory)
-     * 3. Global auth.json (~/.composer/auth.json)
-     * 4. COMPOSER_AUTH environment variable
+     * 1. Explicit constructor token
+     * 2. GITHUB_TOKEN environment variable
+     * 3. Local auth.json (current directory)
+     * 4. Global auth.json (~/.composer/auth.json)
+     * 5. COMPOSER_AUTH environment variable
      *
      * @return string|null GitHub OAuth token or null if not found
      */
     public function getToken(): ?string
     {
+        if ($this->token !== null && $this->token !== '') {
+            return $this->token;
+        }
+
         if ($this->tokenLoaded) {
             return $this->cachedToken;
         }

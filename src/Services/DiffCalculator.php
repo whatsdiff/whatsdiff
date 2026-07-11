@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Whatsdiff\Services;
 
 use Composer\Semver\Comparator;
-use Composer\Semver\Semver;
 use Illuminate\Support\Collection;
 use Whatsdiff\Analyzers\BaseAnalyzer;
 use Whatsdiff\Analyzers\PackageManagerType;
+use Whatsdiff\Analyzers\SecurityAdvisories\AdvisoryMatcher;
 use Whatsdiff\Data\DependencyDiff;
 use Whatsdiff\Data\DependencyFile;
 use Whatsdiff\Data\DiffResult;
@@ -393,24 +393,7 @@ class DiffCalculator
      */
     private function filterFixedAdvisories(array $advisories, string $from, string $to): array
     {
-        $fixed = [];
-
-        foreach ($advisories as $advisory) {
-            if ($advisory->affectedVersions === '') {
-                continue;
-            }
-
-            try {
-                if (Semver::satisfies($from, $advisory->affectedVersions)
-                    && ! Semver::satisfies($to, $advisory->affectedVersions)) {
-                    $fixed[] = $advisory;
-                }
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
-
-        return $fixed;
+        return AdvisoryMatcher::fixedBetween($advisories, $from, $to);
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Whatsdiff\Services;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
@@ -15,17 +16,23 @@ class HttpService
 {
     private CacheService $cache;
 
-    private Client $client;
+    private ClientInterface $client;
 
     private array $lastResponseHeaders = [];
 
     private GithubAuthService $githubAuth;
 
-    public function __construct(CacheService $cache, GithubAuthService $githubAuth)
+    /**
+     * @param  ClientInterface|null  $client  Injectable HTTP client so embedding
+     *                                        applications and tests can supply
+     *                                        their own (e.g. a MockHandler stack).
+     *                                        Defaults to whatsdiff's tuned client.
+     */
+    public function __construct(CacheService $cache, GithubAuthService $githubAuth, ?ClientInterface $client = null)
     {
         $this->cache = $cache;
         $this->githubAuth = $githubAuth;
-        $this->client = new Client([
+        $this->client = $client ?? new Client([
             'timeout' => 30,
             'connect_timeout' => 10,
             'allow_redirects' => [
@@ -99,7 +106,7 @@ class HttpService
         }
 
         try {
-            $response = $this->client->get($url, $guzzleOptions);
+            $response = $this->client->request('GET', $url, $guzzleOptions);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
