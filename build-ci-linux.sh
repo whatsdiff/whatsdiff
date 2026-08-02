@@ -32,14 +32,23 @@ echo "Building whatsdiff.phar..."
 echo "Building whatsdiff-mcp.phar..."
 ./tools/box.sh compile --config=box-mcp.json
 
-# Fetch or update static-php-cli
-if [ -d "build/static-php-cli" ]; then
+# Fetch static-php-cli at a pinned release.
+#
+# Its default branch is now v3, an unreleased rewrite, so a plain shallow clone
+# silently tracked in-development code. That is what broke the phpmicro sanity
+# check here: micro_zend_bug_test segfaults (exit -1, no output) on Alpine/musl.
+# The last linux build that succeeded (v2.3.0, 2026-03-27) predates the v3
+# switch. 2.8.5 is the latest stable release.
+SPC_VERSION="${SPC_VERSION:-2.8.5}"
+
+if [ -d "build/static-php-cli/.git" ] \
+  && git -C build/static-php-cli fetch --depth 1 origin "+refs/tags/${SPC_VERSION}:refs/tags/${SPC_VERSION}" \
+  && git -C build/static-php-cli checkout -q -f "${SPC_VERSION}"; then
   cd build/static-php-cli/
-#  git reset --hard HEAD
-  git pull
 else
+  rm -rf build/static-php-cli
   cd build/
-  git clone --depth 1 https://github.com/crazywhalecc/static-php-cli.git
+  git clone --depth 1 --branch "${SPC_VERSION}" https://github.com/crazywhalecc/static-php-cli.git
   cd static-php-cli/
 fi
 
