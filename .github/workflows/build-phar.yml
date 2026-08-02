@@ -40,8 +40,13 @@ jobs:
       - name: Setup Composer Platform
         run: composer config platform.php 8.2
 
+      # --no-dev: release artifacts ship production code only. It also sidesteps
+      # Box's exclude-dev-files failing on Windows, which pulled dev packages into
+      # the PHAR (4921 files vs 1856 elsewhere). Safe now that
+      # cweagans/composer-patches is a production dependency, so the chewie patch
+      # is still applied.
       - name: Composer update
-        run: composer update --prefer-dist --no-progress --optimize-autoloader
+        run: composer update --no-dev --prefer-dist --no-progress --optimize-autoloader
 
       - name: Generate PHAR files
         run: composer box

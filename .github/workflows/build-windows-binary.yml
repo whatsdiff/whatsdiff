@@ -52,8 +52,13 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**\\composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      # --no-dev: release artifacts ship production code only. It also sidesteps
+      # Box's exclude-dev-files failing on Windows, which pulled dev packages into
+      # the PHAR (4921 files vs 1856 elsewhere). Safe now that
+      # cweagans/composer-patches is a production dependency, so the chewie patch
+      # is still applied.
       - name: Composer update
-        run: composer update --prefer-dist --no-progress --optimize-autoloader
+        run: composer update --no-dev --prefer-dist --no-progress --optimize-autoloader
 
       - name: Build .phar file
         shell: bash
@@ -78,6 +83,8 @@ jobs:
 
       - name: SPC doctor
         working-directory: build/static-php-cli/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./bin/spc doctor
 
 #      - name: SPC Install UPX
@@ -86,6 +93,8 @@ jobs:
 
       - name: SPC Download
         working-directory: build/static-php-cli/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./bin/spc download --with-php="${{ env.COMPILE_PHP_VERSION }}" --for-extensions="ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib" --prefer-pre-built
 
       - name: SPC Switch PHP version
@@ -94,6 +103,8 @@ jobs:
 
       - name: SPC Build
         working-directory: build/static-php-cli/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./bin/spc build --build-micro "ctype,curl,dom,filter,libxml,mbstring,openssl,phar,simplexml,xml,xmlwriter,zlib"
 
       - name: PHP Micro combine
