@@ -38,7 +38,6 @@
   "require-dev": {
     "pestphp/pest": "^2.0|^3.0|^4.0",
     "laravel/pint": "^1.13",
-    "humbug/box": "^4.3",
     "nunomaduro/collision": "^7.0|^8.0",
     "phpstan/phpstan": "^2.0",
     "spatie/ray": "^1.41",
@@ -84,8 +83,8 @@
       "@phpstan"
     ],
     "box": [
-      "./vendor/bin/box compile --config=box.json",
-      "./vendor/bin/box compile --config=box-mcp.json"
+      "./tools/box.sh compile --config=box.json",
+      "./tools/box.sh compile --config=box-mcp.json"
     ],
     "pint": "./vendor/bin/pint --parallel",
     "phpstan": "./vendor/bin/phpstan analyse",
