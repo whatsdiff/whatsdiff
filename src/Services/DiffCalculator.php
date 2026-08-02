@@ -508,8 +508,9 @@ class DiffCalculator
             );
         }
 
-        // Package was removed
-        if ($infos['from'] !== null && $infos['to'] === null) {
+        // Package was removed. No need to check `to` here: every case where it is
+        // set already returned above, so it is necessarily null at this point.
+        if ($infos['from'] !== null) {
             return PackageChange::removed(
                 name: $package,
                 type: $type,

@@ -27,10 +27,10 @@ mkdir -p build/bin/
 
 # Build both PHAR files using box
 echo "Building whatsdiff.phar..."
-./vendor/bin/box compile --config=box.json
+./tools/box.sh compile --config=box.json
 
 echo "Building whatsdiff-mcp.phar..."
-./vendor/bin/box compile --config=box-mcp.json
+./tools/box.sh compile --config=box-mcp.json
 
 # Fetch or update static-php-cli
 if [ -d "build/static-php-cli" ]; then
