@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.7.2 - 2026-08-02
+
+### What's Changed
+
+* fix(ci): authenticate static-php-cli, unbloat Windows PHARs, PR the changelog by @SRWieZ in https://github.com/whatsdiff/whatsdiff/pull/57
+
+**Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.7.1...v2.7.2
+
 ## v2.3.0 - 2026-03-27
 
 ### New features
