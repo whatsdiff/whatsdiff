@@ -23,7 +23,14 @@
 
 set -euo pipefail
 
-BOX_VERSION="${BOX_VERSION:-4.7.0}"
+# Pinned to 4.6.7 deliberately. Box 4.6.8 introduced a Windows regression where
+# compile dies tearing down its own temp directory:
+#   Failed to remove directory "C:\...\Temp\box\BoxNNNNN":
+#   rmdir(...): Resource temporarily unavailable
+# See https://github.com/box-project/box/issues/1574 (still open). 4.6.7 and
+# 4.7.0 produce byte-identical output on Linux/macOS, so pinning costs nothing.
+# Revisit once 1574 is fixed.
+BOX_VERSION="${BOX_VERSION:-4.6.7}"
 
 if ! command -v cpx >/dev/null 2>&1; then
     echo "cpx not found, installing it globally..."
