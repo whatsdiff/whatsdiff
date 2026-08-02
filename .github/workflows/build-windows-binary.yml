@@ -60,11 +60,21 @@ jobs:
       - name: Composer update
         run: composer update --no-dev --prefer-dist --no-progress --optimize-autoloader
 
+      # Box compiles in %TEMP% and then removes that directory. On Windows the
+      # rmdir fails with "Resource temporarily unavailable" because Defender is
+      # still holding handles on the freshly written files. Excluding the temp
+      # directory from real-time scanning releases them.
+      - name: Exclude build temp from Defender
+        shell: pwsh
+        run: Add-MpPreference -ExclusionPath $env:TEMP -ErrorAction SilentlyContinue
+
+      # --no-parallel keeps Box single-threaded, so fewer concurrent file handles
+      # are open on the temp directory when it is torn down.
       - name: Build .phar file
         shell: bash
         env:
           BOX_REQUIREMENT_CHECKER: 0
-        run: ./tools/box.sh compile --config=box.json --allow-composer-check-failure --composer-bin "$(which composer)"
+        run: ./tools/box.sh compile --config=box.json --no-parallel --allow-composer-check-failure --composer-bin "$(which composer)"
 
       - name: Checkout static-php-cli
         working-directory: build
