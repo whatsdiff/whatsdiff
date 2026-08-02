@@ -13,6 +13,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.7.1...v2.7.2
 
+## v2.7.1 - 2026-08-02
+
+### What's Changed
+
+* fix(ci): unbreak release workflows by taking Box out of the Composer graph by @SRWieZ in https://github.com/whatsdiff/whatsdiff/pull/56
+
+**Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.7.0...v2.7.1
+
+## v2.7.0 - 2026-08-02
+
+### What's Changed
+
+* build(deps): bump the github-actions group with 4 updates by @dependabot[bot] in https://github.com/whatsdiff/whatsdiff/pull/52
+* Embedding seams: explicit GitHub token, injectable HTTP client, AdvisoryMatcher extraction by @SRWieZ in https://github.com/whatsdiff/whatsdiff/pull/53
+* Fix Guzzle Dependabot advisories by @SRWieZ in https://github.com/whatsdiff/whatsdiff/pull/54
+* build(deps): bump the github-actions group with 3 updates by @dependabot[bot] in https://github.com/whatsdiff/whatsdiff/pull/55
+
+**Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.6.0...v2.7.0
+
+## v2.6.0 - 2026-06-30
+
+### What's Changed
+
+* Allow illuminate/collections ^13 (Laravel 13 support) by @SRWieZ in https://github.com/whatsdiff/whatsdiff/pull/50
+* Fix cpx execution by @SRWieZ in https://github.com/whatsdiff/whatsdiff/pull/51
+
+**Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.5.0...v2.6.0
+
+## v2.5.0 - 2026-05-27
+
+### Added
+
+- Add pnpm support to `whatsdiff`, including CLI flows, analyzers, MCP tools, and test coverage in [#49](https://github.com/whatsdiff/whatsdiff/pull/49)
+
+### Fixed
+
+- Fix subdirectory lockfile path handling for the `between` command in [#47](https://github.com/whatsdiff/whatsdiff/pull/47)
+
+### New Contributors
+
+* @jsifuentes made their first contribution in https://github.com/whatsdiff/whatsdiff/pull/47
+
+**Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.4.0...v2.5.0
+
+## v2.4.0 - 2026-05-23
+
+### New features
+
+* feat: add `whatsdiff audit` command by @SRWieZ in [#43](https://github.com/whatsdiff/whatsdiff/pull/43)
+* feat: `whatsdiff changelog` for all updated packages by @SRWieZ in [#44](https://github.com/whatsdiff/whatsdiff/pull/44)
+* feat: default to JSON output when running inside an AI agent by @SRWieZ in [#45](https://github.com/whatsdiff/whatsdiff/pull/45)
+
+### Security & CI
+
+* Harden GitHub Actions workflows against token disclosure by @SRWieZ in [#41](https://github.com/whatsdiff/whatsdiff/pull/41)
+* build(deps): bump the github-actions group with 5 updates by @dependabot in [#42](https://github.com/whatsdiff/whatsdiff/pull/42)
+
+### Fixes
+
+* chore: update dependencies in [`f29f192`](https://github.com/whatsdiff/whatsdiff/commit/f29f192cca35a2aceb5d300c7c612b785b3d3a00)
+* docs: update README with Audit Command details in [`e1e6e71`](https://github.com/whatsdiff/whatsdiff/commit/e1e6e71dca0702e162aa4439061448d5fcfa25c3)
+
+### New Contributors
+
+* @dependabot made their first contribution in [#42](https://github.com/whatsdiff/whatsdiff/pull/42)
+
+**Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.3.0...v2.4.0
+
 ## v2.3.0 - 2026-03-27
 
 ### New features
