@@ -13,6 +13,12 @@
     "bin/whatsdiff",
     "bin/whatsdiff-mcp"
   ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/whatsdiff/chewie"
+    }
+  ],
   "require": {
     "php": "^8.2",
     "ext-dom": "*",
@@ -21,7 +27,7 @@
     "illuminate/collections": "^10.0|^11.0|^12.0|^13.0",
     "composer/semver": "^3.4",
     "saloonphp/saloon": "^4.0",
-    "joetannenbaum/chewie": "0.1.11",
+    "joetannenbaum/chewie": "0.1.12",
     "ext-mbstring": "*",
     "symfony/console": "^7.4|^8.0",
     "symfony/cache": "^7.4|^8.0",
@@ -33,8 +39,7 @@
     "league/container": "^5.1",
     "php-mcp/server": "^2.0",
     "react/promise": "^3.3",
-    "laravel/agent-detector": "^2.0",
-    "cweagans/composer-patches": "^1.7"
+    "laravel/agent-detector": "^2.0"
   },
   "require-dev": {
     "pestphp/pest": "^2.0|^3.0|^4.0",
@@ -46,8 +51,7 @@
   },
   "config": {
     "allow-plugins": {
-      "pestphp/pest-plugin": true,
-      "cweagans/composer-patches": true
+      "pestphp/pest-plugin": true
     }
   },
   "autoload": {
@@ -60,13 +64,6 @@
   "autoload-dev": {
     "psr-4": {
       "Tests\\": "tests/"
-    }
-  },
-  "extra": {
-    "patches": {
-      "joetannenbaum/chewie": {
-        "Fix emoji display width calculation": "patches/chewie-mb-strwidth-fix.patch"
-      }
     }
   },
   "scripts": {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c3be3901037a03e8a8577ea62f2c869b",
+    "content-hash": "46273ca29360587aad1e2f8a3ed34efd",
     "packages": [
         {
             "name": "composer/semver",
@@ -82,54 +82,6 @@
                 }
             ],
             "time": "2025-08-20T19:15:30+00:00"
-        },
-        {
-            "name": "cweagans/composer-patches",
-            "version": "1.7.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cweagans/composer-patches.git",
-                "reference": "e190d4466fe2b103a55467dfa83fc2fecfcaf2db"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/e190d4466fe2b103a55467dfa83fc2fecfcaf2db",
-                "reference": "e190d4466fe2b103a55467dfa83fc2fecfcaf2db",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0 || ^2.0",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "composer/composer": "~1.0 || ~2.0",
-                "phpunit/phpunit": "~4.6"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "cweagans\\Composer\\Patches"
-            },
-            "autoload": {
-                "psr-4": {
-                    "cweagans\\Composer\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Cameron Eagans",
-                    "email": "me@cweagans.net"
-                }
-            ],
-            "description": "Provides a way to patch Composer packages.",
-            "support": {
-                "issues": "https://github.com/cweagans/composer-patches/issues",
-                "source": "https://github.com/cweagans/composer-patches/tree/1.7.3"
-            },
-            "time": "2022-12-20T22:53:13+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -815,16 +767,16 @@
         },
         {
             "name": "joetannenbaum/chewie",
-            "version": "0.1.11",
+            "version": "0.1.12",
             "source": {
                 "type": "git",
-                "url": "https://github.com/joetannenbaum/chewie.git",
-                "reference": "7040f1c157e6756f45f49f4a821303cae3cfe424"
+                "url": "https://github.com/whatsdiff/chewie.git",
+                "reference": "ca76783b936450671c4e6ae53888ee3ee3ec133c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joetannenbaum/chewie/zipball/7040f1c157e6756f45f49f4a821303cae3cfe424",
-                "reference": "7040f1c157e6756f45f49f4a821303cae3cfe424",
+                "url": "https://api.github.com/repos/whatsdiff/chewie/zipball/ca76783b936450671c4e6ae53888ee3ee3ec133c",
+                "reference": "ca76783b936450671c4e6ae53888ee3ee3ec133c",
                 "shasum": ""
             },
             "require": {
@@ -836,19 +788,17 @@
             },
             "type": "library",
             "autoload": {
-                "files": [
-                    "src/helpers.php"
-                ],
                 "psr-4": {
                     "Chewie\\": "src/"
-                }
+                },
+                "files": [
+                    "src/helpers.php"
+                ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "support": {
-                "issues": "https://github.com/joetannenbaum/chewie/issues",
-                "source": "https://github.com/joetannenbaum/chewie/tree/0.1.11"
+                "source": "https://github.com/whatsdiff/chewie/tree/0.1.12"
             },
-            "time": "2024-12-07T01:53:54+00:00"
+            "time": "2026-08-04T12:25:26+00:00"
         },
         {
             "name": "laravel/agent-detector",
