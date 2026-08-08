@@ -59,15 +59,7 @@ jobs:
       # --no-dev: release artifacts ship production code only. It also sidesteps
       # Box's exclude-dev-files failing on Windows, which pulled dev packages into
       # the PHAR (4921 files vs 1856 elsewhere).
-      #
-      # COMPOSER_AUTH: joetannenbaum/chewie resolves through a VCS repository, so
-      # Composer reads the GitHub API to enumerate its tags. Unauthenticated that
-      # is 60 requests/hour shared across all GitHub-hosted runners, and once it
-      # is exhausted Composer prompts for a token and hangs the job. GITHUB_TOKEN
-      # raises the limit to 1000/hour for this repository.
       - name: Composer update
-        env:
-          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
         run: composer update --no-dev --prefer-dist --no-progress --optimize-autoloader
 
       # static-php-cli hits the GitHub API to resolve source tarballs. Without a

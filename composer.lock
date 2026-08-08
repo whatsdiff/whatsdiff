@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "46273ca29360587aad1e2f8a3ed34efd",
+    "content-hash": "a7404ec91e20d03aeed30f823feb6180",
     "packages": [
         {
             "name": "composer/semver",
@@ -764,41 +764,6 @@
                 "source": "https://github.com/laravel/framework"
             },
             "time": "2026-03-30T19:05:19+00:00"
-        },
-        {
-            "name": "joetannenbaum/chewie",
-            "version": "0.1.12",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/whatsdiff/chewie.git",
-                "reference": "ca76783b936450671c4e6ae53888ee3ee3ec133c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/whatsdiff/chewie/zipball/ca76783b936450671c4e6ae53888ee3ee3ec133c",
-                "reference": "ca76783b936450671c4e6ae53888ee3ee3ec133c",
-                "shasum": ""
-            },
-            "require": {
-                "laravel/prompts": "0.x"
-            },
-            "require-dev": {
-                "pestphp/pest": "^2.33",
-                "tightenco/duster": "^2.7"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Chewie\\": "src/"
-                },
-                "files": [
-                    "src/helpers.php"
-                ]
-            },
-            "support": {
-                "source": "https://github.com/whatsdiff/chewie/tree/0.1.12"
-            },
-            "time": "2026-08-04T12:25:26+00:00"
         },
         {
             "name": "laravel/agent-detector",
@@ -4256,6 +4221,43 @@
                 "source": "https://github.com/webmozarts/assert/tree/1.12.1"
             },
             "time": "2025-10-29T15:56:20+00:00"
+        },
+        {
+            "name": "whatsdiff/chewie",
+            "version": "0.1.13",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/whatsdiff/chewie.git",
+                "reference": "935cf5f2dfabec232a5d22404cb29c3463424587"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/whatsdiff/chewie/zipball/935cf5f2dfabec232a5d22404cb29c3463424587",
+                "reference": "935cf5f2dfabec232a5d22404cb29c3463424587",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/prompts": "0.x"
+            },
+            "require-dev": {
+                "pestphp/pest": "^2.33",
+                "tightenco/duster": "^2.7"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Chewie\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "whatsdiff's fork of joetannenbaum/chewie — a PHP TUI framework built on Laravel Prompts",
+            "support": {
+                "source": "https://github.com/whatsdiff/chewie/tree/0.1.13"
+            },
+            "time": "2026-08-08T15:54:02+00:00"
         }
     ],
     "packages-dev": [
