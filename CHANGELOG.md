@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.7.4 - 2026-08-08
+
+Composer installs work again. Since v2.7.3, chewie (our TUI framework) resolved through a VCS repository, which Composer ignores when whatsdiff is itself a dependency — so `composer require whatsdiff/whatsdiff` could not resolve and silently fell back to v2.7.2. The fork is now published on Packagist as [whatsdiff/chewie](https://packagist.org/packages/whatsdiff/chewie) and resolves like any other package. The broken v2.7.3 release has been removed.
+
+This also rolls up the unreleased v2.7.3 changes: chewie is consumed from a maintained fork instead of being patched at install time (dropping cweagans/composer-patches), plus release-pipeline cleanups.
+
+**Full Changelog**: https://github.com/whatsdiff/whatsdiff/compare/v2.7.2...v2.7.4
+
 ## v2.7.2 - 2026-08-02
 
 ### What's Changed
