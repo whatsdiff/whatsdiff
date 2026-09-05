@@ -70,6 +70,13 @@ jobs:
       - name: Composer install
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
+      - name: Cache PHPStan result cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .phpstan-cache
+          key: ${{ runner.os }}-8.4-phpstan-${{ github.run_id }}
+          restore-keys: ${{ runner.os }}-8.4-phpstan-
+
       # error-format=github surfaces findings as inline annotations on the diff.
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --no-progress --error-format=github

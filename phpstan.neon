@@ -1,5 +1,5 @@
 parameters:
-
+    tmpDir: .phpstan-cache
     paths:
         - src/
 

@@ -10,6 +10,7 @@
 *.sublime-*
 
 # Ignore log and cache directories
+/.phpstan-cache
 /logs/
 /cache/
 /tmp
